@@ -29,10 +29,10 @@ namespace SiCKL
         {
             SICKL_ASSERT(type & BUFF::BufferType);
             ReturnErrorIfFalse(type & BUFF::BufferType, SICKL_INVALID_KERNEL_ARG);
-            
+
             return ValidateArg<typename BUFF::InternalType>((const ReturnType_t)(type ^ BUFF::BufferType));
         }
-        
+
         template<typename T>
         sickl_int SetArg(const T& arg)
         {
@@ -64,10 +64,10 @@ namespace SiCKL
         {
             ReturnType_t type = _types[_param_index];
             SICKL_ASSERT(ValidateBufferArg<DeviceBuffer1D<T>>(type) == SICKL_SUCCESS);
-            
+
             ReturnIfError(SetArg(arg.Length));
             ReturnIfError(SetArg(arg._memory_object));
-            
+
             ++_param_index;
             return Run(args...);
         }
@@ -79,11 +79,11 @@ namespace SiCKL
             ReturnType_t type = _types[_param_index];
             // makes ure this arg matches the required type
             SICKL_ASSERT(ValidateBufferArg<DeviceBuffer2D<T>>(type) == SICKL_SUCCESS);
-            
+
             ReturnIfError(SetArg(arg.Width));
             ReturnIfError(SetArg(arg.Height));
             ReturnIfError(SetArg(arg._memory_object));
-            
+
             ++_param_index;
             return Run(args...);
         }
@@ -102,8 +102,8 @@ namespace SiCKL
         cl_kernel _kernel;
 
         // work diemnsions
-        size_t _work_dimensions[3] = {0};
-        size_t _dimension_count;
+        size_t _work_dimensions[3];
+        cl_uint _dimension_count;
 
         friend class Compiler;
     };

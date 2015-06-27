@@ -45,35 +45,35 @@ namespace SiCKL
     void Program::SetWorkDimensions(size_t length)
     {
         SICKL_ASSERT(length > 0);
-        
+
         _work_dimensions[0] = length;
         _work_dimensions[1] = _work_dimensions[2] = 0;
-        
+
         _dimension_count = 1;
     }
-    
+
     void Program::SetWorkDimensions(size_t length, size_t width)
     {
         SICKL_ASSERT(length > 0);
         SICKL_ASSERT(width > 0);
-        
+
         _work_dimensions[0] = length;
         _work_dimensions[1] = width;
         _work_dimensions[2] = 0;
-        
+
         _dimension_count = 2;
     }
-    
+
     void Program::SetWorkDimensions(size_t length, size_t width, size_t height)
     {
         SICKL_ASSERT(length > 0);
         SICKL_ASSERT(width > 0);
         SICKL_ASSERT(height > 0);
-    
+
         _work_dimensions[0] = length;
         _work_dimensions[1] = width;
         _work_dimensions[2] = height;
-        
+
         _dimension_count = 3;
     }
 

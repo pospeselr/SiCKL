@@ -21,7 +21,7 @@ release:TARGET = SiCKL
 # compiler flags
 
 win32 {
-
+    DEFINES += _CRT_SECURE_NO_WARNINGS
 }
 macx {
     QMAKE_MAC_SDK = macosx10.10

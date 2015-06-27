@@ -3,86 +3,90 @@
 /*
  * Some common utilities used throughout SiCKL
  */
- 
+
 namespace SiCKL
 {
+#if (Compiler == MSVC)
+#define count_of(X) _countof(X)
+#else
     template<typename T, size_t N>
     constexpr size_t count_of(T (&)[N])
     {
         return N;
     }
+#endif
 
-	// not threadsafe!
-	// structs extending RefCounted must implement:
-	// void Delete() - destructor
-	template<typename T>
-	class RefCounted
-	{
-	public:
-		RefCounted()
-		{
-			_counter = new int32_t;
-			*_counter = 1;
-		}
+    // not threadsafe!
+    // structs extending RefCounted must implement:
+    // void Delete() - destructor
+    template<typename T>
+    class RefCounted
+    {
+    public:
+        RefCounted()
+        {
+            _counter = new int32_t;
+            *_counter = 1;
+        }
 
-		RefCounted(const RefCounted& right)
-		{
-			this->Assign(right);
-		}
+        RefCounted(const RefCounted& right)
+        {
+            this->Assign(right);
+        }
 
-		~RefCounted()
-		{
-			this->Cleanup();
-		}
+        ~RefCounted()
+        {
+            this->Cleanup();
+        }
 
-		RefCounted& operator=(const RefCounted& right)
-		{
-			SICKL_ASSERT(this != &right);
+        RefCounted& operator=(const RefCounted& right)
+        {
+            SICKL_ASSERT(this != &right);
 
-			this->Cleanup();
-			this->Assign(right);
-			return *this;
-		}
-	protected:
-		// returns memory to safe state to memcpy new data to it
-		void Cleanup()
-		{
+            this->Cleanup();
+            this->Assign(right);
+            return *this;
+        }
+    protected:
+        // returns memory to safe state to memcpy new data to it
+        void Cleanup()
+        {
             (*_counter)--;
-			SICKL_ASSERT(*_counter >= 0);
-			T* ptr = static_cast<T*>(this);
-			SICKL_ASSERT(ptr != nullptr);
-			if(*_counter == 0)
-			{
-				// deletes memory
-				ptr->Delete();
-			//	delete _counter;
-			}
-		}
+            SICKL_ASSERT(*_counter >= 0);
+            T* ptr = static_cast<T*>(this);
+            SICKL_ASSERT(ptr != nullptr);
+            if(*_counter == 0)
+            {
+                // deletes memory
+                ptr->Delete();
+            //	delete _counter;
+            }
+        }
 
-		void Assign(const RefCounted& right)
-		{
-			(*right._counter)++;
-			::memcpy(this, &right, sizeof(T));
-		}
+        void Assign(const RefCounted& right)
+        {
+            (*right._counter)++;
+            ::memcpy(this, &right, sizeof(T));
+        }
     private:
-		mutable int32_t* _counter;
-	};
+        mutable int32_t* _counter;
+    };
 }
 
 // fills out assignment and cleanup method declerations
 #define REF_COUNTED(X) \
 public: \
-	X& operator=(const X& right) \
-	{ \
-		if(this != &right) \
-		{ \
-			SiCKL::RefCounted<X>::operator=(right); \
-		} \
-		return *this; \
-	} \
+    X& operator=(const X& right) \
+    { \
+        if(this != &right) \
+        { \
+            SiCKL::RefCounted<X>::operator=(right); \
+        } \
+        return *this; \
+    } \
 private: \
-	void Delete(); \
-	friend class SiCKL::RefCounted<X>; \
+    void Delete(); \
+    friend class SiCKL::RefCounted<X>; \
 public:
 
 //  error macros

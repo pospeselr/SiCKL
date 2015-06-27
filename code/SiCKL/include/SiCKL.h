@@ -1,10 +1,19 @@
 #pragma once
 
-#ifdef _WIN32
-    #define WINDOWS 1
-#else
-    #define LINUX 1
+enum
+{
+    Unknown,
+    MSVC,
+    Clang,
+#ifdef _MSC_VER
+    Compiler = MSVC
 #endif
+
+#ifdef __clang__
+    Compiler = Clang
+#endif
+
+};
 
 // C
 #include <stdio.h>
@@ -15,10 +24,11 @@
 #include <set>
 #include <vector>
 
-#if WINDOWS
+
+#if (Compiler == MSVC)
     #include <intrin.h>
     #define DEBUGBREAK() __debugbreak()
-#elif LINUX
+#elif (Compiler == Clang)
     #define DEBUGBREAK() __builtin_trap()
 #endif
 

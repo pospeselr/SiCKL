@@ -21,7 +21,6 @@ namespace SiCKL
             , _sid(invalid_symbol)
             , _literal({0,0})
         {
-            
             SICKL_ASSERT(node_type == NodeType::Literal);
             // copy in raw data
             _literal.data = malloc(sizeof(T));
@@ -57,20 +56,20 @@ namespace SiCKL
         static void Print(const ASTNode*, uint32_t indent);
         static void PrintDot(const ASTNode*, uint32_t& id);
     };
-    
+
     template<bool B, class T = void>
     struct enable_if { };
-    
+
     template<class T>
     struct enable_if<true, T> { typedef T type; };
-    
-    // used to determine if a type is an OpenCL primitive (ie, a cl_*)    
+
+    // used to determine if a type is an OpenCL primitive (ie, a cl_*)
     template<typename T>
     struct is_opencl_primitive
     {
         const static bool value = false;
     };
-    
+
     #define IS_OPENCL_PRIMITIVE(T) template<> struct is_opencl_primitive<T> {const static bool value = true;};
     IS_OPENCL_PRIMITIVE(bool)
     IS_OPENCL_PRIMITIVE(cl_int)
@@ -84,7 +83,8 @@ namespace SiCKL
     {
         const static bool value = false;
     };
-    #define IS_DATA_DERIVED(T) template<> struct is_data_derived<struct T> {const static bool value = true;};
+
+    #define IS_DATA_DERIVED(T) struct T; template<> struct is_data_derived<SiCKL::T> {const static bool value = true;};
     IS_DATA_DERIVED(Bool)
     IS_DATA_DERIVED(Int)
     IS_DATA_DERIVED(Int2)
@@ -99,7 +99,7 @@ namespace SiCKL
     IS_DATA_DERIVED(Float3)
     IS_DATA_DERIVED(Float4)
     #undef IS_DATA_DERIVED
-    
+
     template<typename T>
     struct return_type
     {
@@ -113,7 +113,7 @@ namespace SiCKL
     PRIMITIVE_TO_RETURNTYPE(cl_uint, ReturnType::UInt)
     PRIMITIVE_TO_RETURNTYPE(cl_float, ReturnType::Float)
     #undef PRIMITIVE_TO_RETURNTYPE
-    
+
     /// Data Node Creation
 
     template<typename TYPE>
