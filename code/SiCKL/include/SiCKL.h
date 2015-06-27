@@ -1,19 +1,12 @@
 #pragma once
 
-enum
-{
-    Unknown,
-    MSVC,
-    Clang,
 #ifdef _MSC_VER
-    Compiler = MSVC
+#   define Compiler_MSVC
 #endif
 
 #ifdef __clang__
-    Compiler = Clang
+#   define Compiler_Clang
 #endif
-
-};
 
 // C
 #include <stdio.h>
@@ -25,10 +18,11 @@ enum
 #include <vector>
 
 
-#if (Compiler == MSVC)
+#ifdef Compiler_MSVC
     #include <intrin.h>
     #define DEBUGBREAK() __debugbreak()
-#elif (Compiler == Clang)
+#endif
+#ifdef Compiler_Clang
     #define DEBUGBREAK() __builtin_trap()
 #endif
 

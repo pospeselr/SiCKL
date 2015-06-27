@@ -6,8 +6,8 @@
 
 namespace SiCKL
 {
-#if (Compiler == MSVC)
-#define count_of(X) _countof(X)
+#ifdef Compiler_MSVC
+#   define count_of(X) _countof(X)
 #else
     template<typename T, size_t N>
     constexpr size_t count_of(T (&)[N])
