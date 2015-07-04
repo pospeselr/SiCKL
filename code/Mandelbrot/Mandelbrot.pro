@@ -28,6 +28,7 @@ macx {
 }
 unix {
     QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS += -stdlib=libc++
 }
 
 # includes
@@ -51,11 +52,13 @@ release:LIBS += -L$$PWD/../../bin/Release -lSiCKL
 
 win32 {
     LIBS += -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\x64" -lopencl
-} else:macx {
+} 
+macx {
     QMAKE_MAC_SDK = macosx10.10
     LIBS += -framework OpenCL
-} else:unix {
-    # todo
+}
+unix {
+    QMAKE_LFLAGS += -stdlib=libc++
 }
 
 # DEPENDPATH += $$PWD/../SiCKL/include
