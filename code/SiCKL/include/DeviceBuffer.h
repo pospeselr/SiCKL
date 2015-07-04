@@ -25,7 +25,7 @@ namespace SiCKL
         , _memory_object(nullptr)
         { }
         
-        sickl_int Initialize(size_t in_length)
+        sickl_int Initialize(cl_uint in_length)
         {
             return Initialize(in_length, nullptr);
         }
@@ -37,13 +37,13 @@ namespace SiCKL
             return Initialize(in_host_buffer.Length, in_host_buffer._buffer);
         }
         
-        sickl_int Initialize(size_t in_length, const T* data)
+        sickl_int Initialize(cl_uint in_length, const T* data)
         {
             ReturnErrorIfFalse(_memory_object == nullptr, SICKL_ALREADY_INITIALIZED);
             ReturnErrorIfTrue(in_length == 0, SICKL_INVALID_ARG);
             
             cl_int err = CL_SUCCESS;
-            const size_t buffer_size = in_length * sizeof(T);
+            const size_t buffer_size = size_t(in_length) * sizeof(T);
             
             if(data == nullptr)
             {
@@ -56,7 +56,7 @@ namespace SiCKL
             
             if(err == CL_SUCCESS)
             {
-                const_cast<cl_ulong&>(Length) = in_length;
+                const_cast<cl_uint&>(Length) = in_length;
                 const_cast<size_t&>(BufferSize) = buffer_size;
             }
             return err;
@@ -92,7 +92,7 @@ namespace SiCKL
             return GetData(in_host_buffer._buffer);
         }
         
-        const cl_ulong Length;
+        const cl_uint Length;
         const size_t BufferSize;
         
     private:
@@ -123,7 +123,7 @@ namespace SiCKL
         , _memory_object(nullptr)
         { }
         
-        sickl_int Initialize(size_t in_width, size_t in_height)
+        sickl_int Initialize(cl_uint in_width, cl_uint in_height)
         {
             return Initialize(in_width, in_height, nullptr);
         }
@@ -135,13 +135,13 @@ namespace SiCKL
             return Initialize(in_host_buffer.Width, in_host_buffer.Height, in_host_buffer._buffer);
         }
         
-        sickl_int Initialize(size_t in_width, size_t in_height, const T* data)
+        sickl_int Initialize(cl_uint in_width, cl_uint in_height, const T* data)
         {
             ReturnErrorIfFalse(_memory_object == nullptr, SICKL_ALREADY_INITIALIZED);
             ReturnErrorIfTrue(in_width == 0 || in_height == 0, SICKL_INVALID_ARG);
             
             cl_int err = CL_SUCCESS;
-            const size_t element_count = in_width * in_height;
+            const size_t element_count = size_t(in_width) * size_t(in_height);
             const size_t buffer_size = element_count * sizeof(T);
             
             if(data == nullptr)
@@ -155,8 +155,8 @@ namespace SiCKL
                        
             if(err == CL_SUCCESS)
             {
-                const_cast<cl_ulong&>(Width) = in_width;
-                const_cast<cl_ulong&>(Height) = in_height;
+                const_cast<cl_uint&>(Width) = in_width;
+                const_cast<cl_uint&>(Height) = in_height;
                 const_cast<size_t&>(BufferSize) = buffer_size;
                 const_cast<size_t&>(ElementCount) = element_count;
             }
@@ -196,14 +196,14 @@ namespace SiCKL
         
         union
         {
-            const cl_ulong Columns;
-            const cl_ulong Width;        
+            const cl_uint Columns;
+            const cl_uint Width;        
         };
 
         union
         {
-            const cl_ulong Rows;
-            const cl_ulong Height;
+            const cl_uint Rows;
+            const cl_uint Height;
         };
         
         const size_t BufferSize;

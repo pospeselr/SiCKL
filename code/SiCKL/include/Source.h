@@ -165,26 +165,37 @@ namespace SiCKL
 }
 
 // foreach macro for function definitions
-#define FE_1(WORK, X) WORK(X) 
-#define FE_2(WORK, X, ...) WORK(X)FE_1(WORK, __VA_ARGS__)
-#define FE_3(WORK, X, ...) WORK(X)FE_2(WORK, __VA_ARGS__)
-#define FE_4(WORK, X, ...) WORK(X)FE_3(WORK, __VA_ARGS__)
-#define FE_5(WORK, X, ...) WORK(X)FE_4(WORK, __VA_ARGS__)
-#define FE_6(WORK, X, ...) WORK(X)FE_5(WORK, __VA_ARGS__)
-#define FE_7(WORK, X, ...) WORK(X)FE_6(WORK, __VA_ARGS__)
-#define FE_8(WORK, X, ...) WORK(X)FE_7(WORK, __VA_ARGS__)
-#define FE_9(WORK, X, ...) WORK(X)FE_8(WORK, __VA_ARGS__)
-#define FE_10(WORK, X, ...) WORK(X)FE_9(WORK, __VA_ARGS__)
-#define FE_11(WORK, X, ...) WORK(X)FE_10(WORK, __VA_ARGS__)
-#define FE_12(WORK, X, ...) WORK(X)FE_11(WORK, __VA_ARGS__)
-#define FE_13(WORK, X, ...) WORK(X)FE_12(WORK, __VA_ARGS__)
-#define FE_14(WORK, X, ...) WORK(X)FE_13(WORK, __VA_ARGS__)
-#define FE_15(WORK, X, ...) WORK(X)FE_14(WORK, __VA_ARGS__)
-#define FE_16(WORK, X, ...) WORK(X)FE_15(WORK, __VA_ARGS__)
 
-#define GET_MACRO(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,NAME,...) NAME 
-#define FOR_EACH_MACRO(action,...) \
-  GET_MACRO(__VA_ARGS__,FE_16,FE_15,FE_14,FE_13,FE_12,FE_11,FE_10,FE_9,FE_8,FE_7,FE_6,FE_5,FE_4,FE_3,FE_2,FE_1)(action,__VA_ARGS__)
+#define EXPAND(x) x
+#define FOR_EACH_1(what, x, ...) what(x)
+#define FOR_EACH_2(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_1(what,  __VA_ARGS__))
+#define FOR_EACH_3(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_2(what, __VA_ARGS__))
+#define FOR_EACH_4(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_3(what,  __VA_ARGS__))
+#define FOR_EACH_5(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_4(what,  __VA_ARGS__))
+#define FOR_EACH_6(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_5(what,  __VA_ARGS__))
+#define FOR_EACH_7(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_6(what,  __VA_ARGS__))
+#define FOR_EACH_8(what, x, ...)\
+  what(x)\
+  EXPAND(FOR_EACH_7(what,  __VA_ARGS__))
+#define FOR_EACH_NARG(...) FOR_EACH_NARG_(__VA_ARGS__, FOR_EACH_RSEQ_N())
+#define FOR_EACH_NARG_(...) EXPAND(FOR_EACH_ARG_N(__VA_ARGS__))
+#define FOR_EACH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, N, ...) N
+#define FOR_EACH_RSEQ_N() 8, 7, 6, 5, 4, 3, 2, 1, 0
+#define CONCATENATE(x,y) x##y
+#define FOR_EACH_(N, what, ...) EXPAND(CONCATENATE(FOR_EACH_, N)(what, __VA_ARGS__))
+#define FOR_EACH(what, ...) FOR_EACH_(FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
 // macros for defining new constructs (ie something that happens on scope enter, and scope exit)
 #define MAKE_CONSTRUCT_0(CON, NAME) for(CON NAME; !NAME.finished(); NAME.finish())
@@ -214,7 +225,7 @@ namespace SiCKL
 
 #define KernelMain(...)\
     BEGIN_PARAMS\
-        FOR_EACH_MACRO(PARAM_DATA, __VA_ARGS__)\
+        FOR_EACH(PARAM_DATA, __VA_ARGS__)\
     END_PARAMS\
     MAKE_CONSTRUCT_0(kernelmain_construct, __unique_name(__kernelmain_, __LINE__))
 
