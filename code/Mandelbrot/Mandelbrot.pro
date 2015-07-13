@@ -54,7 +54,6 @@ win32 {
     LIBS += -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\x64" -lopencl
 } 
 macx {
-    QMAKE_MAC_SDK = macosx10.10
     LIBS += -framework OpenCL
 }
 unix {

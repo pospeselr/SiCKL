@@ -27,6 +27,8 @@ namespace SiCKL
     template<typename T> struct Buffer1D;
     template<typename T> struct Buffer2D;
 
+    template<typename T> struct Function;
+
     class Source
     {
     public:
@@ -39,6 +41,7 @@ namespace SiCKL
     private:
         static ASTNode* _root;
         static ASTNode* _current_block;
+        static ASTNode* _current_function;
         static std::vector<ASTNode*> _block_stack;
         static symbol_id_t _next_symbol;
 
@@ -67,32 +70,41 @@ namespace SiCKL
         template<typename BASE, typename PARENT>
         friend struct Member;
 
+        template<typename T>
+        friend struct Function;
+        template<typename T>
+        friend struct function_parameter_generator;
+
         template<typename T, typename... Args>
         friend struct construct;
-        friend struct kernelmain_construct;
+        friend struct function_body_construct;
         friend struct if_construct;
         friend struct elseif_construct;
         friend struct else_construct;
         friend struct while_construct;
         friend struct forinrange_construct;
+
+        friend struct return_statement;
     protected:
     
         void initialize();
-        void finalize();
+        void finalize(Function<void>& main);
     
         static symbol_id_t next_symbol();
         static symbol_id_t current_symbol();
 
-        static void start_block(ASTNode* block);
+        static bool start_block(ASTNode* block);
         static void add_to_current_block(ASTNode* node);
 
-        static void end_block();
+        static bool end_block();
 
         // Parse method defined in the KernelMain macro
         virtual void Parse() = 0;
     };
 
     // defines various struct types used for creating new programs
+
+
 
     // all the SiCKL::Source::TYPES extend Data
     struct Data
@@ -162,33 +174,70 @@ namespace SiCKL
             this->_node = member;
         }
     };
+    
+    template<typename T>
+    struct Function
+    {
+        Function(std::nullptr_t)
+        {
+            func_root = new ASTNode(NodeType::Function, return_type<T>::type, Source::next_symbol());
+            Source::start_block(func_root);
+            Source::_current_function = func_root;
+        }
+        
+        template<typename...Args>
+        const RValue<T> operator()(const Args&... args)
+        {
+            ASTNode* funcCall = new ASTNode(NodeType::CallUserFunction, return_type<T>::type, func_root->_sid);
+        
+            BuildCallNode(funcCall, 0, args...);
+        
+            return RValue<T>(funcCall);
+        }
+        
+        friend class Source;
+    private:
+        
+        template<typename Arg, typename...Args>
+        void BuildCallNode(ASTNode* funcCall, size_t index, const Arg& arg, const Args&... args) const
+        {
+            const ASTNode* params = func_root->_children[0];
+            // verify we don't have too many params
+            SICKL_ASSERT(index < params->_count);
+            const ASTNode* currentParam = params->_children[index];
+            // verify the passed in type is correct
+            SICKL_ASSERT(currentParam->_return_type == return_type<Arg>::type);
+            
+            funcCall->add_child(create_value_node(arg));
+            
+            BuildCallNode(funcCall, ++index, args...);
+        }
+    
+        void BuildCallNode(ASTNode* funcCall, size_t index) const
+        {
+            const ASTNode* params = func_root->_children[0];
+            // ensure we have enough params
+            SICKL_ASSERT(index == params->_count);
+            
+            (void)funcCall;
+        }
+    
+        ASTNode* func_root;
+    };    
 }
 
 // foreach macro for function definitions
 
 #define EXPAND(x) x
-#define FOR_EACH_1(what, x, ...) what(x)
-#define FOR_EACH_2(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_1(what,  __VA_ARGS__))
-#define FOR_EACH_3(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_2(what, __VA_ARGS__))
-#define FOR_EACH_4(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_3(what,  __VA_ARGS__))
-#define FOR_EACH_5(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_4(what,  __VA_ARGS__))
-#define FOR_EACH_6(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_5(what,  __VA_ARGS__))
-#define FOR_EACH_7(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_6(what,  __VA_ARGS__))
-#define FOR_EACH_8(what, x, ...)\
-  what(x)\
-  EXPAND(FOR_EACH_7(what,  __VA_ARGS__))
+#define FOR_EACH_1(WORK, x1) WORK(x1, 1)
+#define FOR_EACH_2(WORK, x1, x2) WORK(x1, 1) WORK(x2, 2)
+#define FOR_EACH_3(WORK, x1, x2, x3) WORK(x1, 1) WORK(x2, 2) WORK(x3, 3)
+#define FOR_EACH_4(WORK, x1, x2, x3, x4) WORK(x1, 1) WORK(x2, 2) WORK(x3, 3) WORK(x4, 4)
+#define FOR_EACH_5(WORK, x1, x2, x3, x4, x5) WORK(x1, 1) WORK(x2, 2) WORK(x3, 3) WORK(x4, 4) WORK(x5, 5)
+#define FOR_EACH_6(WORK, x1, x2, x3, x4, x5, x6) WORK(x1, 1) WORK(x2, 2) WORK(x3, 3) WORK(x4, 4) WORK(x5, 5) WORK(x6, 6)
+#define FOR_EACH_7(WORK, x1, x2, x3, x4, x5, x6, x7) WORK(x1, 1) WORK(x2, 2) WORK(x3, 3) WORK(x4, 4) WORK(x5, 5) WORK(x6, 6) WORK(x7, 7)
+#define FOR_EACH_8(WORK, x1, x2, x3, x4, x5, x6, x7, x8) WORK(x1, 1) WORK(x2, 2) WORK(x3, 3) WORK(x4, 4) WORK(x5, 5) WORK(x6, 6) WORK(x7, 7) WORK(x8, 8)
+
 #define FOR_EACH_NARG(...) FOR_EACH_NARG_(__VA_ARGS__, FOR_EACH_RSEQ_N())
 #define FOR_EACH_NARG_(...) EXPAND(FOR_EACH_ARG_N(__VA_ARGS__))
 #define FOR_EACH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, N, ...) N
@@ -202,45 +251,49 @@ namespace SiCKL
 #define MAKE_CONSTRUCT_N(CON, NAME, ...) for(CON NAME(__VA_ARGS__); !NAME.finished(); NAME.finish())
 
 #define BEGIN_SOURCE void Parse() { initialize();
-#define END_SOURCE finalize(); }
-
-#define BEGIN_PARAMS Source::start_block(new ASTNode(NodeType::Parameters, ReturnType::Void));
-#define PARAM_DATA(VAR_DECLARE)\
-    VAR_DECLARE(Source::next_symbol(), nullptr);\
-    {\
-        const symbol_id_t id = Source::current_symbol();\
-        struct variable\
-        {\
-            VAR_DECLARE, UNUSED;\
-            typedef decltype(UNUSED) type;\
-        };\
-        ASTNode* param = new ASTNode(NodeType::Var, return_type<variable::type>::type, id);\
-        Source::add_to_current_block(param);\
-    }
-#define END_PARAMS Source::end_block();
+#define END_SOURCE finalize(main); }
 
 // macros for making unique name for constructs
-#define __glue(A,B) A ## B
-#define __unique_name(A,B) __glue(A,B)
+#define __GLUE2(A,B) A ## B
+#define __UNIQUE_NAME2(A,B) __GLUE2(A,B)
 
-#define KernelMain(...)\
-    BEGIN_PARAMS\
-        FOR_EACH(PARAM_DATA, __VA_ARGS__)\
-    END_PARAMS\
-    MAKE_CONSTRUCT_0(kernelmain_construct, __unique_name(__kernelmain_, __LINE__))
+#define __GLUE3(A,B,C) A ## B ## C
+#define __UNIQUE_NAME3(A,B,C) __GLUE3(A,B,C)
 
 #define If(b)\
-    MAKE_CONSTRUCT_N(if_construct, __unique_name(__if_, __LINE__), b)
+    MAKE_CONSTRUCT_N(if_construct, __UNIQUE_NAME2(__if_, __LINE__), b)
 
 #define ElseIf(b)\
-    MAKE_CONSTRUCT_N(elseif_construct, __unique_name(__elseif_, __LINE__), b)
+    MAKE_CONSTRUCT_N(elseif_construct, __UNIQUE_NAME2(__elseif_, __LINE__), b)
     
 #define Else\
-    MAKE_CONSTRUCT_0(else_construct, __unique_name(__else_, __LINE__))
+    MAKE_CONSTRUCT_0(else_construct, __UNIQUE_NAME2(__else_, __LINE__))
     
 #define While(b)\
-    MAKE_CONSTRUCT_N(while_construct, __unique_name(__while_, __LINE__), b)
+    MAKE_CONSTRUCT_N(while_construct, __UNIQUE_NAME2(__while_, __LINE__), b)
 
 #define ForInRange(I, START, STOP)\
     MAKE_CONSTRUCT_N(forinrange_construct, I, START, STOP)
 
+#define MakeFunction(...)\
+MAKE_ALL_PARAM_TYPES(__VA_ARGS__)\
+MAKE_ALL_PARAM_GENERATORS(__VA_ARGS__)\
+MAKE_ALL_FUNC_PARAMS(__VA_ARGS__)
+
+#define MAKE_PARAM_TYPE(DECL, N) DECL, param##N; typedef decltype(param##N) type##N;
+#define MAKE_ALL_PARAM_TYPES(...)\
+nullptr;\
+struct __UNIQUE_NAME2(param_types, __LINE__)\
+{\
+    FOR_EACH(MAKE_PARAM_TYPE, __VA_ARGS__)\
+};
+#define MAKE_PARAM_GENERATOR(X, N) function_parameter<__UNIQUE_NAME2(param_types, __LINE__)::__GLUE2(type,N)> __UNIQUE_NAME3(make_param, __LINE__, N);
+#define MAKE_ALL_PARAM_GENERATORS(...) FOR_EACH(MAKE_PARAM_GENERATOR, __VA_ARGS__)
+#define MAKE_FUNC_PARAM(X, N) for(X : __UNIQUE_NAME3(make_param, __LINE__, N) )
+#define MAKE_ALL_FUNC_PARAMS(...)\
+if(Source::start_block(new ASTNode(NodeType::Parameters, ReturnType::Void)))\
+FOR_EACH(MAKE_FUNC_PARAM, __VA_ARGS__)\
+if(Source::end_block())\
+MAKE_CONSTRUCT_0(function_body_construct, __function_body_)
+
+#define Return return_statement __UNIQUE_NAME2(ret_, __LINE__); __UNIQUE_NAME2(ret_, __LINE__) =

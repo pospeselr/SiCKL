@@ -11,6 +11,7 @@ namespace SiCKL
 {
 	ASTNode* Source::_root = nullptr;
 	ASTNode* Source::_current_block = nullptr;
+	ASTNode* Source::_current_function = nullptr;
 	std::vector<ASTNode*> Source::_block_stack;
     symbol_id_t Source::_next_symbol(0);
 
@@ -50,7 +51,7 @@ namespace SiCKL
 		_block_stack.push_back(_root);
 	}
 
-	void Source::finalize()
+	void Source::finalize(Function<void>& main)
 	{
 		_symbol_count = _next_symbol;
 
@@ -60,7 +61,13 @@ namespace SiCKL
 		_root = nullptr;
 		_current_block = nullptr;
 		_block_stack.clear();
+		_current_function = nullptr;
 		_next_symbol = 0;
+		
+		SICKL_ASSERT(main.func_root->_node_type == NodeType::Function)
+		main.func_root->_node_type = NodeType::Main;
+		
+		
 	}
 	
 	symbol_id_t Source::next_symbol()
@@ -73,12 +80,14 @@ namespace SiCKL
         return _next_symbol;
 	}
 	
-	void Source::start_block(ASTNode* block)
+	bool Source::start_block(ASTNode* block)
 	{
         _current_block->add_child(block);
 
         _block_stack.push_back(block);
-        _current_block = block;    
+        _current_block = block;
+        
+        return true;  
 	}
 	
 	void Source::add_to_current_block(ASTNode* node)
@@ -86,10 +95,12 @@ namespace SiCKL
         _current_block->add_child(node);
 	}
 	
-	void Source::end_block()
+	bool Source::end_block()
 	{
         _block_stack.pop_back();
-        _current_block = _block_stack.back();	
+        _current_block = _block_stack.back();
+        
+        return true;
 	}
 }
 

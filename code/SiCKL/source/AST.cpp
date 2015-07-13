@@ -6,8 +6,11 @@ namespace SiCKL
     {
         "invalid",
         "program",
-        "main_block",
+        "main",
+        "function",
         "parameter_block",
+        "body_block",
+        "return",
 
         "if",
         "elseif",
@@ -50,7 +53,8 @@ namespace SiCKL
 
         "constructor",
         "cast",
-        "function",
+        "builtin_function",
+        "call_user_function",
 
         "sample1d",
         "sample2d",
@@ -248,6 +252,8 @@ namespace SiCKL
         case NodeType::Var:
         case NodeType::ConstVar:
         case NodeType::OutVar:
+        case NodeType::Function:
+        case NodeType::Main:
             printf(", symbol = 0x%x", static_cast<uint32_t>(_sid));
             break;
         case NodeType::Literal:

@@ -6,12 +6,15 @@
 #undef EndIf
 #undef While
 #undef ForInRange
+#undef Return
 
 namespace SiCKL
 {
-    void kernelmain_construct::begin()
+    void function_body_construct::begin()
     {
-        ASTNode* main_block = new ASTNode(NodeType::Main, ReturnType::Void);
+		// we need two end counts to also close out the root Function node
+        _end_count = 2;
+        ASTNode* main_block = new ASTNode(NodeType::Body, ReturnType::Void);
 
         Source::start_block(main_block);
     }

@@ -114,7 +114,7 @@ const SiCKL::member_id_t PARENT::Member_##NAME::_mid = ID;
 /// Functions
 
 #define FUNC_HEADER(RETURN, NAME)\
-ASTNode* node = new ASTNode(NodeType::Function, return_type<RETURN>::type);\
+ASTNode* node = new ASTNode(NodeType::BuiltinFunction, return_type<RETURN>::type);\
 int32_t id = BuiltinFunction::NAME;\
 ASTNode* ident = new ASTNode(NodeType::Literal, ReturnType::Int, &id);\
 node->add_child(ident);

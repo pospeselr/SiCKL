@@ -84,6 +84,24 @@ namespace SiCKL
         const static bool value = false;
     };
 
+    template<typename T>
+    struct LValue;
+
+    template<typename T>
+    struct RValue;
+
+    template<typename T>
+    struct is_data_derived<RValue<T>>
+    {
+        const static bool value = is_data_derived<T>::value;
+    };
+
+    template<typename T>
+    struct is_data_derived<LValue<T>>
+    {
+        const static bool value = is_data_derived<T>::value;
+    };
+
     #define IS_DATA_DERIVED(T) struct T; template<> struct is_data_derived<SiCKL::T> {const static bool value = true;};
     IS_DATA_DERIVED(Bool)
     IS_DATA_DERIVED(Int)
@@ -101,6 +119,22 @@ namespace SiCKL
     #undef IS_DATA_DERIVED
 
     template<typename T>
+    struct Buffer1D;
+    template<typename T>
+    struct is_data_derived<Buffer1D<T>>
+    {
+        const static bool value = is_data_derived<T>::value;
+    };
+
+    template<typename T>
+    struct Buffer2D;
+    template<typename T>
+    struct is_data_derived<Buffer2D<T>>
+    {
+        const static bool value = is_data_derived<T>::value;
+    };
+
+    template<typename T>
     struct return_type
     {
         // base case for kernel buffer objects
@@ -108,6 +142,7 @@ namespace SiCKL
     };
 
     #define PRIMITIVE_TO_RETURNTYPE(P, RT) template<> struct return_type<P> {const static ReturnType_t type = RT;};
+    PRIMITIVE_TO_RETURNTYPE(void, ReturnType::Void)
     PRIMITIVE_TO_RETURNTYPE(bool, ReturnType::Bool)
     PRIMITIVE_TO_RETURNTYPE(cl_int, ReturnType::Int)
     PRIMITIVE_TO_RETURNTYPE(cl_uint, ReturnType::UInt)
@@ -161,7 +196,15 @@ namespace SiCKL
         return create_data_node<TYPE>(val);
     }
 
+
+    static ASTNode* 
+    create_return_node(ReturnType_t type)
+    {
+        return new ASTNode(NodeType::Return, type);
+    }
+
     /// Unary and Binary operator methods
+
 
     template<typename BASE>
     static void unary_operator(struct ASTNode* root, const BASE& in_base)

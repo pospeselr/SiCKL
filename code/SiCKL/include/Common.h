@@ -90,8 +90,8 @@ private: \
 public:
 
 //  error macros
-#define ReturnIfError(X) do {sickl_int __si = (X); if(__si != SICKL_SUCCESS) return __si; } while(0,0)
-#define ReturnErrorIfTrue(X, ERR)  do {bool __b = (X); if(__b) return ERR; } while(0,0)
+#define ReturnIfError(X) do {sickl_int __si = (X); if(__si != SICKL_SUCCESS) return __si; } while((void)0,0)
+#define ReturnErrorIfTrue(X, ERR)  do {bool __b = (X); if(__b) return ERR; } while((void)0,0)
 #define ReturnErrorIfFalse(X, ERR) ReturnErrorIfTrue(!(X), ERR)
 #define ReturnErrorIfNull(X, ERR) ReturnErrorIfTrue((X) == nullptr, ERR)
 

@@ -10,6 +10,7 @@ namespace SiCKL
     {
         construct(Args... args)
         : _finished(false)
+        , _end_count(1)
         {
             T* _this = (T*)this;
             _this->begin(args...);
@@ -17,17 +18,21 @@ namespace SiCKL
 
         void finish()
         {
-            Source::end_block();
+            for(int k = 0; k < _end_count; k++)
+            {
+                Source::end_block();
+            }
             _finished = true;
         }
 
         bool finished() const {return _finished;}
-    private:
+    protected:
         bool _finished;
+        int _end_count;
     };
 
     // construct for entering KernelMain
-    struct kernelmain_construct : public SiCKL::construct<SiCKL::kernelmain_construct>
+    struct function_body_construct : public SiCKL::construct<SiCKL::function_body_construct>
     {
         void begin();
     };
@@ -64,5 +69,76 @@ namespace SiCKL
     {
         forinrange_construct(const int32_t from, const int32_t to) : construct<SiCKL::forinrange_construct, const int32_t, const int32_t>(from, to) {}
         void begin(const int32_t, const int32_t);
+    };
+    
+    template<typename T>
+    struct function_parameter_generator
+    {
+        function_parameter_generator(bool in_finished)
+        : _finished(in_finished)
+        { 
+
+        }
+    
+        function_parameter_generator& operator++()
+        {
+            SICKL_ASSERT(_finished == false);
+            _finished = true;
+            return *this;
+        }
+        
+        bool operator==(const function_parameter_generator& that)
+        {
+            return this->_finished == that._finished;
+        }
+        
+        bool operator!=(const function_parameter_generator& that)
+        {
+            return this->_finished != that._finished;
+        }
+    
+        T operator*()
+        {
+            const symbol_id_t id = Source::next_symbol();
+            T t(id, nullptr);
+            ASTNode* param = new ASTNode(NodeType::Var, return_type<T>::type, id);
+            Source::add_to_current_block(param);
+            return t;
+        }
+    
+    private:
+        bool _finished;
+    };
+    
+    template<typename T>
+    struct function_parameter
+    {
+        function_parameter_generator<T> begin()
+        {
+            return function_parameter_generator<T>(false);
+        }
+        
+        function_parameter_generator<T> end()
+        {
+            return function_parameter_generator<T>(true);
+        }
+    };
+    
+    struct return_statement
+    {
+        template<typename T>
+        void operator=(const T& val)
+        {
+            const ASTNode* func = Source::_current_function;
+            // verify we're returning the correct type
+            SICKL_ASSERT(return_type<T>::type == func->_return_type);
+            
+            // create new 'Return' ASTNode and populate with our val
+            
+            ASTNode* ret = create_return_node(return_type<T>::type);
+            ret->add_child(create_value_node(val));
+            
+            Source::add_to_current_block(ret);
+        }
     };
 }

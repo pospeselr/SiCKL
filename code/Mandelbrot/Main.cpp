@@ -4,6 +4,7 @@ using namespace SiCKL;
 #include "EasyBMP.h"
 #include <math.h>
 
+
 // algorithm from: http://en.wikipedia.org/wiki/Mandelbrot_set
 class Mandelbrot : public Source
 {
@@ -12,10 +13,16 @@ public:
     const int32_t max_iterations;
 
     BEGIN_SOURCE
-        KernelMain(Float2 min, 
-                   Float2 max, 
-                   Buffer1D<Float3> color_map, 
-                   Buffer2D<Float3> output)
+    
+        Function<Float3> getColor = MakeFunction(Int iteration, Buffer1D<Float3> color_map)
+        {
+            // log scale iteration count to 0,1
+            Float norm_val = Log(((Float)iteration + 1.0f))/float(log(max_iterations + 1.0));
+
+            Return color_map((Int)(norm_val * (float)(max_iterations - 1)));
+        }
+
+        Function<void> main = MakeFunction(Float2 min, Float2 max, Buffer1D<Float3> color_map, Buffer2D<Float3> output)
         {
             UInt3 index3 = Index();
             UInt2 index(index3.X, index3.Y);
@@ -41,12 +48,9 @@ public:
                 iteration = iteration + 1;
             }
             
-            // log scale iteration count to 0,1
-            Float norm_val = Log(((Float)iteration + 1.0f))/float(log(max_iterations + 1.0));
-
-            // get color from lookup buffer
-            output(index) = color_map((Int)(norm_val * (float)(max_iterations - 1)));
+            output(index) = getColor(iteration, color_map);
         }
+
     END_SOURCE
 };
 

@@ -6,7 +6,7 @@
 #undef EndIf
 #undef While
 #undef ForInRange
-
+#undef Return
 namespace SiCKL
 {
     namespace Internal
@@ -150,6 +150,9 @@ namespace SiCKL
             {
                 switch(type & ~(ReturnType::Buffer1D | ReturnType::Buffer2D))
                 {
+                case ReturnType::Void:
+                    *this << "void";
+                    break;
                 case ReturnType::Bool:
                     *this << "bool";
                     break;
@@ -288,6 +291,7 @@ namespace SiCKL
         sickl_int print_unary_operator(const ASTNode* node);
         sickl_int print_binary_operator(const ASTNode* node);
         sickl_int print_line_statements(const ASTNode* node);
+        sickl_int print_builtin_function(const ASTNode* node);
         sickl_int print_function(const ASTNode* node);
         sickl_int print_kernel_source(const ASTNode* in_root);
 
@@ -404,7 +408,7 @@ namespace SiCKL
             return SICKL_SUCCESS;
         }
 
-        sickl_int print_function(const ASTNode* node)
+        sickl_int print_builtin_function(const ASTNode* node)
         {
             SICKL_ASSERT(node->_children[0]->_node_type == NodeType::Literal);
             SICKL_ASSERT(node->_children[0]->_return_type == ReturnType::Int);
@@ -476,16 +480,25 @@ namespace SiCKL
         {
             switch(node->_node_type)
             {
+
             //
-            // Control Flow
+            // User-Function
             //
-            case NodeType::Main:
+            case NodeType::Body:
                 SICKL_ASSERT(indent == 0);
                 indent++;
 
                 ReturnIfError(print_line_statements(0, node));
 
                 break;
+            case NodeType::Return:
+                SICKL_ASSERT(node->_count == 1);
+                sb << "return ";
+                ReturnIfError(print_code(node->_children[0]));
+                break;
+            //
+            // Control Flow
+            //                
             case NodeType::If:
                 SICKL_ASSERT(node->_count >= 1);
                 sb << "if(";
@@ -705,9 +718,39 @@ namespace SiCKL
                 ReturnIfError(print_code(node->_children[0]));
                 sb << ')';
                 break;
-            case NodeType::Function:
+            case NodeType::BuiltinFunction:
                 SICKL_ASSERT(node->_count >= 1);
-                ReturnIfError(print_function(node));
+                ReturnIfError(print_builtin_function(node));
+                break;
+            case NodeType::CallUserFunction:
+                SICKL_ASSERT(node->_count >= 1);
+                sb << node->_sid << '(';
+                for(size_t k = 0; k < node->_count; k++)
+                {
+                    if(k > 0)
+                    {
+                        sb <<',';
+                    }
+                    ASTNode* currentNode = node->_children[k];
+                    if(currentNode->_return_type & ReturnType::Buffer1D)
+                    {
+                        symbol_id_t sid = currentNode->_sid;
+                        sb << sid << "_length,";
+                        sb << sid;
+                    }
+                    else if(currentNode->_return_type & ReturnType::Buffer2D)
+                    {
+                        symbol_id_t sid = currentNode->_sid;
+                        sb << sid << "_width,";
+                        sb << sid << "_height,";
+                        sb << sid;
+                    }
+                    else
+                    {
+                        ReturnIfError(print_code(currentNode));
+                    }
+                }
+                sb << ')';
                 break;
             //
             // Samplers
@@ -741,76 +784,79 @@ namespace SiCKL
             return SICKL_SUCCESS;
         }
 
-        sickl_int print_kernel_source(const ASTNode* in_root)
+        sickl_int print_function(const ASTNode* in_func_root)
         {
-            // param data and main
-            SICKL_ASSERT(in_root->_count == 2);
-            const ASTNode* main = nullptr;
-            const ASTNode* param_data = nullptr;
-
-            // get the three important nodes here
-            for(uint32_t i = 0; i < in_root->_count; i++)
+            indent = 0;
+        
+            SICKL_ASSERT(in_func_root->_count == 2);
+            ASTNode* func_params = in_func_root->_children[0];
+            ASTNode* func_body = in_func_root->_children[1];
+            
+            symbol_id_t func_sid = in_func_root->_sid;
+            declared_vars.insert(func_sid);
+            
+            if(in_func_root->_node_type == NodeType::Main)
             {
-                switch(in_root->_children[i]->_node_type)
-                {
-                case NodeType::Parameters:
-                    param_data = in_root->_children[i];
-                case NodeType::Main:
-                    main = in_root->_children[i];
-                    break;
-                default:
-                    // unknown Node how did we get here?
-                    SICKL_ASSERT(false);
-                    break;
-                }
+                sb << "__kernel ";
             }
-
-            // function decleration
-            sb << "__kernel void KernelMain(";
-
-            for(size_t i = 0; i < param_data->_count; i++)
+            
+            sb << in_func_root->_return_type << " " << func_sid  << "(";
+            
+            for(size_t k = 0; k < func_params->_count; k++)
             {
-                ASTNode* child = param_data->_children[i];
-                ReturnType_t type = child->_return_type;
-                symbol_id_t sid = child->_sid;
-
+                ASTNode* current_param = func_params->_children[k];
+                ReturnType_t type = current_param->_return_type;
+                symbol_id_t sid = current_param->_sid;
+                
                 sb << newline;
 
                 if(type & ReturnType::Buffer1D)
                 {
-                    sb << "                         ";
+                    sb << " ";
                     sb << "const " << ReturnType::UInt << ' ' << sid << "_length," << newline;
                 }
                 else if(type & ReturnType::Buffer2D)
                 {
-                    sb << "                         ";
+                    sb << " ";
                     sb << "const " << ReturnType::UInt << ' ' << sid << "_width," << newline;
-                    sb << "                         ";
+                    sb << " ";
                     sb << "const " << ReturnType::UInt << ' ' << sid << "_height," << newline;
                 }
 
-                sb << "                         ";
+                sb << " ";
                 if(type & (ReturnType::Buffer1D | ReturnType::Buffer2D))
                 {
                     sb << "__global ";
                 }
                 sb << type << ' ' << sid;
-                if(i < (param_data->_count - 1))
+                if(k < (func_params->_count - 1))
                 {
                     sb << ',';
                 }
 
                 declared_vars.insert(sid);
             }
-
-
+            
             sb << ')' << newline;
             sb << '{' << newline;
-
-            ReturnIfError(print_code(main));
-
+            
+            ReturnIfError(print_code(func_body));
+            
             sb << '}' << newline;
+            
+            return SICKL_SUCCESS;
+        }
 
+        sickl_int print_kernel_source(const ASTNode* in_root)
+        {
+            for(size_t k = 0; k < in_root->_count; k++)
+            {
+                ASTNode* currentNode = in_root->_children[k];
+                SICKL_ASSERT(currentNode->_node_type == NodeType::Function ||
+                             currentNode->_node_type == NodeType::Main);
+                
+                print_function(currentNode);
+            }
             return SICKL_SUCCESS;
         }
 
@@ -827,6 +873,9 @@ namespace SiCKL
     {
         in_source.Parse();
 
+        const ASTNode* root = in_source.GetRoot();
+        root->Print();
+        
         ReturnIfError(Internal::Reset());
 
         ReturnIfError(Internal::print_kernel_source(in_source.GetRoot()));
@@ -865,13 +914,30 @@ namespace SiCKL
             SICKL_ASSERT(err == CL_SUCCESS);
 
             // get entry point
-            cl_kernel kernel = clCreateKernel(program, "KernelMain", &err);
+            
+            // find the main node
+            const ASTNode* main = nullptr;
+            for(size_t k = 0; k < root->_count; k++)
+            {
+                const ASTNode* currentChild = root->_children[k];
+                if(currentChild->_node_type == NodeType::Main)
+                {
+                    main = currentChild;
+                }
+            }
+            
+            SICKL_ASSERT(main != nullptr);
+            
+            Internal::StringBuffer main_sb;
+            main_sb << main->_sid;
+            
+            cl_kernel kernel = clCreateKernel(program, main_sb, &err);
             SICKL_ASSERT(err == CL_SUCCESS);
 
             result._program = program;
             result._kernel = kernel;
 
-            ASTNode* params= in_source.GetRoot()->_children[0];
+            ASTNode* params= main->_children[0];
             SICKL_ASSERT(params->_node_type == NodeType::Parameters);
 
             const size_t type_count = params->_count;
@@ -882,6 +948,7 @@ namespace SiCKL
             }
 
             result._types = types;
+
             result._type_count =  type_count;
         }
         out_program = result;

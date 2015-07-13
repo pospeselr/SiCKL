@@ -65,8 +65,6 @@ namespace SiCKL
         /// const sampling operators
         const RValue<TYPE>  operator()(uint32_t A, uint32_t B) const
         {
-            SICKL_ASSERT(A >= 0 && B >= 0);
-    
             ASTNode* sample  = new ASTNode(NodeType::Sample2D, return_type<TYPE>::type);
             sample->add_child(new ASTNode(NodeType::ConstVar, return_type<Buffer2D<TYPE>>::type, _id));
             sample->add_child(create_literal_node(A));
@@ -76,8 +74,6 @@ namespace SiCKL
     
         const RValue<TYPE> operator()(const UInt& A, uint32_t B) const
         {
-            SICKL_ASSERT(B >= 0);
-    
             ASTNode* sample  = new ASTNode(NodeType::Sample2D, return_type<TYPE>::type);
             sample->add_child(new ASTNode(NodeType::ConstVar, return_type<Buffer2D<TYPE>>::type, _id));
             sample->add_child(create_data_node(A));
@@ -87,8 +83,6 @@ namespace SiCKL
     
         const RValue<TYPE>  operator()(uint32_t A, const UInt& B) const
         {
-            SICKL_ASSERT(A >= 0);
-    
             ASTNode* sample  = new ASTNode(NodeType::Sample2D, return_type<TYPE>::type);
             sample->add_child(new ASTNode(NodeType::ConstVar, return_type<Buffer2D<TYPE>>::type, _id));
             sample->add_child(create_literal_node(A));
@@ -112,8 +106,6 @@ namespace SiCKL
         // non-const samplign operators
         LValue<TYPE>  operator()(uint32_t A, uint32_t B)
         {
-            SICKL_ASSERT(A >= 0 && B >= 0);
-    
             ASTNode* sample  = new ASTNode(NodeType::Sample2D, return_type<TYPE>::type);
             sample->add_child(new ASTNode(NodeType::Var, return_type<Buffer2D<TYPE>>::type, _id));
             sample->add_child(create_literal_node(A));
@@ -123,8 +115,6 @@ namespace SiCKL
     
         LValue<TYPE> operator()(const UInt& A, uint32_t B)
         {
-            SICKL_ASSERT(B >= 0);
-    
             ASTNode* sample  = new ASTNode(NodeType::Sample2D, return_type<TYPE>::type);
             sample->add_child(new ASTNode(NodeType::Var, return_type<Buffer2D<TYPE>>::type, _id));
             sample->add_child(create_data_node(A));
@@ -134,8 +124,6 @@ namespace SiCKL
     
         LValue<TYPE>  operator()(uint32_t A, const UInt& B)
         {
-            SICKL_ASSERT(A >= 0);
-    
             ASTNode* sample  = new ASTNode(NodeType::Sample2D, return_type<TYPE>::type);
             sample->add_child(new ASTNode(NodeType::Var, return_type<Buffer2D<TYPE>>::type, _id));
             sample->add_child(create_literal_node(A));

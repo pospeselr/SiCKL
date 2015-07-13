@@ -24,7 +24,7 @@ win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS
 }
 macx {
-    QMAKE_MAC_SDK = macosx10.10
+
 }
 unix {
     QMAKE_CXXFLAGS += -std=c++11

@@ -34,10 +34,15 @@ namespace SiCKL
         enum Type
         {
             Invalid = -1,
-            // Flow Control
+            // our Root node
             Program,
+            // Function related 
             Main,
+            Function,
             Parameters,
+            Body,
+            Return,
+            // Flow Control
             If,
             ElseIf,
             Else,
@@ -77,11 +82,12 @@ namespace SiCKL
             Divide,
             Modulo,
 
-            // Functions
+            // Functions calls
             Constructor,
             Cast,
-            Function,
-
+            BuiltinFunction,
+            CallUserFunction,
+            
             Sample1D,// sample from 1D buffer
             Sample2D,// sample from 2d buffer
             Member,// member variable access
