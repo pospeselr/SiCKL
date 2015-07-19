@@ -1,11 +1,5 @@
 #include "SiCKL.h"
-
-#undef If
-#undef ElseIf
-#undef Else
-#undef EndIf
-#undef While
-#undef ForInRange
+#include "SiCKLUndef.h"
 
 namespace SiCKL
 {
@@ -45,7 +39,7 @@ namespace SiCKL
 		_symbol_count = -1;
 
 		// fill in static data
-		_my_ast = new ASTNode(NodeType::Program, ReturnType::Void);
+		_my_ast = new ASTNode(NodeType::Program, DataType::Void);
 		_root = _my_ast;
 		_current_block = _root;
 		_block_stack.push_back(_root);

@@ -10,14 +10,14 @@ namespace SiCKL
     {
         ASTNode();
         ASTNode(const ASTNode&);
-        ASTNode(NodeType_t, ReturnType::Type);
-        ASTNode(NodeType_t, ReturnType::Type, symbol_id_t);
+        ASTNode(NodeType_t, DataType::Type);
+        ASTNode(NodeType_t, DataType::Type, symbol_id_t);
         template<typename T>
-        ASTNode(NodeType_t node_type, ReturnType::Type return_type, const T* data_pointer)
+        ASTNode(NodeType_t node_type, DataType::Type data_type, const T* data_pointer)
             : _node_type(node_type)
             , _count(0)
             , _capacity(1)
-            , _return_type(return_type)
+            , _data_type(data_type)
             , _sid(invalid_symbol)
             , _literal({0,0})
         {
@@ -39,7 +39,7 @@ namespace SiCKL
         size_t _capacity;
         ASTNode** _children;
 
-        ReturnType::Type _return_type;
+        DataType::Type _data_type;
 
 
         symbol_id_t _sid;
@@ -135,18 +135,18 @@ namespace SiCKL
     };
 
     template<typename T>
-    struct return_type
+    struct data_type
     {
         // base case for kernel buffer objects
-        const static ReturnType_t type = T::_return_type;
+        const static DataType_t type = T::_data_type;
     };
 
-    #define PRIMITIVE_TO_RETURNTYPE(P, RT) template<> struct return_type<P> {const static ReturnType_t type = RT;};
-    PRIMITIVE_TO_RETURNTYPE(void, ReturnType::Void)
-    PRIMITIVE_TO_RETURNTYPE(bool, ReturnType::Bool)
-    PRIMITIVE_TO_RETURNTYPE(cl_int, ReturnType::Int)
-    PRIMITIVE_TO_RETURNTYPE(cl_uint, ReturnType::UInt)
-    PRIMITIVE_TO_RETURNTYPE(cl_float, ReturnType::Float)
+    #define PRIMITIVE_TO_RETURNTYPE(P, RT) template<> struct data_type<P> {const static DataType_t type = RT;};
+    PRIMITIVE_TO_RETURNTYPE(void, DataType::Void)
+    PRIMITIVE_TO_RETURNTYPE(bool, DataType::Bool)
+    PRIMITIVE_TO_RETURNTYPE(cl_int, DataType::Int)
+    PRIMITIVE_TO_RETURNTYPE(cl_uint, DataType::UInt)
+    PRIMITIVE_TO_RETURNTYPE(cl_float, DataType::Float)
     #undef PRIMITIVE_TO_RETURNTYPE
 
     /// Data Node Creation
@@ -155,7 +155,7 @@ namespace SiCKL
     static ASTNode* create_literal_node(const TYPE& val)
     {
         static_assert(is_opencl_primitive<TYPE>::value == true, "Literal nodes must contain primitive POD type");
-        return new ASTNode(NodeType::Literal, return_type<TYPE>::type, &val);
+        return new ASTNode(NodeType::Literal, data_type<TYPE>::type, &val);
     }
 
     template<typename TYPE>
@@ -165,7 +165,7 @@ namespace SiCKL
         if(val._id >= 0)
         {
             // a symbol
-            return new ASTNode(NodeType::Var, return_type<TYPE>::type, val._id);
+            return new ASTNode(NodeType::Var, data_type<TYPE>::type, val._id);
         }
         else
         {
@@ -197,12 +197,8 @@ namespace SiCKL
     }
 
 
-    static ASTNode* 
-    create_return_node(ReturnType_t type)
-    {
-        return new ASTNode(NodeType::Return, type);
-    }
-
+    ASTNode* create_return_node(DataType_t type);
+    
     /// Unary and Binary operator methods
 
 

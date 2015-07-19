@@ -19,7 +19,7 @@ namespace SiCKL
     FUNC_1(Float, TanH, Float)
     
     // exponential functions
-    FUNC_1(Float, Pow, Float)
+    FUNC_2(Float, Pow, Float, Float)
     FUNC_1(Float, Exp, Float)
     FUNC_1(Float, Log, Float)
     FUNC_1(Float, Exp2, Float)

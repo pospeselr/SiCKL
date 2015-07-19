@@ -1,12 +1,6 @@
 #include "SiCKL.h"
+#include "SiCKLUndef.h"
 
-#undef If
-#undef ElseIf
-#undef Else
-#undef EndIf
-#undef While
-#undef ForInRange
-#undef Return
 namespace SiCKL
 {
     namespace Internal
@@ -146,50 +140,50 @@ namespace SiCKL
                 return *this;
             }
 
-            StringBuffer& operator<<(const ReturnType_t type)
+            StringBuffer& operator<<(const DataType_t type)
             {
-                switch(type & ~(ReturnType::Buffer1D | ReturnType::Buffer2D))
+                switch(type & ~(DataType::Buffer1D | DataType::Buffer2D))
                 {
-                case ReturnType::Void:
+                case DataType::Void:
                     *this << "void";
                     break;
-                case ReturnType::Bool:
+                case DataType::Bool:
                     *this << "bool";
                     break;
-                case ReturnType::Int:
+                case DataType::Int:
                     *this << "int";
                     break;
-                case ReturnType::Int2:
+                case DataType::Int2:
                     *this << "int2";
                     break;
-                case ReturnType::Int3:
+                case DataType::Int3:
                     *this << "int3";
                     break;
-                case ReturnType::Int4:
+                case DataType::Int4:
                     *this << "int4";
                     break;
-                case ReturnType::UInt:
+                case DataType::UInt:
                     *this << "uint";
                     break;
-                case ReturnType::UInt2:
+                case DataType::UInt2:
                     *this << "uint2";
                     break;
-                case ReturnType::UInt3:
+                case DataType::UInt3:
                     *this << "uint3";
                     break;
-                case ReturnType::UInt4:
+                case DataType::UInt4:
                     *this << "uint4";
                     break;
-                case ReturnType::Float:
+                case DataType::Float:
                     *this << "float";
                     break;
-                case ReturnType::Float2:
+                case DataType::Float2:
                     *this << "float2";
                     break;
-                case ReturnType::Float3:
+                case DataType::Float3:
                     *this << "float3";
                     break;
-                case ReturnType::Float4:
+                case DataType::Float4:
                     *this << "float4";
                     break;
                 default:
@@ -197,7 +191,7 @@ namespace SiCKL
                 }
 
                 // if it's a buffer add pointer char
-                if(type & (ReturnType::Buffer1D | ReturnType::Buffer2D))
+                if(type & (DataType::Buffer1D | DataType::Buffer2D))
                 {
                     *this << "*";
                 }
@@ -411,7 +405,7 @@ namespace SiCKL
         sickl_int print_builtin_function(const ASTNode* node)
         {
             SICKL_ASSERT(node->_children[0]->_node_type == NodeType::Literal);
-            SICKL_ASSERT(node->_children[0]->_return_type == ReturnType::Int);
+            SICKL_ASSERT(node->_children[0]->_data_type == DataType::Int);
             const int32_t func_id = (*(int32_t*)node->_children[0]->_literal.data);
 
             switch(func_id)
@@ -424,24 +418,26 @@ namespace SiCKL
                 break;
             case BuiltinFunction::BufferLength:
                 SICKL_ASSERT(node->_count == 2);
-                SICKL_ASSERT(node->_children[1]->_return_type & ReturnType::Buffer1D);
+                SICKL_ASSERT(node->_children[1]->_data_type & DataType::Buffer1D);
                 sb << node->_children[1]->_sid << "_length";
                 break;
             case BuiltinFunction::BufferWidth:
                 SICKL_ASSERT(node->_count == 2);
-                SICKL_ASSERT(node->_children[1]->_return_type & ReturnType::Buffer2D);
+                SICKL_ASSERT(node->_children[1]->_data_type & DataType::Buffer2D);
                 sb << node->_children[1]->_sid << "_width";
                 break;
             case BuiltinFunction::BufferHeight:
                 SICKL_ASSERT(node->_count == 2);
-                SICKL_ASSERT(node->_children[1]->_return_type & ReturnType::Buffer2D);
+                SICKL_ASSERT(node->_children[1]->_data_type & DataType::Buffer2D);
                 sb << node->_children[1]->_sid << "_height";
                 break;
             default:
                 const char* function_names[] =
                 {
+                    // info
                     nullptr,
                     nullptr,
+                    // trigonometry
                     "sin",
                     "cos",
                     "tan",
@@ -454,12 +450,14 @@ namespace SiCKL
                     "asinh",
                     "acosh",
                     "atanh",
+                    // exponential
                     "pow",
                     "exp",
                     "log",
                     "exp2",
                     "log2",
                     "sqrt",
+                    // common
                     "abs",
                     "sign",
                     "floor",
@@ -469,11 +467,16 @@ namespace SiCKL
                     "clamp",
                     "isnan",
                     "isinf",
+                    // vector math
                     "length",
                     "distance",
                     "dot",
                     "cross",
                     "normalize",
+                    // buffer methods
+                    nullptr,
+                    nullptr,
+                    nullptr,
                 };
                 sb << function_names[func_id] << '(';
                 for(size_t i = 1; i < node->_count; ++i)
@@ -584,11 +587,11 @@ namespace SiCKL
                 break;
             case NodeType::ForInRange:
                 SICKL_ASSERT(node->_count >= 3)
-                SICKL_ASSERT(node->_children[0]->_return_type == ReturnType::Int);
+                SICKL_ASSERT(node->_children[0]->_data_type == DataType::Int);
                 SICKL_ASSERT(node->_children[1]->_node_type == NodeType::Literal);
-                SICKL_ASSERT(node->_children[1]->_return_type == ReturnType::Int);
+                SICKL_ASSERT(node->_children[1]->_data_type == DataType::Int);
                 SICKL_ASSERT(node->_children[2]->_node_type == NodeType::Literal);
-                SICKL_ASSERT(node->_children[2]->_return_type == ReturnType::Int);
+                SICKL_ASSERT(node->_children[2]->_data_type == DataType::Int);
 
                 sb << "for (int " << node->_children[0]->_sid << '=' << *(int32_t*)node->_children[1]->_literal.data << ';';
                 sb << node->_children[0]->_sid << '<' << *(int32_t*)node->_children[2]->_literal.data << ';';
@@ -613,18 +616,18 @@ namespace SiCKL
                 sb << node->_sid;
                 break;
             case NodeType::Literal:
-                switch(node->_return_type)
+                switch(node->_data_type)
                 {
-                case ReturnType::Bool:
+                case DataType::Bool:
                     sb << *(bool*)node->_literal.data;
                     break;
-                case ReturnType::Int:
+                case DataType::Int:
                     sb << *(cl_int*)node->_literal.data;
                     break;
-                case ReturnType::UInt:
+                case DataType::UInt:
                     sb << *(cl_uint*)node->_literal.data;
                     break;
-                case ReturnType::Float:
+                case DataType::Float:
                     sb << *(cl_float*)node->_literal.data;
                     break;
                 default:
@@ -635,17 +638,17 @@ namespace SiCKL
             case NodeType::Member:
                 {
                     SICKL_ASSERT(node->_count == 2);
-                    switch(node->_children[0]->_return_type)
+                    switch(node->_children[0]->_data_type)
                     {
-                    case ReturnType::Int2:
-                    case ReturnType::UInt2:
-                    case ReturnType::Float2:
-                    case ReturnType::Int3:
-                    case ReturnType::UInt3:
-                    case ReturnType::Float3:
-                    case ReturnType::Int4:
-                    case ReturnType::UInt4:
-                    case ReturnType::Float4:
+                    case DataType::Int2:
+                    case DataType::UInt2:
+                    case DataType::Float2:
+                    case DataType::Int3:
+                    case DataType::UInt3:
+                    case DataType::Float3:
+                    case DataType::Int4:
+                    case DataType::UInt4:
+                    case DataType::Float4:
                         break;
                     default:
                         SICKL_ASSERT(false);
@@ -671,7 +674,7 @@ namespace SiCKL
                     if(node->_children[0]->_node_type == NodeType::Var &&
                        declared_vars.find(node->_children[0]->_sid) == declared_vars.end())
                     {
-                        sb << node->_children[0]->_return_type << ' ';
+                        sb << node->_children[0]->_data_type << ' ';
                         declared_vars.insert(node->_children[0]->_sid);
                     }
 
@@ -716,7 +719,7 @@ namespace SiCKL
             // Functions
             //
             case NodeType::Constructor:
-                sb << '(' << node->_return_type << ')' << '(';
+                sb << '(' << node->_data_type << ')' << '(';
                 for(size_t i = 0; i < node->_count; i++)
                 {
                     if(i != 0)
@@ -729,7 +732,7 @@ namespace SiCKL
                 break;
             case NodeType::Cast:
                 SICKL_ASSERT(node->_count == 1);
-                sb << '(' << node->_return_type << ')' << '(';
+                sb << '(' << node->_data_type << ')' << '(';
                 ReturnIfError(print_code(node->_children[0]));
                 sb << ')';
                 break;
@@ -747,13 +750,13 @@ namespace SiCKL
                         sb <<',';
                     }
                     ASTNode* currentNode = node->_children[k];
-                    if(currentNode->_return_type & ReturnType::Buffer1D)
+                    if(currentNode->_data_type & DataType::Buffer1D)
                     {
                         symbol_id_t sid = currentNode->_sid;
                         sb << sid << "_length,";
                         sb << sid;
                     }
-                    else if(currentNode->_return_type & ReturnType::Buffer2D)
+                    else if(currentNode->_data_type & DataType::Buffer2D)
                     {
                         symbol_id_t sid = currentNode->_sid;
                         sb << sid << "_width,";
@@ -778,10 +781,10 @@ namespace SiCKL
                 break;
             case NodeType::Sample2D:
                 SICKL_ASSERT(node->_count == 3);
-                SICKL_ASSERT(node->_children[1]->_return_type == ReturnType::Int ||
-                             node->_children[1]->_return_type == ReturnType::UInt);
-                SICKL_ASSERT(node->_children[2]->_return_type == ReturnType::Int ||
-                             node->_children[2]->_return_type == ReturnType::UInt);
+                SICKL_ASSERT(node->_children[1]->_data_type == DataType::Int ||
+                             node->_children[1]->_data_type == DataType::UInt);
+                SICKL_ASSERT(node->_children[2]->_data_type == DataType::Int ||
+                             node->_children[2]->_data_type == DataType::UInt);
                 {
                     const symbol_id_t buffer_sid = node->_children[0]->_sid;
                     sb << buffer_sid << '[';
@@ -815,31 +818,31 @@ namespace SiCKL
                 sb << "__kernel ";
             }
             
-            sb << in_func_root->_return_type << " " << func_sid  << "(";
+            sb << in_func_root->_data_type << " " << func_sid  << "(";
             
             for(size_t k = 0; k < func_params->_count; k++)
             {
                 ASTNode* current_param = func_params->_children[k];
-                ReturnType_t type = current_param->_return_type;
+                DataType_t type = current_param->_data_type;
                 symbol_id_t sid = current_param->_sid;
                 
                 sb << newline;
 
-                if(type & ReturnType::Buffer1D)
+                if(type & DataType::Buffer1D)
                 {
                     sb << " ";
-                    sb << "const " << ReturnType::UInt << ' ' << sid << "_length," << newline;
+                    sb << "const " << DataType::UInt << ' ' << sid << "_length," << newline;
                 }
-                else if(type & ReturnType::Buffer2D)
+                else if(type & DataType::Buffer2D)
                 {
                     sb << " ";
-                    sb << "const " << ReturnType::UInt << ' ' << sid << "_width," << newline;
+                    sb << "const " << DataType::UInt << ' ' << sid << "_width," << newline;
                     sb << " ";
-                    sb << "const " << ReturnType::UInt << ' ' << sid << "_height," << newline;
+                    sb << "const " << DataType::UInt << ' ' << sid << "_height," << newline;
                 }
 
                 sb << " ";
-                if(type & (ReturnType::Buffer1D | ReturnType::Buffer2D))
+                if(type & (DataType::Buffer1D | DataType::Buffer2D))
                 {
                     sb << "__global ";
                 }
@@ -956,10 +959,10 @@ namespace SiCKL
             SICKL_ASSERT(params->_node_type == NodeType::Parameters);
 
             const size_t type_count = params->_count;
-            ReturnType_t* types = new ReturnType_t[type_count];
+            DataType_t* types = new DataType_t[type_count];
             for(size_t k = 0; k < type_count; k++)
             {
-                types[k] = params->_children[k]->_return_type;
+                types[k] = params->_children[k]->_data_type;
             }
 
             result._types = types;

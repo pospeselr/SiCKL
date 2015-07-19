@@ -168,7 +168,7 @@ namespace SiCKL
             }
     
             // construct our ASTnode that represents us
-            ASTNode* member = new ASTNode(NodeType::Member, return_type<BASE>::type);
+            ASTNode* member = new ASTNode(NodeType::Member, data_type<BASE>::type);
             binary_operator(member, *parent, mid);
     
             this->_node = member;
@@ -180,7 +180,7 @@ namespace SiCKL
     {
         Function(std::nullptr_t)
         {
-            func_root = new ASTNode(NodeType::Function, return_type<T>::type, Source::next_symbol());
+            func_root = new ASTNode(NodeType::Function, data_type<T>::type, Source::next_symbol());
             Source::start_block(func_root);
             Source::_current_function = func_root;
         }
@@ -188,7 +188,7 @@ namespace SiCKL
         template<typename...Args>
         const RValue<T> operator()(const Args&... args)
         {
-            ASTNode* funcCall = new ASTNode(NodeType::CallUserFunction, return_type<T>::type, func_root->_sid);
+            ASTNode* funcCall = new ASTNode(NodeType::CallUserFunction, data_type<T>::type, func_root->_sid);
         
             BuildCallNode(funcCall, 0, args...);
         
@@ -206,7 +206,7 @@ namespace SiCKL
             SICKL_ASSERT(index < params->_count);
             const ASTNode* currentParam = params->_children[index];
             // verify the passed in type is correct
-            SICKL_ASSERT(currentParam->_return_type == return_type<Arg>::type);
+            SICKL_ASSERT(currentParam->_data_type == data_type<Arg>::type);
             
             funcCall->add_child(create_value_node(arg));
             
@@ -291,7 +291,7 @@ struct __UNIQUE_NAME2(param_types, __LINE__)\
 #define MAKE_ALL_PARAM_GENERATORS(...) FOR_EACH(MAKE_PARAM_GENERATOR, __VA_ARGS__)
 #define MAKE_FUNC_PARAM(X, N) for(X : __UNIQUE_NAME3(make_param, __LINE__, N) )
 #define MAKE_ALL_FUNC_PARAMS(...)\
-if(Source::start_block(new ASTNode(NodeType::Parameters, ReturnType::Void)))\
+if(Source::start_block(new ASTNode(NodeType::Parameters, DataType::Void)))\
 FOR_EACH(MAKE_FUNC_PARAM, __VA_ARGS__)\
 if(Source::end_block())\
 MAKE_CONSTRUCT_0(function_body_construct, __function_body_)

@@ -9,7 +9,7 @@ struct X : public Data\
 {\
     X() : Data() {}\
     X(symbol_id_t in_id, ASTNode* in_node) : Data(in_id, in_node) {}\
-    static const ReturnType::Type _return_type = ReturnType::X;
+    static const DataType::Type _data_type = DataType::X;
 
 #define START_BUFFER_TYPE(X)\
 template<typename TYPE>\
@@ -17,7 +17,7 @@ struct X : public Data\
 {\
     X() : Data() {}\
     X(symbol_id_t in_id, ASTNode* in_node) : Data(in_id, in_node) {}\
-    static const ReturnType::Type _return_type = (ReturnType::Type)(TYPE::_return_type | ReturnType::X);
+    static const DataType::Type _data_type = (DataType::Type)(TYPE::_data_type | DataType::X);
 
 #define END_TYPE };
 

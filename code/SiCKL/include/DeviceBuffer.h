@@ -98,7 +98,7 @@ namespace SiCKL
     private:
         cl_mem _memory_object;
         
-        const static ReturnType_t BufferType = ReturnType::Buffer1D;
+        const static DataType_t BufferType = DataType::Buffer1D;
         
         friend struct Program;
     };
@@ -212,7 +212,7 @@ namespace SiCKL
     private:
         cl_mem _memory_object;
         
-        const static ReturnType_t BufferType = ReturnType::Buffer2D;
+        const static DataType_t BufferType = DataType::Buffer2D;
     
         friend struct Program;  
     };

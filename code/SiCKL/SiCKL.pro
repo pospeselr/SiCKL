@@ -72,7 +72,8 @@ HEADERS += \
     include/KernelBuffers.h \
     include/KernelFunctions.h \
     include/KernelTypes.h \
-    include/KernelConstructs.h
+    include/KernelConstructs.h \
+    include/SiCKLUndef.h
 
 # sources
 

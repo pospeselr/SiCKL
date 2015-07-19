@@ -22,15 +22,15 @@ namespace SiCKL
         }
     private:
         template<typename T>
-        sickl_int ValidateArg(const ReturnType_t);
+        sickl_int ValidateArg(const DataType_t);
 
         template<typename BUFF>
-        sickl_int ValidateBufferArg(const ReturnType_t type)
+        sickl_int ValidateBufferArg(const DataType_t type)
         {
             SICKL_ASSERT(type & BUFF::BufferType);
             ReturnErrorIfFalse(type & BUFF::BufferType, SICKL_INVALID_KERNEL_ARG);
 
-            return ValidateArg<typename BUFF::InternalType>((const ReturnType_t)(type ^ BUFF::BufferType));
+            return ValidateArg<typename BUFF::InternalType>((const DataType_t)(type ^ BUFF::BufferType));
         }
 
         template<typename T>
@@ -45,7 +45,7 @@ namespace SiCKL
         template<typename Arg, typename...Args>
         sickl_int Run(const Arg& arg, const Args&... args)
         {;
-            ReturnType_t type = _types[_param_index];
+            DataType_t type = _types[_param_index];
             // make sure this arg matches the required type
             SICKL_ASSERT(ValidateArg<Arg>(type) == SICKL_SUCCESS);
 
@@ -62,7 +62,7 @@ namespace SiCKL
         template<typename T, typename...Args>
         sickl_int Run(const DeviceBuffer1D<T>& arg, const Args&... args)
         {
-            ReturnType_t type = _types[_param_index];
+            DataType_t type = _types[_param_index];
             SICKL_ASSERT(ValidateBufferArg<DeviceBuffer1D<T>>(type) == SICKL_SUCCESS);
 
             ReturnIfError(SetArg(arg.Length));
@@ -76,7 +76,7 @@ namespace SiCKL
         template<typename T, typename...Args>
         sickl_int Run(const DeviceBuffer2D<T>& arg, const Args&... args)
         {
-            ReturnType_t type = _types[_param_index];
+            DataType_t type = _types[_param_index];
             // makes ure this arg matches the required type
             SICKL_ASSERT(ValidateBufferArg<DeviceBuffer2D<T>>(type) == SICKL_SUCCESS);
 
@@ -89,7 +89,7 @@ namespace SiCKL
         }
 
         // used to ensure our passed in args match the required types
-        ReturnType_t* _types;
+        DataType_t* _types;
         size_t _type_count;
         // counter used in Run(...)
         size_t _param_index;

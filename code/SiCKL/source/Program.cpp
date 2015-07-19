@@ -1,4 +1,5 @@
 #include "SiCKL.h"
+#include "SiCKLUndef.h"
 
 namespace SiCKL
 {
@@ -79,38 +80,38 @@ namespace SiCKL
 
 #define VALIDATE_ARG(ARG, TYPE) \
     template<> \
-    sickl_int Program::ValidateArg<ARG>(const ReturnType_t type) \
+    sickl_int Program::ValidateArg<ARG>(const DataType_t type) \
     { \
         SICKL_ASSERT(type == TYPE); \
         return type == TYPE ? SICKL_SUCCESS : SICKL_INVALID_KERNEL_ARG;\
     }
 
     // primitive types
-    VALIDATE_ARG(bool, ReturnType::Bool)
+    VALIDATE_ARG(bool, DataType::Bool)
 
-    VALIDATE_ARG(cl_int, ReturnType::Int)
-    VALIDATE_ARG(cl_int2, ReturnType::Int2)
+    VALIDATE_ARG(cl_int, DataType::Int)
+    VALIDATE_ARG(cl_int2, DataType::Int2)
 
-    VALIDATE_ARG(cl_uint, ReturnType::UInt)
-    VALIDATE_ARG(cl_uint2, ReturnType::UInt2)
+    VALIDATE_ARG(cl_uint, DataType::UInt)
+    VALIDATE_ARG(cl_uint2, DataType::UInt2)
 
-    VALIDATE_ARG(cl_float, ReturnType::Float)
-    VALIDATE_ARG(cl_float2, ReturnType::Float2)
+    VALIDATE_ARG(cl_float, DataType::Float)
+    VALIDATE_ARG(cl_float2, DataType::Float2)
 
 #undef VALIDATE_ARG
 
 // opencl's cl_type3 is typedefed to cl_type4 (same type)
 #define VALIDATE_ARG(ARG, TYPEA, TYPEB) \
     template<> \
-    sickl_int Program::ValidateArg<ARG>(const ReturnType_t type) \
+    sickl_int Program::ValidateArg<ARG>(const DataType_t type) \
     { \
         SICKL_ASSERT(type == TYPEA || type == TYPEB); \
         return type == TYPEA || type == TYPEB ? SICKL_SUCCESS : SICKL_INVALID_KERNEL_ARG;\
     } \
 
-    VALIDATE_ARG(cl_int4, ReturnType::Int3, ReturnType::Int4)
-    VALIDATE_ARG(cl_uint4, ReturnType::UInt3, ReturnType::UInt4)
-    VALIDATE_ARG(cl_float4, ReturnType::Float3, ReturnType::Float4)
+    VALIDATE_ARG(cl_int4, DataType::Int3, DataType::Int4)
+    VALIDATE_ARG(cl_uint4, DataType::UInt3, DataType::UInt4)
+    VALIDATE_ARG(cl_float4, DataType::Float3, DataType::Float4)
 
 #undef VALIDATE_ARG
 

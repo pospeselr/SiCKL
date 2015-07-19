@@ -41,7 +41,7 @@ TYPE& TYPE::operator=(const A& a)\
     {\
         this->_id = Source::next_symbol();\
     }\
-    ASTNode* assign = new ASTNode(NodeType::Assignment, return_type<TYPE>::type);\
+    ASTNode* assign = new ASTNode(NodeType::Assignment, data_type<TYPE>::type);\
     binary_operator(assign, *this, a);\
     Source::add_to_current_block(assign);\
     return *this;\
@@ -50,7 +50,7 @@ TYPE& TYPE::operator=(const A& a)\
 #define CONSTRUCTOR_2(TYPE, A, B)\
 TYPE::TYPE(const A& a, const B& b)\
 {\
-    ASTNode* node = new ASTNode(NodeType::Constructor, return_type<TYPE>::type);\
+    ASTNode* node = new ASTNode(NodeType::Constructor, data_type<TYPE>::type);\
     node->add_child(create_value_node(a));\
     node->add_child(create_value_node(b));\
     *this = TYPE(temp_symbol, node);\
@@ -59,7 +59,7 @@ TYPE::TYPE(const A& a, const B& b)\
 #define CONSTRUCTOR_3(TYPE, A, B, C)\
 TYPE::TYPE(const A& a, const B& b, const C& c)\
 {\
-    ASTNode* node = new ASTNode(NodeType::Constructor, return_type<TYPE>::type);\
+    ASTNode* node = new ASTNode(NodeType::Constructor, data_type<TYPE>::type);\
     node->add_child(create_value_node(a));\
     node->add_child(create_value_node(b));\
     node->add_child(create_value_node(c));\
@@ -69,7 +69,7 @@ TYPE::TYPE(const A& a, const B& b, const C& c)\
 #define CONSTRUCTOR_4(TYPE, A, B, C, D)\
 TYPE::TYPE(const A& a, const B& b, const C& c, const D& d)\
 {\
-    ASTNode* node = new ASTNode(NodeType::Constructor, return_type<TYPE>::type);\
+    ASTNode* node = new ASTNode(NodeType::Constructor, data_type<TYPE>::type);\
     node->add_child(create_value_node(a));\
     node->add_child(create_value_node(b));\
     node->add_child(create_value_node(c));\
@@ -82,7 +82,7 @@ TYPE::TYPE(const A& a, const B& b, const C& c, const D& d)\
 #define BINARY_OP(RET, L, R, NT, OP)\
 const RValue<RET> operator OP(const L& l, const R& r)\
 {\
-    ASTNode* node = new ASTNode(NodeType::NT, return_type<RET>::type);\
+    ASTNode* node = new ASTNode(NodeType::NT, data_type<RET>::type);\
     binary_operator(node, l, r);\
     return RValue<RET>(node);\
 }\
@@ -90,7 +90,7 @@ const RValue<RET> operator OP(const L& l, const R& r)\
 #define UNARY_OP(RET, L, NT, OP)\
 const RValue<RET> operator OP(const L& l)\
 {\
-    ASTNode* node = new ASTNode(NodeType::NT, return_type<RET>::type);\
+    ASTNode* node = new ASTNode(NodeType::NT, data_type<RET>::type);\
     unary_operator(node, l);\
     return RValue<RET>(node);\
 }
@@ -98,7 +98,7 @@ const RValue<RET> operator OP(const L& l)\
 #define CAST_OP(FROM, TO)\
 FROM::operator const TO() const\
 {\
-    ASTNode* node = new ASTNode(NodeType::Cast, return_type<TO>::type);\
+    ASTNode* node = new ASTNode(NodeType::Cast, data_type<TO>::type);\
     node->add_child(create_value_node(*this));\
     return TO(temp_symbol, node);\
 }
@@ -112,9 +112,9 @@ const SiCKL::member_id_t PARENT::Member_##NAME::_mid = ID;
 /// Functions
 
 #define FUNC_HEADER(RETURN, NAME)\
-ASTNode* node = new ASTNode(NodeType::BuiltinFunction, return_type<RETURN>::type);\
+ASTNode* node = new ASTNode(NodeType::BuiltinFunction, data_type<RETURN>::type);\
 int32_t id = BuiltinFunction::NAME;\
-ASTNode* ident = new ASTNode(NodeType::Literal, ReturnType::Int, &id);\
+ASTNode* ident = new ASTNode(NodeType::Literal, DataType::Int, &id);\
 node->add_child(ident);
 
 #define FUNC_INPUT(VAL)\

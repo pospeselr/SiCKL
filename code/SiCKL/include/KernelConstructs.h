@@ -101,7 +101,7 @@ namespace SiCKL
         {
             const symbol_id_t id = Source::next_symbol();
             T t(id, nullptr);
-            ASTNode* param = new ASTNode(NodeType::Var, return_type<T>::type, id);
+            ASTNode* param = new ASTNode(NodeType::Var, data_type<T>::type, id);
             Source::add_to_current_block(param);
             return t;
         }
@@ -131,11 +131,11 @@ namespace SiCKL
         {
             const ASTNode* func = Source::_current_function;
             // verify we're returning the correct type
-            SICKL_ASSERT(return_type<T>::type == func->_return_type);
+            SICKL_ASSERT(data_type<T>::type == func->_data_type);
             
             // create new 'Return' ASTNode and populate with our val
             
-            ASTNode* ret = create_return_node(return_type<T>::type);
+            ASTNode* ret = create_return_node(data_type<T>::type);
             ret->add_child(create_value_node(val));
             
             Source::add_to_current_block(ret);

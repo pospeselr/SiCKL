@@ -1,4 +1,5 @@
 #include "SiCKL.h"
+#include "SiCKLUndef.h"
 
 namespace SiCKL
 {
@@ -66,57 +67,57 @@ namespace SiCKL
 #define RETURN_TYPE_SWITCH(F, B)	\
     switch(type)\
     {\
-    case ReturnType::Bool:\
+    case DataType::Bool:\
         return F "bool" B;\
-    case ReturnType::Int:\
+    case DataType::Int:\
         return F "int" B;\
-    case ReturnType::UInt:\
+    case DataType::UInt:\
         return F "uint" B;\
-    case ReturnType::Float:\
+    case DataType::Float:\
         return F "float" B;\
-    case ReturnType::Int2:\
+    case DataType::Int2:\
         return F "int2" B;\
-    case ReturnType::UInt2:\
+    case DataType::UInt2:\
         return F "uint2" B;\
-    case ReturnType::Float2:\
+    case DataType::Float2:\
         return F "float2" B;\
-    case ReturnType::Int3:\
+    case DataType::Int3:\
         return F "int3" B;\
-    case ReturnType::UInt3:\
+    case DataType::UInt3:\
         return F "uint3" B;\
-    case ReturnType::Float3:\
+    case DataType::Float3:\
         return F "float3" B;\
-    case ReturnType::Int4:\
+    case DataType::Int4:\
         return F "int4" B;\
-    case ReturnType::UInt4:\
+    case DataType::UInt4:\
         return F "uint4" B;\
-    case ReturnType::Float4:\
+    case DataType::Float4:\
         return F "float4" B;\
     default:\
         SICKL_ASSERT(false);\
     }\
 
-    const char* GetReturnType(ReturnType::Type type)
+    const char* GetDataType(DataType::Type type)
     {
-        if(type == ReturnType::Invalid)
+        if(type == DataType::Invalid)
         {
             return "invalid";
         }
-        else if(type == ReturnType::Void)
+        else if(type == DataType::Void)
         {
             return "void";
         }
 
-        if(type & ReturnType::Buffer1D)
+        if(type & DataType::Buffer1D)
         {
-            type = (ReturnType::Type)(type ^ ReturnType::Buffer1D);
-            SICKL_ASSERT(type != ReturnType::Void);
+            type = (DataType::Type)(type ^ DataType::Buffer1D);
+            SICKL_ASSERT(type != DataType::Void);
             RETURN_TYPE_SWITCH("buffer1d<",">")
         }
-        else if(type & ReturnType::Buffer2D)
+        else if(type & DataType::Buffer2D)
         {
-            type = (ReturnType::Type)(type ^ ReturnType::Buffer2D);
-            SICKL_ASSERT(type != ReturnType::Void);
+            type = (DataType::Type)(type ^ DataType::Buffer2D);
+            SICKL_ASSERT(type != DataType::Void);
             RETURN_TYPE_SWITCH("buffer2d<",">")
         }
         else
@@ -133,7 +134,7 @@ namespace SiCKL
         : _node_type(NodeType::Invalid)
         , _count(0)
         , _capacity(1)
-        , _return_type(ReturnType::Invalid)
+        , _data_type(DataType::Invalid)
         , _sid(invalid_symbol)
         , _literal({0,0})
     {
@@ -146,7 +147,7 @@ namespace SiCKL
         , _literal({0,0})
     {
         _node_type = in_node._node_type;
-        _return_type = in_node._return_type;
+        _data_type = in_node._data_type;
 
         _sid = in_node._sid;
         if(_node_type == NodeType::Literal)
@@ -175,11 +176,11 @@ namespace SiCKL
         }
     }
 
-    ASTNode::ASTNode(NodeType_t node_type, ReturnType::Type return_type)
+    ASTNode::ASTNode(NodeType_t node_type, DataType::Type data_type)
         : _node_type(node_type)
         , _count(0)
         , _capacity(1)
-        , _return_type(return_type)
+        , _data_type(data_type)
         , _sid(invalid_symbol)
         , _literal({0,0})
     {
@@ -187,11 +188,11 @@ namespace SiCKL
         _children[0] = nullptr;
     }
 
-    ASTNode::ASTNode(NodeType_t node_type, ReturnType::Type return_type, symbol_id_t sid)
+    ASTNode::ASTNode(NodeType_t node_type, DataType::Type data_type, symbol_id_t sid)
         : _node_type(node_type)
         , _count(0)
         , _capacity(1)
-        , _return_type(return_type)
+        , _data_type(data_type)
         , _sid(sid)
         , _literal({0,0})
     {
@@ -246,7 +247,7 @@ namespace SiCKL
 
     void ASTNode::PrintNode() const
     {
-        printf("%s -> %s", NodeTypes[_node_type + 1], GetReturnType(_return_type));
+        printf("%s -> %s", NodeTypes[_node_type + 1], GetDataType(_data_type));
         switch(_node_type)
         {
         case NodeType::Var:
@@ -257,18 +258,18 @@ namespace SiCKL
             printf(", symbol = 0x%x", static_cast<uint32_t>(_sid));
             break;
         case NodeType::Literal:
-            switch(_return_type)
+            switch(_data_type)
             {
-            case ReturnType::Bool:
+            case DataType::Bool:
                 printf(", val = %s", *(bool*)_literal.data ? "true" : "false");
                 break;
-            case ReturnType::Int:
+            case DataType::Int:
                 printf(", val = %i", *(cl_int*)_literal.data);
                 break;
-            case ReturnType::UInt:
+            case DataType::UInt:
                 printf(", val = %u", *(cl_uint*)_literal.data);
                 break;
-            case ReturnType::Float:
+            case DataType::Float:
                 printf(", val = %f", *(cl_float*)_literal.data);
                 break;
             default:
@@ -328,4 +329,10 @@ namespace SiCKL
         }
     }
 
+
+    /// node creation
+    ASTNode* create_return_node(DataType_t type)
+    {
+        return new ASTNode(NodeType::Return, type);
+    }
 }

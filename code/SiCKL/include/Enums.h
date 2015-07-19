@@ -98,7 +98,7 @@ namespace SiCKL
     typedef NodeType::Type NodeType_t;
     
     // each type is denoted by a bit
-    struct ReturnType
+    struct DataType
     {
         enum Type
         {
@@ -125,7 +125,7 @@ namespace SiCKL
 #           undef SHIFT
         };
     };
-    typedef ReturnType::Type ReturnType_t;
+    typedef DataType::Type DataType_t;
 
     struct BuiltinFunction
     {
