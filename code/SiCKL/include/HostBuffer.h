@@ -51,6 +51,14 @@ namespace SiCKL
             return SICKL_SUCCESS;
         }
         
+        sickl_int Initialize(const DeviceBuffer1D<T>& device_buffer)
+        {
+            ReturnIfError(this->Initialize(device_buffer.Length));
+            ReturnIfError(device_buffer.GetData(_buffer));
+            
+            return SICKL_SUCCESS;
+        }
+        
         T& operator[](cl_uint index)
         {
             SICKL_ASSERT(index < Length);
@@ -131,6 +139,14 @@ namespace SiCKL
             const_cast<cl_uint&>(Height) = in_height;
             const_cast<size_t&>(BufferSize) = buffer_size;
             const_cast<size_t&>(ElementCount) = element_count;
+            
+            return SICKL_SUCCESS;
+        }
+    
+        sickl_int Initialize(const DeviceBuffer2D<T>& device_buffer)
+        {
+            ReturnIfError(this->Initialize(device_buffer.Width, device_buffer.Height));
+            ReturnIfError(device_buffer.GetData(_buffer));
             
             return SICKL_SUCCESS;
         }
