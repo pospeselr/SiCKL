@@ -50,7 +50,6 @@ struct X : public Data\
 
 /// Members
 
-#define START_MEMBERS(X)
 #define MEMBER_VAR(PARENT, TYPE, NAME, ID)\
 struct Member_##NAME : public Member<TYPE, PARENT>\
 {\
@@ -60,7 +59,6 @@ private:\
     const static uintptr_t _member_offset;\
     const static member_id_t _mid;\
 } NAME;
-#define END_MEMBERS
 
 #define FUNC_0(RETURN, NAME)\
 const RValue<RETURN> NAME();

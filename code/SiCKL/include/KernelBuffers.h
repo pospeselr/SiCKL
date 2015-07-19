@@ -56,6 +56,17 @@ namespace SiCKL
             sample->add_child(create_data_node(A));
             return LValue<TYPE>(sample);
         }
+        
+        RValue<UInt> Length() const
+        {
+            ASTNode* node = new ASTNode(NodeType::BuiltinFunction, ReturnType::UInt);
+            int32_t id = BuiltinFunction::BufferLength;
+            ASTNode* ident = new ASTNode(NodeType::Literal, ReturnType::Int, &id);
+            node->add_child(ident);
+            node->add_child(create_value_node(*this));
+            return RValue<UInt>(node);
+        }
+        
     END_TYPE
     
     START_BUFFER_TYPE(Buffer2D)
@@ -143,6 +154,36 @@ namespace SiCKL
         LValue<TYPE> operator()(const UInt2& VEC)
         {
             return (*this)(VEC.X, VEC.Y);
+        }
+        
+        RValue<UInt> Width() const
+        {
+            ASTNode* node = new ASTNode(NodeType::BuiltinFunction, ReturnType::UInt);
+            int32_t id = BuiltinFunction::BufferWidth;
+            ASTNode* ident = new ASTNode(NodeType::Literal, ReturnType::Int, &id);
+            node->add_child(ident);
+            node->add_child(create_value_node(*this));
+            return RValue<UInt>(node);
+        }
+        
+        RValue<UInt> Height() const
+        {
+            ASTNode* node = new ASTNode(NodeType::BuiltinFunction, ReturnType::UInt);
+            int32_t id = BuiltinFunction::BufferHeight;
+            ASTNode* ident = new ASTNode(NodeType::Literal, ReturnType::Int, &id);
+            node->add_child(ident);
+            node->add_child(create_value_node(*this));
+            return RValue<UInt>(node);
+        }
+        
+        RValue<UInt> Columns() const
+        {
+            return Width();
+        }
+        
+        RValue<UInt> Rows() const
+        {
+            return Height();
         }
     END_TYPE
 }

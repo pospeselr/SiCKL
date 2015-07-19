@@ -171,6 +171,10 @@ namespace SiCKL
             Dot,
             Cross,
             Normalize,
+            // buffer methods
+            BufferLength,
+            BufferWidth,
+            BufferHeight,
         };
     };
 }

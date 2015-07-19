@@ -105,11 +105,9 @@ FROM::operator const TO() const\
 
 /// Members
 
-#define START_MEMBERS(X)
 #define MEMBER_VAR(PARENT, TYPE, NAME, ID)\
 const uintptr_t PARENT::Member_##NAME::_member_offset = offsetof(PARENT, NAME);\
 const SiCKL::member_id_t PARENT::Member_##NAME::_mid = ID;
-#define END_MEMBERS
 
 /// Functions
 

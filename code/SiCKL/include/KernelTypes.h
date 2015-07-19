@@ -121,10 +121,8 @@ namespace SiCKL
         CAST_OP(Int2, Float2)
         CAST_OP(Int2, UInt2)
     
-        START_MEMBERS(Int2)
-            MEMBER_VAR(Int2, Int, X, 0);
-            MEMBER_VAR(Int2, Int, Y, 1);
-        END_MEMBERS
+        MEMBER_VAR(Int2, Int, X, 0);
+        MEMBER_VAR(Int2, Int, Y, 1);
     END_TYPE
     
     START_TYPE(Int3)
@@ -160,11 +158,9 @@ namespace SiCKL
         CAST_OP(Int3, Float3)
         CAST_OP(Int3, UInt3)
     
-        START_MEMBERS(Int3)
-            MEMBER_VAR(Int3, Int, X, 0)
-            MEMBER_VAR(Int3, Int, Y, 1)
-            MEMBER_VAR(Int3, Int, Z, 2)
-        END_MEMBERS
+        MEMBER_VAR(Int3, Int, X, 0)
+        MEMBER_VAR(Int3, Int, Y, 1)
+        MEMBER_VAR(Int3, Int, Z, 2)
     END_TYPE
     
     START_TYPE(Int4)
@@ -208,12 +204,10 @@ namespace SiCKL
         CAST_OP(Int4, Float4)
         CAST_OP(Int4, UInt4)
     
-        START_MEMBERS(Int4)
-            MEMBER_VAR(Int4, Int, X, 0)
-            MEMBER_VAR(Int4, Int, Y, 1)
-            MEMBER_VAR(Int4, Int, Z, 2)
-            MEMBER_VAR(Int4, Int, W, 3)
-        END_MEMBERS
+        MEMBER_VAR(Int4, Int, X, 0)
+        MEMBER_VAR(Int4, Int, Y, 1)
+        MEMBER_VAR(Int4, Int, Z, 2)
+        MEMBER_VAR(Int4, Int, W, 3)
     END_TYPE
     
     START_TYPE(UInt)
@@ -274,11 +268,9 @@ namespace SiCKL
     
         CAST_OP(UInt2, Float2)
         CAST_OP(UInt2, Int2)
-    
-        START_MEMBERS(UInt2)
-            MEMBER_VAR(UInt2, UInt, X, 0)
-            MEMBER_VAR(UInt2, UInt, Y, 1)
-        END_MEMBERS
+
+        MEMBER_VAR(UInt2, UInt, X, 0)
+        MEMBER_VAR(UInt2, UInt, Y, 1)
     END_TYPE
     
     START_TYPE(UInt3)
@@ -307,12 +299,10 @@ namespace SiCKL
     
         CAST_OP(UInt3, Float3)
         CAST_OP(UInt3, Int3)
-    
-        START_MEMBERS(UInt3)
-            MEMBER_VAR(UInt3, UInt, X, 0)
-            MEMBER_VAR(UInt3, UInt, Y, 1)
-            MEMBER_VAR(UInt3, UInt, Z, 2)
-        END_MEMBERS
+
+        MEMBER_VAR(UInt3, UInt, X, 0)
+        MEMBER_VAR(UInt3, UInt, Y, 1)
+        MEMBER_VAR(UInt3, UInt, Z, 2)
     END_TYPE
     
     START_TYPE(UInt4)
@@ -354,13 +344,11 @@ namespace SiCKL
     
         CAST_OP(UInt4, Float4)
         CAST_OP(UInt4, Int4)
-    
-        START_MEMBERS(UInt4)
-            MEMBER_VAR(UInt4, UInt, X, 0)
-            MEMBER_VAR(UInt4, UInt, Y, 1)
-            MEMBER_VAR(UInt4, UInt, Z, 2)
-            MEMBER_VAR(UInt4, UInt, W, 3)
-        END_MEMBERS
+
+        MEMBER_VAR(UInt4, UInt, X, 0)
+        MEMBER_VAR(UInt4, UInt, Y, 1)
+        MEMBER_VAR(UInt4, UInt, Z, 2)
+        MEMBER_VAR(UInt4, UInt, W, 3)
     END_TYPE
     
     START_TYPE(Float)
@@ -413,11 +401,9 @@ namespace SiCKL
     
         CAST_OP(Float2, Int2)
         CAST_OP(Float2, UInt2)
-    
-        START_MEMBERS(Float2)
-            MEMBER_VAR(Float2, Float, X, 0);
-            MEMBER_VAR(Float2, Float, Y, 1);
-        END_MEMBERS
+
+        MEMBER_VAR(Float2, Float, X, 0);
+        MEMBER_VAR(Float2, Float, Y, 1);
     END_TYPE
     
     START_TYPE(Float3)
@@ -446,12 +432,10 @@ namespace SiCKL
     
         CAST_OP(Float3, UInt3)
         CAST_OP(Float3, Int3)
-    
-        START_MEMBERS(Float3)
-            MEMBER_VAR(Float3, Float, X, 0);
-            MEMBER_VAR(Float3, Float, Y, 1);
-            MEMBER_VAR(Float3, Float, Z, 2);
-        END_MEMBERS
+
+        MEMBER_VAR(Float3, Float, X, 0);
+        MEMBER_VAR(Float3, Float, Y, 1);
+        MEMBER_VAR(Float3, Float, Z, 2);
     END_TYPE
     
     START_TYPE(Float4)
@@ -487,11 +471,9 @@ namespace SiCKL
         CAST_OP(Float4, Int4)
         CAST_OP(Float4, UInt4)
     
-        START_MEMBERS(Float4)
-            MEMBER_VAR(Float4, Float, X, 0)
-            MEMBER_VAR(Float4, Float, Y, 1)
-            MEMBER_VAR(Float4, Float, Z, 2)
-            MEMBER_VAR(Float4, Float, W, 3)
-        END_MEMBERS
+        MEMBER_VAR(Float4, Float, X, 0)
+        MEMBER_VAR(Float4, Float, Y, 1)
+        MEMBER_VAR(Float4, Float, Z, 2)
+        MEMBER_VAR(Float4, Float, W, 3)
     END_TYPE
 }

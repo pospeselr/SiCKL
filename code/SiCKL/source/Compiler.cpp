@@ -422,6 +422,21 @@ namespace SiCKL
             case BuiltinFunction::NormalizedIndex:
                 sb << "(float3)((float)(get_global_id(0) + 1) / (float)(get_global_size(0)), (float)(get_global_id(1) + 1) / (float)(get_global_size(1)), (float)(get_global_id(2) + 1) / (float)(get_global_size(2)))";
                 break;
+            case BuiltinFunction::BufferLength:
+                SICKL_ASSERT(node->_count == 2);
+                SICKL_ASSERT(node->_children[1]->_return_type & ReturnType::Buffer1D);
+                sb << node->_children[1]->_sid << "_length";
+                break;
+            case BuiltinFunction::BufferWidth:
+                SICKL_ASSERT(node->_count == 2);
+                SICKL_ASSERT(node->_children[1]->_return_type & ReturnType::Buffer2D);
+                sb << node->_children[1]->_sid << "_width";
+                break;
+            case BuiltinFunction::BufferHeight:
+                SICKL_ASSERT(node->_count == 2);
+                SICKL_ASSERT(node->_children[1]->_return_type & ReturnType::Buffer2D);
+                sb << node->_children[1]->_sid << "_height";
+                break;
             default:
                 const char* function_names[] =
                 {
@@ -774,11 +789,11 @@ namespace SiCKL
                     sb << " * " << buffer_sid << "_width + ";
                     ReturnIfError(print_code(node->_children[1]));
                     sb << ']';
-                }
-
+                }   
+                break;
             default:
                 break;
-                //SICKL_ASSERT(false);
+                SICKL_ASSERT(false);
             }
 
             return SICKL_SUCCESS;
