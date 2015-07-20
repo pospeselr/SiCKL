@@ -9,6 +9,7 @@ struct X : public Data\
 {\
     X() : Data() {}\
     X(symbol_id_t in_id, ASTNode* in_node) : Data(in_id, in_node) {}\
+    X(X&& other) : Data(other._id, other._node) {other._id = invalid_symbol; other._node = nullptr;}\
     static const DataType::Type _data_type = DataType::X;
 
 #define START_BUFFER_TYPE(X)\
@@ -17,6 +18,7 @@ struct X : public Data\
 {\
     X() : Data() {}\
     X(symbol_id_t in_id, ASTNode* in_node) : Data(in_id, in_node) {}\
+    X(X&& other) : Data(other._id, other._node) {other._id = invalid_symbol; other._node = nullptr;}\
     static const DataType::Type _data_type = (DataType::Type)(TYPE::_data_type | DataType::X);
 
 #define END_TYPE };

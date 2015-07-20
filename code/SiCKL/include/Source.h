@@ -260,6 +260,9 @@ namespace SiCKL
 #define __GLUE3(A,B,C) A ## B ## C
 #define __UNIQUE_NAME3(A,B,C) __GLUE3(A,B,C)
 
+#define __GLUE4(A,B,C,D) A ## B ## C ## D
+#define __UNIQUE_NAME4(A,B,C,D) __GLUE4(A,B,C,D)
+
 #define If(b)\
     MAKE_CONSTRUCT_N(if_construct, __UNIQUE_NAME2(__if_, __LINE__), b)
 
@@ -287,9 +290,9 @@ struct __UNIQUE_NAME2(param_types, __LINE__)\
 {\
     FOR_EACH(MAKE_PARAM_TYPE, __VA_ARGS__)\
 };
-#define MAKE_PARAM_GENERATOR(X, N) function_parameter<__UNIQUE_NAME2(param_types, __LINE__)::__GLUE2(type,N)> __UNIQUE_NAME3(make_param, __LINE__, N);
+#define MAKE_PARAM_GENERATOR(X, N) function_parameter<__UNIQUE_NAME2(param_types, __LINE__)::__GLUE2(type,N)> __UNIQUE_NAME4(make_param, __LINE__, _, N);
 #define MAKE_ALL_PARAM_GENERATORS(...) FOR_EACH(MAKE_PARAM_GENERATOR, __VA_ARGS__)
-#define MAKE_FUNC_PARAM(X, N) for(X : __UNIQUE_NAME3(make_param, __LINE__, N) )
+#define MAKE_FUNC_PARAM(X, N) for(X : __UNIQUE_NAME4(make_param, __LINE__, _, N) )
 #define MAKE_ALL_FUNC_PARAMS(...)\
 if(Source::start_block(new ASTNode(NodeType::Parameters, DataType::Void)))\
 FOR_EACH(MAKE_FUNC_PARAM, __VA_ARGS__)\
