@@ -28,7 +28,7 @@ macx {
 }
 unix {
     QMAKE_CXXFLAGS += -std=c++11
-    QMAKE_CXXFLAGS += -stdlib=libc++
+    # QMAKE_CXXFLAGS += -stdlib=libc++
     QMAKE_CXXFLAGS += -Wno-invalid-offsetof
     debug {
         QMAKE_CXXFLAGS += -O0

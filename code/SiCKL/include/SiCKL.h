@@ -8,6 +8,10 @@
 #   define Compiler_Clang
 #endif
 
+#ifdef __GNUC__
+#   define Compiler_GCC
+#endif
+
 // C
 #include <stdio.h>
 #include <stdint.h>
@@ -23,6 +27,9 @@
     #define DEBUGBREAK() __debugbreak()
 #endif
 #ifdef Compiler_Clang
+    #define DEBUGBREAK() __builtin_trap()
+#endif
+#ifdef Compiler_GCC
     #define DEBUGBREAK() __builtin_trap()
 #endif
 

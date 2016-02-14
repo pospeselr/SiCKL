@@ -28,7 +28,6 @@ macx {
 }
 unix {
     QMAKE_CXXFLAGS += -std=c++11
-    QMAKE_CXXFLAGS += -stdlib=libc++
 }
 
 # includes
@@ -47,8 +46,8 @@ SOURCES += \
 
 # linking
 
-debug:LIBS += -L$$PWD/../../bin/Debug -lSiCKLD
-release:LIBS += -L$$PWD/../../bin/Release -lSiCKL
+debug:LIBS += -L$$PWD/../../bin/debug -l SiCKLD
+release:LIBS += -L$$PWD/../../bin/release -l SiCKL
 
 win32 {
     LIBS += -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\x64" -lopencl
@@ -57,10 +56,8 @@ macx {
     LIBS += -framework OpenCL
 }
 unix {
-    QMAKE_LFLAGS += -stdlib=libc++
-}
 
-# DEPENDPATH += $$PWD/../SiCKL/include
+    LIBS += -lOpenCL}
 
 # output directories
 
