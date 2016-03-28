@@ -4,14 +4,14 @@
 namespace Spark
 {
     #define MAKE_UNARY_OPERATOR(RETURN, OP)\
-    RETURN operator OP () const\
+    const RETURN operator OP () const\
     {\
         TRACE\
         return RETURN();\
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN, OP, TYPE)\
-    RETURN operator OP (const TYPE& right) const\
+    const RETURN operator OP (const TYPE& right) const\
     {\
         UNREFERENCED_PARAMETER(right)\
         TRACE\
@@ -24,6 +24,41 @@ namespace Spark
     template<typename T> struct bool_type { typedef void type_t; };
     template<typename T> struct opencl_type {typedef void type_t; };
 
+    /// Wrapper Objects
+
+    template<typename TYPE, unsigned ID>
+    struct property_r
+    {
+        operator TYPE() const
+        {
+            TRACE
+            return TYPE();
+        };
+
+        const TYPE operator()() const
+        {
+            TRACE
+            return TYPE();
+        }
+    };
+
+    template<typename TYPE, unsigned ID>
+    struct property_rw
+    {
+        operator TYPE() const
+        {
+            TRACE
+            return TYPE();
+        };
+
+        property_rw& operator=(const TYPE& right)
+        {
+            UNREFERENCED_PARAMETER(right);
+            TRACE
+            return *this;
+        }
+    };
+
     /// Type Building  Blocks
 
     // Vector types
@@ -34,7 +69,6 @@ namespace Spark
     struct scalar
     {
         // constructors
-
         scalar()
         {
             TRACE
@@ -62,7 +96,6 @@ namespace Spark
     struct vector2
     {
         // constructors
-
         vector2()
         {
             TRACE
@@ -144,7 +177,6 @@ namespace Spark
         MAKE_BINARY_OPERATOR(TYPE, <<, TYPE)
     };
 
-
     /// Template type for each primitives
 
     // Scalar Types
@@ -198,7 +230,34 @@ namespace Spark
         public logical_operand<integer_vector2<TYPE>>,
         public bitshift_operand<integer_vector2<TYPE>>
     {
-        using vector2<TYPE>::vector2;
+        integer_vector2()
+        {
+            TRACE
+        }
+
+        integer_vector2(const TYPE& right)
+        {
+            UNREFERENCED_PARAMETER(right)
+            TRACE
+        }
+
+        integer_vector2& operator=(const integer_vector2<TYPE>& right)
+        {
+            UNREFERENCED_PARAMETER(right);
+            TRACE
+            return *this;
+        }
+        // properties
+        union
+        {
+            property_rw<TYPE, 1u> X;
+            property_rw<TYPE, 2u> Y;
+            property_r<integer_vector2<TYPE>, 4u> XX;
+            property_rw<integer_vector2<TYPE>, 5u> XY;
+            property_rw<integer_vector2<TYPE>, 7u> YX;
+            property_r<integer_vector2<TYPE>, 8u> YY;
+        };
+
     };
 
     template<typename FROM> template<typename TO>

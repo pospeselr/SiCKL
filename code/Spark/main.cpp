@@ -44,8 +44,14 @@ int main()
     //Int2 ivec2 = 1;
 
     Int2 ivec2 = (Int2)fvec1;
+    ivec2 + ivec1;
+    ivec2 = ivec2.XX;
+    a = ivec2.XX().X;
+    ivec2.XY = ivec2.XY;
+
 
     PRINT_SIZEOF(Spark::Int);
     PRINT_SIZEOF(Spark::UInt);
+    PRINT_SIZEOF(Spark::Int2);
 }
 
