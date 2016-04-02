@@ -16,7 +16,29 @@ int main()
     printf("hello world\n");
 
     Int a, b;
-    UInt c;
+    a + b;
+    UInt c, d;
+    c + d;
+
+    Int2 ivec1;
+    ivec1 + ivec1;
+
+    a = (Int)c;
+
+    c == c;
+
+    Float f;
+    -f;
+    +f;
+
+    -ivec1;
+
+    //f & f;
+
+
+#if 0
+
+
     Int result = (a == b);
     result = (c == c);
     result = c != c;
@@ -28,7 +50,6 @@ int main()
     (UInt)a;
     (Float)a;
 
-    #define PRINT_SIZEOF(TYPE) printf("sizeof(" #TYPE "): %lu\n", sizeof(TYPE))
 
     Float f = 1.0f;
     Double d;
@@ -49,6 +70,8 @@ int main()
     a = ivec2.XX().X;
     ivec2.XY = ivec2.XY;
 
+#endif
+    #define PRINT_SIZEOF(TYPE) printf("sizeof(" #TYPE "): %lu\n", sizeof(TYPE))
 
     PRINT_SIZEOF(Spark::Int);
     PRINT_SIZEOF(Spark::UInt);
