@@ -51,3 +51,9 @@ OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
 RCC_DIR = $$DESTDIR/.qrc
 UI_DIR = $$DESTDIR/.ui
+
+HEADERS += \
+    include/internal/common.h \
+    include/internal/enums.h \
+    include/internal/types.h \
+    include/spark.h
