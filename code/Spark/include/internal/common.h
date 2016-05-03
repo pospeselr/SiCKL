@@ -1,5 +1,4 @@
-#ifndef SPARK_COMMON_H
-#define SPARK_COMMON_H
+#pragma once
 
 #ifdef _MSC_VER
 #   define Compiler_MSVC
@@ -13,18 +12,6 @@
 #   define Compiler_GCC
 #endif
 
-#ifdef Compiler_MSVC
-    #include <intrin.h>
-    #define DEBUGBREAK() __debugbreak()
-#endif
-#ifdef Compiler_Clang
-    #define DEBUGBREAK() __builtin_trap()
-#endif
-#ifdef Compiler_GCC
-    #define DEBUGBREAK() __builtin_trap()
-#endif
-
 #define UNREFERENCED_PARAMETER(X) (void)X;
 #define TRACE printf("%u: %s\n", __LINE__, __PRETTY_FUNCTION__);
 
-#endif

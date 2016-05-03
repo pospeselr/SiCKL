@@ -30,6 +30,11 @@ namespace Spark
     };
 }
 
+
+// program scope
+extern "C" void spark_begin_program();
+extern "C" void spark_end_program();
+
 // node creation
 extern "C" Spark::Node* spark_create_control_node(Spark::control_t c);
 extern "C" Spark::Node* spark_create_function_node(Spark::datatype_t dt, Spark::symbolid_t id);

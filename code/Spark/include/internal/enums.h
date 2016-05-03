@@ -97,6 +97,8 @@ namespace Spark
             LeftShift,
             Assignment,
             Cast,
+
+            Count
         };
     }
     typedef enum Function::Type function_t;

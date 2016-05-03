@@ -47,14 +47,14 @@ HEADERS += \
     include/internal/common.h \
     include/internal/enums.h \
     include/internal/types.h \
+    include/internal/error.h \
     include/spark.h \
     source/precomp.h
 
 SOURCES += \
     main.cpp \
     source/node.cpp \
-
-
+    source/error.cpp \
 
 # output directories
 
