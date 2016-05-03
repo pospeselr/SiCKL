@@ -32,15 +32,29 @@ unix {
 
 # includes
 
-INCLUDEPATH += ./include
+INCLUDEPATH += \
+    ./include \
+    ./source
 
 win32 {
     INCLUDEPATH += "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"
 }
 # sources
 
+PRECOMPILED_HEADER = source/precomp.h
+
+HEADERS += \
+    include/internal/common.h \
+    include/internal/enums.h \
+    include/internal/types.h \
+    include/spark.h \
+    source/precomp.h
+
 SOURCES += \
     main.cpp \
+    source/node.cpp \
+
+
 
 # output directories
 
@@ -52,8 +66,3 @@ MOC_DIR = $$DESTDIR/.moc
 RCC_DIR = $$DESTDIR/.qrc
 UI_DIR = $$DESTDIR/.ui
 
-HEADERS += \
-    include/internal/common.h \
-    include/internal/enums.h \
-    include/internal/types.h \
-    include/spark.h
