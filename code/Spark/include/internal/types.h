@@ -21,13 +21,11 @@ namespace Spark
     {
         operator TYPE() const
         {
-            TRACE
             return TYPE();
         };
 
         const TYPE operator()() const
         {
-            TRACE
             return TYPE();
         }
     };
@@ -37,14 +35,12 @@ namespace Spark
     {
         operator TYPE() const
         {
-            TRACE
             return TYPE();
         };
 
         property_rw& operator=(const TYPE& right)
         {
             UNREFERENCED_PARAMETER(right);
-            TRACE
             return *this;
         }
     };
@@ -56,13 +52,57 @@ namespace Spark
         // constructors
         scalar()
         {
-            TRACE
+            const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
+
+            Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+            this->_node = thisNode;
+
+            // init to 0
+            uint8_t raw[sizeof(CL_TYPE)] = {0};
+            Node* valNode = spark_create_constant_node(dt, raw, sizeof(raw));
+
+            // create assignment node
+            Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+            spark_add_child_node(assignmentNode, thisNode);
+            spark_add_child_node(assignmentNode, valNode);
+
+            // add to tree
+            Node* currentScope = spark_peek_scope_node();
+            spark_add_child_node(currentScope, assignmentNode);
         }
 
         scalar(const CL_TYPE val)
         {
-            UNREFERENCED_PARAMETER(val);
-            TRACE
+            const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
+
+            Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+            this->_node = thisNode;
+
+            // init to val
+            Node* valNode = spark_create_constant_node(dt, &val, sizeof(val));
+
+            // create assignment node
+            Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+            spark_add_child_node(assignmentNode, thisNode);
+            spark_add_child_node(assignmentNode, valNode);
+
+            // add to tree
+            Node* currentScope = spark_peek_scope_node();
+            spark_add_child_node(currentScope, assignmentNode);
+        }
+
+        scalar& operator=(const scalar& that)
+        {
+            const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
+
+            Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+            spark_add_child_node(assignmentNode, this->_node);
+            spark_add_child_node(assignmentNode, that._node);
+
+            Node* currentScope = spark_peek_scope_node();
+            spark_add_child_node(currentScope, assignmentNode);
+
+            return *this;
         }
 
         // cast operators
@@ -70,7 +110,6 @@ namespace Spark
         template<typename S>
         explicit operator scalar<S>() const
         {
-            TRACE;
             return S();
         }
 
@@ -86,14 +125,15 @@ namespace Spark
     {
         // constructors
         vector2()
+        : _node(nullptr)
         {
-            TRACE
+            Node* node = spark_create_symbol_node(type_to_datatype<vector2<CL_TYPE>>::datatype, spark_next_symbol());
+            this->_node = node;
         }
 
         vector2(const CL_TYPE& val)
         {
             UNREFERENCED_PARAMETER(val);
-            TRACE
         }
 
         // properties
@@ -119,14 +159,12 @@ namespace Spark
         scalar<CL_TYPE> operator[](const scalar<cl_int>& index)
         {
             UNREFERENCED_PARAMETER(index);
-            TRACE
             return scalar<CL_TYPE>();
         }
 
         const scalar<CL_TYPE> operator[](const scalar<cl_int>& index) const
         {
             UNREFERENCED_PARAMETER(index);
-            TRACE
             return scalar<CL_TYPE>();
         }
 
@@ -134,7 +172,6 @@ namespace Spark
         template<typename S>
         explicit operator vector2<S>() const
         {
-            TRACE;
             return vector2<S>();
         }
 
@@ -149,7 +186,6 @@ namespace Spark
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     RETURN_TYPE operator OP(const TYPE& right)\
     {\
-        TRACE;\
         RETURN_TYPE result;\
         result._node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
         spark_add_child_node(result._node, right._node);\
@@ -159,7 +195,6 @@ namespace Spark
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     RETURN_TYPE operator OP (const TYPE& left, const TYPE& right)\
     {\
-        TRACE;\
         RETURN_TYPE result;\
         result._node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
         spark_add_child_node(result._node, left._node);\

@@ -55,6 +55,7 @@ SOURCES += \
     main.cpp \
     source/node.cpp \
     source/error.cpp \
+    source/enums.cpp \
 
 # output directories
 

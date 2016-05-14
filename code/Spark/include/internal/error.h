@@ -8,10 +8,16 @@
     #define DEBUGBREAK() __builtin_trap()
 #endif
 #ifdef Compiler_GCC
-    #define DEBUGBREAK() __builtin_trap()
+    #define DEBUGBREAK() raise(SIGTRAP)
 #endif
 
-#define SICKL_ASSERT(X) do { if(!(X)) { spark_print_assert(#X, __FILE__, (uint32_t)__LINE__); } } while(0)
+#ifdef SPARK_DEBUG
+	#define SPARK_ASSERT(X) do { if(!(X)) { spark_print_assert(#X, __FILE__, (uint32_t)__LINE__); } } while(0)
+	#define SPARK_VERIFY(X) SPARK_ASSERT(X)
+#else
+	#define SPARK_ASSERT(X) (void)0
+	#define SPARK_VERIFY(X) (void)(X)
+#endif
 
 // error handling
 extern "C" void spark_print_assert(const char* msg, const char* file, uint32_t line);

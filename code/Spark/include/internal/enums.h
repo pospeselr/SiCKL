@@ -12,6 +12,8 @@ namespace Spark
             Function,
             Symbol,
             Constant,
+
+            Count
         };
     }
     typedef enum NodeType::Type nodetype_t;
@@ -29,6 +31,8 @@ namespace Spark
             Else,
             While,
             ForInRange,
+
+            Count
         };
     }
     typedef enum Control::Type control_t;
@@ -39,7 +43,8 @@ namespace Spark
         {
             Invalid = -1,
             // primitive
-            Void = 0,
+            FirstPrimitive = 0,
+            Void = FirstPrimitive,
             Char,
             UChar,
             Short,
@@ -53,8 +58,8 @@ namespace Spark
             PrimitiveMask = 0xF,
 
             // components
-            Single = PrimitiveMask + 1,
-            Vector2,
+            FirstComponent = PrimitiveMask + 1,
+            Vector2 = FirstComponent,
             Vector3,
             Vector4,
             Vector8,
@@ -62,8 +67,8 @@ namespace Spark
             ComponentMask = 0x70,
 
             // container
-            None = ComponentMask + 1,
-            Buffer1D,
+            FirstContainer = ComponentMask + 1,
+            Buffer1D = FirstContainer,
             Buffer2D,
             ContainerMask = 0x180,
         };
@@ -459,7 +464,9 @@ namespace Spark
         };
     }
     typedef Property::Type property_t;
-
-
 }
 
+extern "C" const char* spark_nodetype_to_str(Spark::nodetype_t);
+extern "C" const char* spark_control_to_str(Spark::control_t);
+extern "C" const char* spark_datatype_to_str(Spark::datatype_t, char* buffer, int32_t sz);
+extern "C" const char* spark_function_to_str(Spark::function_t);
