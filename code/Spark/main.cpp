@@ -37,12 +37,13 @@ int main()
 
             a = (c == d);
 
-            c == c;
+            Int eq = (c == c);
 
             Float f = 1.2f;
             -f;
 
-            Float2 fvec1 = 12.0f;
+            cl_float2 val = {12.0f, 6.0f};
+            Float2 fvec1 = val;
             ivec1 = (fvec1 == fvec1);
 
             -ivec1;

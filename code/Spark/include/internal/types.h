@@ -4,13 +4,25 @@ namespace Spark
 {
      /// Type Translations
 
-    // gets the scalar int type with identical size
-    template<size_t S> struct int_by_size {typedef void type;};
-#define MAKE_INT_BY_SIZE(TYPE) template<> struct int_by_size<sizeof(TYPE)> {typedef TYPE type;};
-    MAKE_INT_BY_SIZE(cl_char)
-    MAKE_INT_BY_SIZE(cl_short)
-    MAKE_INT_BY_SIZE(cl_int)
-    MAKE_INT_BY_SIZE(cl_long)
+    // gets the equivalent integer type (used for comparison operators)
+    template<typename T> struct type_to_int {typedef void type;};
+#define MAKE_TYPE_TO_INT(TYPE, INT_TYPE)\
+    template<> struct type_to_int<TYPE> {typedef INT_TYPE type;};\
+    template<> struct type_to_int<TYPE##2> {typedef INT_TYPE##2 type;};\
+    template<> struct type_to_int<TYPE##4> {typedef INT_TYPE##4 type;};\
+    template<> struct type_to_int<TYPE##8> {typedef INT_TYPE##8 type;};\
+    template<> struct type_to_int<TYPE##16> {typedef INT_TYPE##16 type;};
+
+    MAKE_TYPE_TO_INT(cl_char, cl_char)
+    MAKE_TYPE_TO_INT(cl_uchar, cl_char)
+    MAKE_TYPE_TO_INT(cl_short, cl_short)
+    MAKE_TYPE_TO_INT(cl_ushort, cl_short)
+    MAKE_TYPE_TO_INT(cl_int, cl_int)
+    MAKE_TYPE_TO_INT(cl_uint, cl_int)
+    MAKE_TYPE_TO_INT(cl_long, cl_long)
+    MAKE_TYPE_TO_INT(cl_ulong, cl_long)
+    MAKE_TYPE_TO_INT(cl_float, cl_int)
+    MAKE_TYPE_TO_INT(cl_double, cl_long)
 
     template<typename TYPE> struct type_to_datatype {};
 #define MAKE_TYPE_TO_DATATYPE(TYPE, DATA_TYPE) template<> struct type_to_datatype<TYPE> {const static datatype_t datatype = DATA_TYPE;};
@@ -45,6 +57,38 @@ namespace Spark
         }
     };
 
+    // default constructor
+    template<typename TYPE, typename CL_TYPE>
+    void default_constructor(TYPE* type)
+    {
+        const auto dt = type_to_datatype<TYPE>::datatype;
+
+        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        type->_node = thisNode;
+
+        // init to 0
+        uint8_t raw[sizeof(CL_TYPE)] = {0};
+        Node* valNode = spark_create_constant_node(dt, raw, sizeof(raw));
+
+        // create assignment node
+        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+        spark_add_child_node(assignmentNode, thisNode);
+        spark_add_child_node(assignmentNode, valNode);
+
+        // add to tree
+        Node* currentScope = spark_peek_scope_node();
+        spark_add_child_node(currentScope, assignmentNode);
+    }
+
+#if 0
+    // value constructor
+    template<typename TYPE, typename CL_TYPE>
+    void value_constructor(TYPE* type, const CL_TYPE& val)
+    {
+
+    }
+#endif
+
     // scalar type wrapper
     template<typename CL_TYPE>
     struct scalar
@@ -52,27 +96,12 @@ namespace Spark
         // constructors
         scalar()
         {
-            const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
-
-            Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
-            this->_node = thisNode;
-
-            // init to 0
-            uint8_t raw[sizeof(CL_TYPE)] = {0};
-            Node* valNode = spark_create_constant_node(dt, raw, sizeof(raw));
-
-            // create assignment node
-            Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-            spark_add_child_node(assignmentNode, thisNode);
-            spark_add_child_node(assignmentNode, valNode);
-
-            // add to tree
-            Node* currentScope = spark_peek_scope_node();
-            spark_add_child_node(currentScope, assignmentNode);
+            default_constructor<scalar<CL_TYPE>, CL_TYPE>(this);
         }
 
         scalar(const CL_TYPE val)
         {
+            //value_constructor(this, val);
             const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
 
             Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
@@ -123,12 +152,13 @@ namespace Spark
     template<typename CL_TYPE>
     struct vector2
     {
+        typedef decltype(CL_TYPE::x) CL_SCALAR;
+        typedef CL_TYPE CL_VECTOR2;
+
         // constructors
         vector2()
-        : _node(nullptr)
         {
-            Node* node = spark_create_symbol_node(type_to_datatype<vector2<CL_TYPE>>::datatype, spark_next_symbol());
-            this->_node = node;
+            default_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this);
         }
 
         vector2(const CL_TYPE& val)
@@ -140,32 +170,32 @@ namespace Spark
         union
         {
             // swizzles
-            property_rw<scalar<CL_TYPE>, Property::X> X;
-            property_rw<scalar<CL_TYPE>, Property::Y> Y;
-            property_r<vector2<CL_TYPE>, Property::XX> XX;
-            property_rw<vector2<CL_TYPE>, Property::XY> XY;
-            property_rw<vector2<CL_TYPE>, Property::YX> YX;
-            property_r<vector2<CL_TYPE>, Property::YY> YY;
+            property_rw<scalar<CL_SCALAR>, Property::X> X;
+            property_rw<scalar<CL_SCALAR>, Property::Y> Y;
+            property_r<vector2<CL_VECTOR2>, Property::XX> XX;
+            property_rw<vector2<CL_VECTOR2>, Property::XY> XY;
+            property_rw<vector2<CL_VECTOR2>, Property::YX> YX;
+            property_r<vector2<CL_VECTOR2>, Property::YY> YY;
             // others
-            property_rw<scalar<CL_TYPE>, Property::Lo> Lo;
-            property_rw<scalar<CL_TYPE>, Property::Hi> Hi;
-            property_rw<scalar<CL_TYPE>, Property::Even> Even;
-            property_rw<scalar<CL_TYPE>, Property::Odd> Odd;
+            property_rw<scalar<CL_SCALAR>, Property::Lo> Lo;
+            property_rw<scalar<CL_SCALAR>, Property::Hi> Hi;
+            property_rw<scalar<CL_SCALAR>, Property::Even> Even;
+            property_rw<scalar<CL_SCALAR>, Property::Odd> Odd;
 
             // private node ptr
             Node* _node;
         };
 
-        scalar<CL_TYPE> operator[](const scalar<cl_int>& index)
+        scalar<CL_SCALAR> operator[](const scalar<cl_int>& index)
         {
             UNREFERENCED_PARAMETER(index);
-            return scalar<CL_TYPE>();
+            return scalar<CL_SCALAR>();
         }
 
-        const scalar<CL_TYPE> operator[](const scalar<cl_int>& index) const
+        const scalar<CL_SCALAR> operator[](const scalar<cl_int>& index) const
         {
             UNREFERENCED_PARAMETER(index);
-            return scalar<CL_TYPE>();
+            return scalar<CL_SCALAR>();
         }
 
         // cast operators
@@ -175,7 +205,7 @@ namespace Spark
             return vector2<S>();
         }
 
-        typedef vector2<typename int_by_size<sizeof(CL_TYPE)>::type> int_type;
+        typedef vector2<typename type_to_int<CL_VECTOR2>::type> int_type;
     };
 
     template<typename T>
@@ -249,7 +279,7 @@ namespace Spark
 
     #define MAKE_INT_TYPES(TYPE, CL_TYPE)\
     typedef scalar<CL_TYPE> TYPE;\
-    typedef vector2<CL_TYPE> TYPE##2;\
+    typedef vector2<CL_TYPE##2> TYPE##2;\
     MAKE_TYPE_TO_DATATYPE(TYPE, DataType::TYPE);\
     MAKE_TYPE_TO_DATATYPE(TYPE##2, (datatype_t)(DataType::TYPE | DataType::Vector2))\
     MAKE_INT_OPERATORS(TYPE)\
@@ -257,7 +287,7 @@ namespace Spark
 
     #define MAKE_FLOAT_TYPES(TYPE, CL_TYPE)\
     typedef scalar<CL_TYPE> TYPE;\
-    typedef vector2<CL_TYPE> TYPE##2;\
+    typedef vector2<CL_TYPE##2> TYPE##2;\
     MAKE_TYPE_TO_DATATYPE(TYPE, DataType::TYPE);\
     MAKE_TYPE_TO_DATATYPE(TYPE##2, (datatype_t)(DataType::TYPE | DataType::Vector2))\
     MAKE_FLOAT_OPERATORS(TYPE)\
