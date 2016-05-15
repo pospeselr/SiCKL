@@ -80,14 +80,40 @@ namespace Spark
         spark_add_child_node(currentScope, assignmentNode);
     }
 
-#if 0
     // value constructor
     template<typename TYPE, typename CL_TYPE>
     void value_constructor(TYPE* type, const CL_TYPE& val)
     {
+        const auto dt = type_to_datatype<TYPE>::datatype;
 
+        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        type->_node = thisNode;
+
+        // init to val
+        Node* valNode = spark_create_constant_node(dt, &val, sizeof(val));
+
+        // create assignment node
+        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+        spark_add_child_node(assignmentNode, thisNode);
+        spark_add_child_node(assignmentNode, valNode);
+
+        // add to tree
+        Node* currentScope = spark_peek_scope_node();
+        spark_add_child_node(currentScope, assignmentNode);
     }
-#endif
+
+    template<typename TYPE>
+    void assignment_operator(TYPE* type, const TYPE& that)
+    {
+        const auto dt = type_to_datatype<TYPE>::datatype;
+
+        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+        spark_add_child_node(assignmentNode, type->_node);
+        spark_add_child_node(assignmentNode, that._node);
+
+        Node* currentScope = spark_peek_scope_node();
+        spark_add_child_node(currentScope, assignmentNode);
+    }
 
     // scalar type wrapper
     template<typename CL_TYPE>
@@ -101,36 +127,12 @@ namespace Spark
 
         scalar(const CL_TYPE val)
         {
-            //value_constructor(this, val);
-            const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
-
-            Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
-            this->_node = thisNode;
-
-            // init to val
-            Node* valNode = spark_create_constant_node(dt, &val, sizeof(val));
-
-            // create assignment node
-            Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-            spark_add_child_node(assignmentNode, thisNode);
-            spark_add_child_node(assignmentNode, valNode);
-
-            // add to tree
-            Node* currentScope = spark_peek_scope_node();
-            spark_add_child_node(currentScope, assignmentNode);
+            value_constructor<scalar<CL_TYPE>, CL_TYPE>(this, val);
         }
 
         scalar& operator=(const scalar& that)
         {
-            const auto dt = type_to_datatype<scalar<CL_TYPE>>::datatype;
-
-            Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-            spark_add_child_node(assignmentNode, this->_node);
-            spark_add_child_node(assignmentNode, that._node);
-
-            Node* currentScope = spark_peek_scope_node();
-            spark_add_child_node(currentScope, assignmentNode);
-
+            assignment_operator<scalar<CL_TYPE>>(this, that);
             return *this;
         }
 
@@ -163,7 +165,13 @@ namespace Spark
 
         vector2(const CL_TYPE& val)
         {
-            UNREFERENCED_PARAMETER(val);
+            value_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this, val);
+        }
+
+        vector2& operator=(const vector2& that)
+        {
+            assignment_operator<vector2<CL_TYPE>>(this, that);
+            return *this;
         }
 
         // properties
@@ -231,6 +239,7 @@ namespace Spark
         spark_add_child_node(result._node, right._node);\
         return result;\
     }
+
 
     #define MAKE_INT_OPERATORS(TYPE)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\
