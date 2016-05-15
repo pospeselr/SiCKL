@@ -107,10 +107,31 @@ namespace Spark
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
 
+        // create assignment node
         Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
         spark_add_child_node(assignmentNode, type->_node);
         spark_add_child_node(assignmentNode, that._node);
 
+        // add to tree
+        Node* currentScope = spark_peek_scope_node();
+        spark_add_child_node(currentScope, assignmentNode);
+    }
+
+    template<typename TYPE, typename CL_SCALAR, size_t N>
+    void assignment_operator(TYPE* type, const CL_SCALAR (&that)[N])
+    {
+        const auto dt = type_to_datatype<TYPE>::datatype;
+
+        // init to val
+        Node* thisNode = type->_node;
+        Node* valNode = spark_create_constant_node(dt, &that, sizeof(that));
+
+        // create assignment node
+        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
+        spark_add_child_node(assignmentNode, thisNode);
+        spark_add_child_node(assignmentNode, valNode);
+
+        // add to tree
         Node* currentScope = spark_peek_scope_node();
         spark_add_child_node(currentScope, assignmentNode);
     }
@@ -120,19 +141,35 @@ namespace Spark
     struct scalar
     {
         // constructors
+        scalar(Node* node)
+        : _node(node)
+        {
+            SPARK_ASSERT(_node != nullptr);
+        }
+
         scalar()
         {
             default_constructor<scalar<CL_TYPE>, CL_TYPE>(this);
+            SPARK_ASSERT(_node != nullptr);
         }
 
-        scalar(const CL_TYPE val)
+        scalar(CL_TYPE val)
         {
             value_constructor<scalar<CL_TYPE>, CL_TYPE>(this, val);
+            SPARK_ASSERT(_node != nullptr);
         }
 
         scalar& operator=(const scalar& that)
         {
             assignment_operator<scalar<CL_TYPE>>(this, that);
+            SPARK_ASSERT(_node != nullptr);
+            return *this;
+        }
+
+        scalar& operator=(CL_TYPE val)
+        {
+            assignment_operator<scalar<CL_TYPE>, CL_TYPE, 1>(this, {val});
+            SPARK_ASSERT(_node != nullptr);
             return *this;
         }
 
@@ -158,19 +195,35 @@ namespace Spark
         typedef CL_TYPE CL_VECTOR2;
 
         // constructors
+        vector2(Node* node)
+        : _node(node)
+        {
+            SPARK_ASSERT(_node != nullptr);
+        }
+
         vector2()
         {
             default_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this);
+            SPARK_ASSERT(_node != nullptr);
         }
 
         vector2(const CL_TYPE& val)
         {
             value_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this, val);
+            SPARK_ASSERT(_node != nullptr);
         }
 
         vector2& operator=(const vector2& that)
         {
-            assignment_operator<vector2<CL_TYPE>>(this, that);
+            assignment_operator<vector2<CL_VECTOR2>>(this, that);
+            SPARK_ASSERT(_node != nullptr);
+            return *this;
+        }
+
+        vector2& operator=(const CL_SCALAR (&val)[2])
+        {
+            assignment_operator<vector2<CL_VECTOR2>, CL_SCALAR, 2>(this, val);
+            SPARK_ASSERT(_node != nullptr);
             return *this;
         }
 
@@ -224,20 +277,18 @@ namespace Spark
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     RETURN_TYPE operator OP(const TYPE& right)\
     {\
-        RETURN_TYPE result;\
-        result._node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
-        spark_add_child_node(result._node, right._node);\
-        return result;\
+        Node* result_node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
+        spark_add_child_node(result_node, right._node);\
+        return RETURN_TYPE(result_node);\
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     RETURN_TYPE operator OP (const TYPE& left, const TYPE& right)\
     {\
-        RETURN_TYPE result;\
-        result._node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
-        spark_add_child_node(result._node, left._node);\
-        spark_add_child_node(result._node, right._node);\
-        return result;\
+        Node* result_node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
+        spark_add_child_node(result_node, left._node);\
+        spark_add_child_node(result_node, right._node);\
+        return RETURN_TYPE(result_node);\
     }
 
 

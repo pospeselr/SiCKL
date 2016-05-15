@@ -42,8 +42,8 @@ int main()
             Float f = 1.2f;
             -f;
 
-            cl_float2 val = {12.0f, 6.0f};
-            Float2 fvec1 = val;
+            Float2 fvec1;
+            fvec1  = {1.0f, 2.0f};
             ivec1 = (fvec1 == fvec1);
 
             -ivec1;
