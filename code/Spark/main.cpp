@@ -24,9 +24,9 @@ int main()
 
             UInt d = (a + b).As<UInt>();
 
-            Int2 ivec1;// = {12, 27};
+            Int2 ivec1({12, 27});
             ivec1 + ivec1;
-            ivec1 = {12, 27};
+            ivec1 = {13, 61};
 
             ivec1 = ivec1.XX().XX();
 

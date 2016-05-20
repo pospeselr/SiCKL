@@ -63,8 +63,8 @@ namespace Spark
     };
 
     // value constructor
-    template<typename TYPE, typename CL_TYPE>
-    void value_constructor(TYPE* type, const CL_TYPE& val)
+    template<typename TYPE, size_t SIZE>
+    void value_constructor(TYPE* type, const void* raw)
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Operator::Assignment;
@@ -73,7 +73,7 @@ namespace Spark
         type->_node = thisNode;
 
         // init to val
-        Node* valNode = spark_create_constant_node(dt, &val, sizeof(val));
+        Node* valNode = spark_create_constant_node(dt, raw, SIZE);
 
         // create assignment node
         Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
@@ -88,7 +88,7 @@ namespace Spark
     {
         // init to 0
         CL_TYPE val = {0};
-        value_constructor(pThis, val);
+        value_constructor<TYPE, sizeof(val)>(pThis, &val);
     }
 
     // copy constructor
@@ -127,8 +127,8 @@ namespace Spark
     }
 
     // assignment operator for literals
-    template<typename TYPE, typename CL_SCALAR, size_t N>
-    void assignment_operator(TYPE* pThis, const CL_SCALAR (&that)[N])
+    template<typename TYPE, size_t SIZE>
+    void assignment_operator(TYPE* pThis, const void* raw)
     {
         SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
 
@@ -138,7 +138,7 @@ namespace Spark
         // init to val
         Node* thisNode = pThis->_node;
         SPARK_ASSERT(thisNode->_type == NodeType::Symbol);
-        Node* valNode = spark_create_constant_node(dt, &that, sizeof(that));
+        Node* valNode = spark_create_constant_node(dt, raw, SIZE);
 
         // create assignment node
         Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
@@ -178,7 +178,7 @@ namespace Spark
 
         scalar(CL_TYPE val)
         {
-            value_constructor<scalar<CL_TYPE>, CL_TYPE>(this, val);
+            value_constructor<scalar<CL_TYPE>, sizeof(CL_TYPE)>(this, &val);
             SPARK_ASSERT(_node != nullptr);
         }
 
@@ -197,7 +197,7 @@ namespace Spark
 
         scalar& operator=(CL_TYPE val)
         {
-            assignment_operator<scalar<CL_TYPE>, CL_TYPE, 1>(this, {val});
+            assignment_operator<scalar<CL_TYPE>, sizeof(val)>(this, &val);
             SPARK_ASSERT(_node != nullptr);
             return *this;
         }
@@ -247,7 +247,13 @@ public:
 
         vector2(const CL_TYPE& val)
         {
-            value_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this, val);
+            value_constructor<vector2<CL_VECTOR2>, sizeof(val)>(this, &val);
+            SPARK_ASSERT(_node != nullptr);
+        }
+
+        vector2(const CL_SCALAR (&val)[2])
+        {
+            value_constructor<vector2<CL_VECTOR2>, 2 * sizeof(CL_SCALAR)>(this, &val[0]);
             SPARK_ASSERT(_node != nullptr);
         }
 
@@ -266,7 +272,7 @@ public:
 
         vector2& operator=(const CL_SCALAR (&val)[2])
         {
-            assignment_operator<vector2<CL_VECTOR2>, CL_SCALAR, 2>(this, val);
+            assignment_operator<vector2<CL_VECTOR2>, 2 * sizeof(CL_SCALAR)>(this, &val[0]);
             SPARK_ASSERT(_node != nullptr);
             return *this;
         }

@@ -220,8 +220,7 @@ using namespace Spark::Internal;
 
 void spark_begin_program()
 {
-    // init to last built-in symbol + 1
-    g_nextSymbol = (symbolid_t)Operator::Count;
+    g_nextSymbol = 0;
 }
 
 void spark_end_program()
