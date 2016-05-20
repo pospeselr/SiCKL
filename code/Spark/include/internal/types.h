@@ -57,34 +57,12 @@ namespace Spark
         }
     };
 
-    // default constructor
-    template<typename TYPE, typename CL_TYPE>
-    void default_constructor(TYPE* type)
-    {
-        const auto dt = type_to_datatype<TYPE>::datatype;
-
-        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
-        type->_node = thisNode;
-
-        // init to 0
-        uint8_t raw[sizeof(CL_TYPE)] = {0};
-        Node* valNode = spark_create_constant_node(dt, raw, sizeof(raw));
-
-        // create assignment node
-        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-        spark_add_child_node(assignmentNode, thisNode);
-        spark_add_child_node(assignmentNode, valNode);
-
-        // add to tree
-        Node* currentScope = spark_peek_scope_node();
-        spark_add_child_node(currentScope, assignmentNode);
-    }
-
     // value constructor
     template<typename TYPE, typename CL_TYPE>
     void value_constructor(TYPE* type, const CL_TYPE& val)
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto op = Function::Assignment;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
         type->_node = thisNode;
@@ -93,45 +71,47 @@ namespace Spark
         Node* valNode = spark_create_constant_node(dt, &val, sizeof(val));
 
         // create assignment node
-        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-        spark_add_child_node(assignmentNode, thisNode);
-        spark_add_child_node(assignmentNode, valNode);
-
+        Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
         // add to tree
         Node* currentScope = spark_peek_scope_node();
         spark_add_child_node(currentScope, assignmentNode);
     }
 
+    // default constructor (ie 0)
+    template<typename TYPE, typename CL_TYPE>
+    void default_constructor(TYPE* type)
+    {
+        // init to 0
+        CL_TYPE val = {0};
+        value_constructor(type, val);
+    }
+
     template<typename TYPE>
-    void assignment_operator(TYPE* type, const TYPE& that)
+    void assignment_operator(TYPE* pThis, const TYPE& that)
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto op = Function::Assignment;
 
         // create assignment node
-        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-        spark_add_child_node(assignmentNode, type->_node);
-        spark_add_child_node(assignmentNode, that._node);
-
+        Node* assignmentNode = spark_create_operator2_node(dt, op, pThis->_node, that._node);
         // add to tree
         Node* currentScope = spark_peek_scope_node();
         spark_add_child_node(currentScope, assignmentNode);
     }
 
     template<typename TYPE, typename CL_SCALAR, size_t N>
-    void assignment_operator(TYPE* type, const CL_SCALAR (&that)[N])
+    void assignment_operator(TYPE* pThis, const CL_SCALAR (&that)[N])
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto op = Function::Assignment;
 
         // init to val
-        Node* thisNode = type->_node;
+        Node* thisNode = pThis->_node;
         SPARK_ASSERT(thisNode->_type == NodeType::Symbol);
         Node* valNode = spark_create_constant_node(dt, &that, sizeof(that));
 
         // create assignment node
-        Node* assignmentNode = spark_create_function_node(dt, (symbolid_t)Function::Assignment);
-        spark_add_child_node(assignmentNode, thisNode);
-        spark_add_child_node(assignmentNode, valNode);
-
+        Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
         // add to tree
         Node* currentScope = spark_peek_scope_node();
         spark_add_child_node(currentScope, assignmentNode);
