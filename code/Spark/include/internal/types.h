@@ -2,6 +2,11 @@
 
 namespace Spark
 {
+    /// Type properties
+
+    template<typename T> struct is_scalar_type {const static bool value = false;};
+    template<typename T> struct is_vector2_type {const static bool value = false;};
+
      /// Type Translations
 
     // gets the equivalent integer type (used for comparison operators)
@@ -195,19 +200,25 @@ namespace Spark
             return *this;
         }
 
-        // cast operators
+        // cast operator
 
-        template<typename S>
-        explicit operator scalar<S>() const
+        template<typename T>
+        rvalue<T> As() const
         {
-            return S();
+            static_assert(is_scalar_type<T>::value, "scalar types can only be cast to other scalar types");
+
+            auto dt = type_to_datatype<T>::datatype;
+            auto op = Function::Cast;
+
+            return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         // private node ptr
         Node* _node;
 
-       typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
+        typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
     };
+    template<typename T> struct is_scalar_type<scalar<T>> {const static bool value = true;};
 
     // wrapper for all vector2 types
     template<typename CL_TYPE>
@@ -290,15 +301,24 @@ public:
             return scalar<CL_SCALAR>();
         }
 
-        // cast operators
-        template<typename S>
-        explicit operator vector2<S>() const
+        // cast operator
+        template<typename T>
+        rvalue<T> As() const
         {
-            return vector2<S>();
+            static_assert(is_vector2_type<T>::value, "vector2 types can only be cast to other vector2 types");
+
+            auto dt = type_to_datatype<T>::datatype;
+            auto op = Function::Cast;
+
+            return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         typedef vector2<typename type_to_int<CL_VECTOR2>::type> int_type;
     };
+    template<typename T> struct is_vector2_type<vector2<T>> {const static bool value = true;};
+
+
+    /// int_type used to determine what boolean operators should return
 
     template<typename T>
     using int_type = typename T::int_type;
@@ -308,7 +328,6 @@ public:
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
     {\
-        TRACE\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Function::ENUM;\
         return rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
@@ -317,7 +336,6 @@ public:
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
     {\
-        TRACE\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Function::ENUM;\
         return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\

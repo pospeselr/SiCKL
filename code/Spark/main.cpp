@@ -22,17 +22,23 @@ int main()
             Int a, b;
             Int c = a + b;
 
-            UInt d;
+            UInt d = (a + b).As<UInt>();
 
-            Int2 ivec1;
+            Int2 ivec1;// = {12, 27};
             ivec1 + ivec1;
+            ivec1 = {12, 27};
 
             ivec1 = ivec1.XX().XX();
 
             ivec1[a];
 
-            a = (Int)c;
+            d = a.As<UInt>();
 
+#if 0
+            d = (UInt)c;
+
+            (UInt)c = d;
+#endif
             a = (d == d);
 
             Int eq = (c == c);
