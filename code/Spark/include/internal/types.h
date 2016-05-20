@@ -79,16 +79,38 @@ namespace Spark
 
     // default constructor (ie 0)
     template<typename TYPE, typename CL_TYPE>
-    void default_constructor(TYPE* type)
+    void default_constructor(TYPE* pThis)
     {
         // init to 0
         CL_TYPE val = {0};
-        value_constructor(type, val);
+        value_constructor(pThis, val);
     }
 
+    // copy constructor
+    template<typename TYPE>
+    void copy_constructor(TYPE* pThis, const TYPE& that)
+    {
+        const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto op = Function::Assignment;
+
+        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        pThis->_node = thisNode;
+
+        Node* thatNode = that._node;
+
+        // create assignment node
+        Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
+        // add to tree
+        Node* currentScope = spark_peek_scope_node();
+        spark_add_child_node(currentScope, assignmentNode);
+    }
+
+    // assignment operator for types
     template<typename TYPE>
     void assignment_operator(TYPE* pThis, const TYPE& that)
     {
+        SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
+
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Function::Assignment;
 
@@ -99,9 +121,12 @@ namespace Spark
         spark_add_child_node(currentScope, assignmentNode);
     }
 
+    // assignment operator for literals
     template<typename TYPE, typename CL_SCALAR, size_t N>
     void assignment_operator(TYPE* pThis, const CL_SCALAR (&that)[N])
     {
+        SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
+
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Function::Assignment;
 
@@ -117,10 +142,18 @@ namespace Spark
         spark_add_child_node(currentScope, assignmentNode);
     }
 
+    template<typename TYPE>
+    struct rvalue : TYPE
+    {
+        rvalue(Node* node) : TYPE(node) {}
+        rvalue& operator=(const rvalue&) = delete;
+    };
+
     // scalar type wrapper
     template<typename CL_TYPE>
     struct scalar
     {
+
         // constructors
         scalar(Node* node)
         : _node(node)
@@ -137,6 +170,12 @@ namespace Spark
         scalar(CL_TYPE val)
         {
             value_constructor<scalar<CL_TYPE>, CL_TYPE>(this, val);
+            SPARK_ASSERT(_node != nullptr);
+        }
+
+        scalar(const scalar& that)
+        {
+            copy_constructor<scalar<CL_TYPE>>(this, that);
             SPARK_ASSERT(_node != nullptr);
         }
 
@@ -191,6 +230,12 @@ namespace Spark
         vector2(const CL_TYPE& val)
         {
             value_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this, val);
+            SPARK_ASSERT(_node != nullptr);
+        }
+
+        vector2(const vector2& that)
+        {
+            copy_constructor<vector2<CL_TYPE>>(this, that);
             SPARK_ASSERT(_node != nullptr);
         }
 
@@ -256,21 +301,22 @@ namespace Spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    const RETURN_TYPE operator OP(const TYPE& right)\
+    rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
     {\
+        TRACE\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Function::ENUM;\
-        return RETURN_TYPE(spark_create_operator1_node(dt, op, right._node));\
+        return rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    const RETURN_TYPE operator OP (const TYPE& left, const TYPE& right)\
+    rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
     {\
+        TRACE\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Function::ENUM;\
-        return RETURN_TYPE(spark_create_operator2_node(dt, op, left._node, right._node));\
+        return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
-
 
     #define MAKE_INT_OPERATORS(TYPE)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\

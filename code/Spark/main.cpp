@@ -20,11 +20,9 @@ int main()
         spark_push_scope_node(root);
         {
             Int a, b;
-            a + b;
-            a = 1;
+            Int c = a + b;
 
-            UInt c, d;
-            c + d;
+            UInt d;
 
             Int2 ivec1;
             ivec1 + ivec1;
@@ -35,7 +33,7 @@ int main()
 
             a = (Int)c;
 
-            a = (c == d);
+            a = (d == d);
 
             Int eq = (c == c);
 
@@ -66,6 +64,8 @@ int main()
     PRINT_SIZEOF(Spark::Int2);
 
     PRINT_SIZEOF(Spark::Node);
+    PRINT_SIZEOF(Spark::rvalue<Spark::Int>);
+
 
     #define PRINT_OFFSETOF(TYPE, MEMBER) printf("offsetof(" #TYPE ", " #MEMBER ") : %lu\n", __builtin_offsetof(TYPE, MEMBER))
 
