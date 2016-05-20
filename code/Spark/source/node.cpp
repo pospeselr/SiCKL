@@ -188,7 +188,7 @@ namespace Spark
                 case NodeType::Control:
                     written = controlNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Function:
+                case NodeType::Operator:
                     written = functionNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 case NodeType::Symbol:
@@ -269,7 +269,7 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id)
     Node* node = new Node();
     node->_children = nullptr;
     node->_childCount = 0;
-    node->_type = NodeType::Function;
+    node->_type = NodeType::Operator;
     node->_function.type = dt;
     node->_function.id = id;
 

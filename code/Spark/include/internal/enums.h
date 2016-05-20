@@ -9,7 +9,7 @@ namespace Spark
         enum Type
         {
             Control,
-            Function,
+            Operator,
             Symbol,
             Constant,
 
