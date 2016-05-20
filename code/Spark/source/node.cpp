@@ -46,7 +46,7 @@ namespace Spark
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "%s -> %s\n",
-                spark_function_to_str((function_t)node->_function.id),
+                spark_operator_to_str((operator_t)node->_function.id),
                 spark_datatype_to_str(node->_function.type, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
@@ -221,7 +221,7 @@ using namespace Spark::Internal;
 void spark_begin_program()
 {
     // init to last built-in symbol + 1
-    g_nextSymbol = (symbolid_t)Function::Count;
+    g_nextSymbol = (symbolid_t)Operator::Count;
 }
 
 void spark_end_program()
@@ -264,7 +264,7 @@ Node* spark_create_control_node(control_t c)
     return node;
 }
 
-Node* spark_create_function_node(datatype_t dt, symbolid_t id)
+Node* spark_create_operator_node(datatype_t dt, operator_t id)
 {
     Node* node = new Node();
     node->_children = nullptr;
@@ -332,16 +332,16 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
     return node;
 }
 
-Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::function_t op, Spark::Node* arg1)
+Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1)
 {
-    Node* result_node = spark_create_function_node(dt, (symbolid_t)op);
+    Node* result_node = spark_create_operator_node(dt, op);
     spark_add_child_node(result_node, arg1);
     return result_node;
 }
 
-Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::function_t op, Spark::Node* arg1, Spark::Node* arg2)
+Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1, Spark::Node* arg2)
 {
-    Node* result_node = spark_create_function_node(dt, (symbolid_t)op);
+    Node* result_node = spark_create_operator_node(dt, op);
     spark_add_child_node(result_node, arg1);
     spark_add_child_node(result_node, arg2);
     return result_node;

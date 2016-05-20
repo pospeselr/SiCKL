@@ -92,36 +92,37 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 	return buffer;
 }
 
-const char* spark_function_to_str(function_t val)
+const char* spark_operator_to_str(operator_t val)
 {
-	SPARK_ASSERT(val < Function::Count);
+	SPARK_ASSERT(val < Operator::Count);
 
-	static const char* functionNames[] =
+	static const char* operatorNames[] =
 	{
-		"Function::Negate",
-		"Function::Add",
-		"Function::Subtract",
-		"Function::Multiply",
-		"Function::Divide",
-		"Function::Modulo",
-		"Function::GreaterThan",
-		"Function::LessThan",
-		"Function::GreaterEqualThan",
-		"Function::LessEqualThan",
-		"Function::NotEqual",
-		"Function::Equal",
-		"Function::LogicalNot",
-		"Function::LogicalAnd",
-		"Function::LogicalOr",
-		"Function::BitwiseNot",
-		"Function::BitwiseAnd",
-		"Function::BitwiseOr",
-		"Function::BitwiseXor",
-		"Function::RightShift",
-		"Function::LeftShift",
-		"Function::Assignment",
-		"Function::Cast",
+		"Operator::Negate",
+		"Operator::Add",
+		"Operator::Subtract",
+		"Operator::Multiply",
+		"Operator::Divide",
+		"Operator::Modulo",
+		"Operator::GreaterThan",
+		"Operator::LessThan",
+		"Operator::GreaterEqualThan",
+		"Operator::LessEqualThan",
+		"Operator::NotEqual",
+		"Operator::Equal",
+		"Operator::LogicalNot",
+		"Operator::LogicalAnd",
+		"Operator::LogicalOr",
+		"Operator::BitwiseNot",
+		"Operator::BitwiseAnd",
+		"Operator::BitwiseOr",
+		"Operator::BitwiseXor",
+		"Operator::RightShift",
+		"Operator::LeftShift",
+		"Operator::Assignment",
+		"Operator::Cast",
 	};
+	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 
-	return functionNames[val];
+	return operatorNames[val];
 }

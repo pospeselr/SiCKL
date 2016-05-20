@@ -21,3 +21,12 @@
 #define UNREFERENCED_PARAMETER(X) (void)X;
 #define TRACE printf("%u: %s\n", __LINE__, __PRETTY_FUNCTION__);
 
+// countof(X)
+#ifdef Compiler_MSVC
+	#define countof(X) _countof(X)
+#else
+	template<typename T, size_t N>
+	constexpr size_t countof(const T (&)[N]) { return N; }
+#endif
+
+

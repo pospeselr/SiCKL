@@ -67,7 +67,7 @@ namespace Spark
     void value_constructor(TYPE* type, const CL_TYPE& val)
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
-        const auto op = Function::Assignment;
+        const auto op = Operator::Assignment;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
         type->_node = thisNode;
@@ -96,7 +96,7 @@ namespace Spark
     void copy_constructor(TYPE* pThis, const TYPE& that)
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
-        const auto op = Function::Assignment;
+        const auto op = Operator::Assignment;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
         pThis->_node = thisNode;
@@ -117,7 +117,7 @@ namespace Spark
         SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
 
         const auto dt = type_to_datatype<TYPE>::datatype;
-        const auto op = Function::Assignment;
+        const auto op = Operator::Assignment;
 
         // create assignment node
         Node* assignmentNode = spark_create_operator2_node(dt, op, pThis->_node, that._node);
@@ -133,7 +133,7 @@ namespace Spark
         SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
 
         const auto dt = type_to_datatype<TYPE>::datatype;
-        const auto op = Function::Assignment;
+        const auto op = Operator::Assignment;
 
         // init to val
         Node* thisNode = pThis->_node;
@@ -159,6 +159,8 @@ namespace Spark
     struct scalar
     {
         friend struct rvalue<scalar>;
+        template<typename S>
+        friend struct scalar;
     private:
         // rvalue node constructor
         scalar(Node* node)
@@ -208,7 +210,7 @@ namespace Spark
             static_assert(is_scalar_type<T>::value, "scalar types can only be cast to other scalar types");
 
             auto dt = type_to_datatype<T>::datatype;
-            auto op = Function::Cast;
+            auto op = Operator::Cast;
 
             return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
         }
@@ -308,7 +310,7 @@ public:
             static_assert(is_vector2_type<T>::value, "vector2 types can only be cast to other vector2 types");
 
             auto dt = type_to_datatype<T>::datatype;
-            auto op = Function::Cast;
+            auto op = Operator::Cast;
 
             return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
         }
@@ -329,7 +331,7 @@ public:
     rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
     {\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
-        const auto op = Function::ENUM;\
+        const auto op = Operator::ENUM;\
         return rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
     }
 
@@ -337,7 +339,7 @@ public:
     rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
     {\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
-        const auto op = Function::ENUM;\
+        const auto op = Operator::ENUM;\
         return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
 

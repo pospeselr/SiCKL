@@ -75,7 +75,7 @@ namespace Spark
     }
     typedef enum DataType::Type datatype_t;
 
-    namespace Function
+    namespace Operator
     {
         enum Type
         {
@@ -106,7 +106,7 @@ namespace Spark
             Count
         };
     }
-    typedef enum Function::Type function_t;
+    typedef enum Operator::Type operator_t;
 
     namespace Property
     {
@@ -469,4 +469,4 @@ namespace Spark
 extern "C" const char* spark_nodetype_to_str(Spark::nodetype_t);
 extern "C" const char* spark_control_to_str(Spark::control_t);
 extern "C" const char* spark_datatype_to_str(Spark::datatype_t, char* buffer, int32_t sz);
-extern "C" const char* spark_function_to_str(Spark::function_t);
+extern "C" const char* spark_operator_to_str(Spark::operator_t);
