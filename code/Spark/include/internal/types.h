@@ -7,7 +7,7 @@ namespace Spark
     // gets the equivalent integer type (used for comparison operators)
     template<typename T> struct type_to_int {typedef void type;};
 #define MAKE_TYPE_TO_INT(TYPE, INT_TYPE)\
-    template<> struct type_to_int<TYPE> {typedef INT_TYPE type;};\
+    template<> struct type_to_int<TYPE> {typedef cl_int type;};\
     template<> struct type_to_int<TYPE##2> {typedef INT_TYPE##2 type;};\
     template<> struct type_to_int<TYPE##4> {typedef INT_TYPE##4 type;};\
     template<> struct type_to_int<TYPE##8> {typedef INT_TYPE##8 type;};\
@@ -124,6 +124,7 @@ namespace Spark
 
         // init to val
         Node* thisNode = type->_node;
+        SPARK_ASSERT(thisNode->_type == NodeType::Symbol);
         Node* valNode = spark_create_constant_node(dt, &that, sizeof(that));
 
         // create assignment node
@@ -184,7 +185,7 @@ namespace Spark
         // private node ptr
         Node* _node;
 
-        typedef scalar<cl_int> int_type;
+       typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
     };
 
     // wrapper for all vector2 types
@@ -275,7 +276,7 @@ namespace Spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    RETURN_TYPE operator OP(const TYPE& right)\
+    const RETURN_TYPE operator OP(const TYPE& right)\
     {\
         Node* result_node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
         spark_add_child_node(result_node, right._node);\
@@ -283,7 +284,7 @@ namespace Spark
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    RETURN_TYPE operator OP (const TYPE& left, const TYPE& right)\
+    const RETURN_TYPE operator OP (const TYPE& left, const TYPE& right)\
     {\
         Node* result_node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
         spark_add_child_node(result_node, left._node);\
