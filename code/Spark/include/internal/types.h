@@ -153,14 +153,16 @@ namespace Spark
     template<typename CL_TYPE>
     struct scalar
     {
-
-        // constructors
+        friend struct rvalue<scalar>;
+    private:
+        // rvalue node constructor
         scalar(Node* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
         }
-
+    public:
+        // constructors
         scalar()
         {
             default_constructor<scalar<CL_TYPE>, CL_TYPE>(this);
@@ -214,13 +216,16 @@ namespace Spark
         typedef decltype(CL_TYPE::x) CL_SCALAR;
         typedef CL_TYPE CL_VECTOR2;
 
-        // constructors
+        friend struct rvalue<vector2>;
+private:
+        // rvalue node constructor
         vector2(Node* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
         }
-
+public:
+        // constructors
         vector2()
         {
             default_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this);
