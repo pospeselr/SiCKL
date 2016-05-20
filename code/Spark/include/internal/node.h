@@ -45,6 +45,10 @@ extern "C" Spark::Node* spark_create_control_node(Spark::control_t c);
 extern "C" Spark::Node* spark_create_function_node(Spark::datatype_t dt, Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_symbol_node(Spark::datatype_t dt, Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const void* raw, size_t sz);
+// compound node creation
+extern "C" Spark::Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::function_t op, Spark::Node* arg1);
+extern "C" Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::function_t op, Spark::Node* arg1, Spark::Node* arg2);
+
 // node deletion
 extern "C" void spark_free_node(Spark::Node* node);
 // tree modification

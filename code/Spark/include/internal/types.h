@@ -278,18 +278,17 @@ namespace Spark
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     const RETURN_TYPE operator OP(const TYPE& right)\
     {\
-        Node* result_node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
-        spark_add_child_node(result_node, right._node);\
-        return RETURN_TYPE(result_node);\
+        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto op = Function::ENUM;\
+        return RETURN_TYPE(spark_create_operator1_node(dt, op, right._node));\
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     const RETURN_TYPE operator OP (const TYPE& left, const TYPE& right)\
     {\
-        Node* result_node = spark_create_function_node(type_to_datatype<RETURN_TYPE>::datatype, (symbolid_t)Function::ENUM);\
-        spark_add_child_node(result_node, left._node);\
-        spark_add_child_node(result_node, right._node);\
-        return RETURN_TYPE(result_node);\
+        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto op = Function::ENUM;\
+        return RETURN_TYPE(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
 
 
