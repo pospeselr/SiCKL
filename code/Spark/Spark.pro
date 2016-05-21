@@ -27,7 +27,7 @@ macx {
 
 }
 unix {
-    QMAKE_CXXFLAGS += -std=gnu++11
+    QMAKE_CXXFLAGS += -std=gnu++11 -Wfatal-errors
 }
 
 # includes
