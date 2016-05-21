@@ -170,6 +170,17 @@ namespace Spark
             return written;
         }
 
+        int32_t propertyNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        {
+            char propertyBuffer[8];
+            char datatypeBuffer[32];
+            written = doSnprintf(buffer, buffer_size, written,
+                "Property::%s -> %s\n",
+                spark_property_to_str(node->_property.id, propertyBuffer, countof(propertyBuffer)),
+                spark_datatype_to_str(node->_property.type, datatypeBuffer, countof(datatypeBuffer)));
+            return written;
+        }
+
         // if out_bufer is null
         int32_t nodeToText(Spark::Node* node, char* out_buffer, int32_t buffer_size, int32_t written, int32_t indentation)
         {
@@ -196,6 +207,9 @@ namespace Spark
                     break;
                 case NodeType::Constant:
                     written = constantNodeToText(node, out_buffer, buffer_size, written);
+                    break;
+                case NodeType::Property:
+                    written = propertyNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 default:
                     written = doSnprintf(out_buffer, buffer_size, written, "%s\n", spark_nodetype_to_str(node->_type));
@@ -248,6 +262,7 @@ Node* spark_create_control_node(control_t c)
     Node* node = new Node();
     node->_children = nullptr;
     node->_childCount = 0;
+    node->_bufferSize = 0;
     node->_type = NodeType::Control;
     node->_control = c;
 
@@ -268,6 +283,7 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id)
     Node* node = new Node();
     node->_children = nullptr;
     node->_childCount = 0;
+    node->_bufferSize = 0;
     node->_type = NodeType::Operator;
     node->_function.type = dt;
     node->_function.id = id;
@@ -289,6 +305,7 @@ Node* spark_create_symbol_node(datatype_t dt, symbolid_t id)
     Node* node = new Node();
     node->_children = nullptr;
     node->_childCount = 0;
+    node->_bufferSize = 0;
     node->_type = NodeType::Symbol;
     node->_symbol.type = dt;
     node->_symbol.id = id;
@@ -313,6 +330,7 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
     Node* node = new Node();
     node->_children = nullptr;
     node->_childCount = 0;
+    node->_bufferSize = 0;
     node->_type = NodeType::Constant;
     node->_constant.type = dt;
     node->_constant.buffer = new uint8_t[sz];
@@ -327,6 +345,21 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
     {
         spark_print_exception(ex);
     }
+
+    return node;
+}
+
+Node* spark_create_property_node(datatype_t dt, property_t prop, Node* parent)
+{
+    Node* node = new Node();
+    node->_children = nullptr;
+    node->_childCount = 0;
+    node->_bufferSize = 0;
+    node->_type = NodeType::Property;
+    node->_property.type = dt;
+    node->_property.id = prop;
+
+    spark_add_child_node(node, parent);
 
     return node;
 }

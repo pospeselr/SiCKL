@@ -8,15 +8,18 @@ using namespace Spark;
 
 const char* spark_nodetype_to_str(nodetype_t val)
 {
-	static const char* names[] =
+	static const char* nodeNames[] =
 	{
 		"NodeType::Control",
 		"NodeType::Function",
 		"NodeType::Symbol",
 		"NodeType::Constant",
+		"NodeType::Property",
 	};
+	static_assert(countof(nodeNames) == NodeType::Count, "size mismatch between nodeNames and NodeType::Count");
 	SPARK_ASSERT(val < NodeType::Count);
-	return names[val];
+
+	return nodeNames[val];
 }
 
 const char* spark_control_to_str(control_t val)
@@ -94,8 +97,6 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 
 const char* spark_operator_to_str(operator_t val)
 {
-	SPARK_ASSERT(val < Operator::Count);
-
 	static const char* operatorNames[] =
 	{
 		"Operator::Negate",
@@ -123,6 +124,63 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::Cast",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
+	SPARK_ASSERT(val < Operator::Count);
 
 	return operatorNames[val];
+}
+
+const char* spark_property_to_str(property_t val, char* buffer, int32_t sz)
+{
+	if(val >= Property::FirstProperty)
+	{
+		const static char* propertyNames[] =
+		{
+			"lo",
+			"hi",
+			"even",
+			"odd",
+		};
+		static_assert(countof(propertyNames) == Property::Count - Property::FirstProperty, "size mismatch between propertyNames and Property::Count");
+		SPARK_ASSERT(val < Property::Count);
+
+		snprintf(buffer, sz, "%s", propertyNames[val - Property::FirstProperty]);
+	}
+	else
+	{
+		auto getChar = [](int i) -> char
+		{
+			SPARK_ASSERT(i < 5);
+			SPARK_ASSERT(i != 0);
+			switch(i)
+			{
+				case 1:
+				case 2:
+				case 3:
+					return 'x' + i - 1;
+				case 4:
+					return 'w';
+				default:
+					return 0;
+			}
+		};
+
+		char stack[4];
+		int32_t idx = 0;
+		uint32_t swiz = val;
+		while(swiz > 0)
+		{
+			stack[idx++] = getChar(swiz % 5);
+			swiz /= 5;
+		}
+
+		SPARK_ASSERT(idx <= sz);
+
+		buffer[idx] = 0;
+		for(int k = 0; k < idx; k++)
+		{
+			buffer[k] = stack[idx - k - 1];
+		}
+	}
+
+	return buffer;
 }

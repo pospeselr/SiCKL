@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <memory>
+#include <iostream>
 using namespace std;
 
 
@@ -28,20 +29,17 @@ int main()
             ivec1 + ivec1;
             ivec1 = {13, 61};
 
-            ivec1 = ivec1.XX().XX();
+            ivec1 = ivec1.XX();
+            ivec1.XY = ivec1;
 
             ivec1[a];
 
             d = a.As<UInt>();
 
-#if 0
-            d = (UInt)c;
-
-            (UInt)c = d;
-#endif
             a = (d == d);
 
             Int eq = (c == c);
+            UNREFERENCED_PARAMETER(eq);
 
             Float f = 1.2f;
             -f;
@@ -78,6 +76,13 @@ int main()
     PRINT_OFFSETOF(Spark::Node, _children);
     PRINT_OFFSETOF(Spark::Node, _type);
 
+    char prop[16] = {0};
+    cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;
+    cout << spark_property_to_str(Property::XX, prop, countof(prop)) << endl;
+    cout << spark_property_to_str(Property::WX, prop, countof(prop)) << endl;
+    cout << spark_property_to_str(Property::YXWX, prop, countof(prop)) << endl;
+    cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;
+    cout << spark_property_to_str(Property::Lo, prop, countof(prop)) << endl;
 
     return 0;
 }

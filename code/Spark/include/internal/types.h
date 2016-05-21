@@ -33,18 +33,27 @@ namespace Spark
 #define MAKE_TYPE_TO_DATATYPE(TYPE, DATA_TYPE) template<> struct type_to_datatype<TYPE> {const static datatype_t datatype = DATA_TYPE;};
     /// Wrapper Objects
 
+    template<typename TYPE>
+    struct rvalue : TYPE
+    {
+        rvalue(Node* node) : TYPE(node) {}
+        rvalue& operator=(const rvalue&) = delete;
+    };
+
     template<typename TYPE, property_t ID>
     struct property_r
     {
-        operator TYPE() const
+        operator rvalue<TYPE>() const
         {
-            return TYPE();
+            return rvalue<TYPE>(nullptr);
         };
 
-        const TYPE operator()() const
+        const rvalue<TYPE> operator()() const
         {
-            return TYPE();
+            const auto dt = type_to_datatype<TYPE>::datatype;
+            return rvalue<TYPE>(spark_create_property_node(dt, ID, this->_node));
         }
+        Node* _node;
     };
 
     template<typename TYPE, property_t ID>
@@ -147,13 +156,6 @@ namespace Spark
         spark_add_child_node(currentScope, assignmentNode);
     }
 
-    template<typename TYPE>
-    struct rvalue : TYPE
-    {
-        rvalue(Node* node) : TYPE(node) {}
-        rvalue& operator=(const rvalue&) = delete;
-    };
-
     // scalar type wrapper
     template<typename CL_TYPE>
     struct scalar
@@ -209,8 +211,8 @@ namespace Spark
         {
             static_assert(is_scalar_type<T>::value, "scalar types can only be cast to other scalar types");
 
-            auto dt = type_to_datatype<T>::datatype;
-            auto op = Operator::Cast;
+            const auto dt = type_to_datatype<T>::datatype;
+            const auto op = Operator::Cast;
 
             return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
         }
