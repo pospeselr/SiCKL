@@ -103,6 +103,7 @@ namespace Spark
             LeftShift,
             Assignment,
             Cast,
+            Index,
 
             Count
         };

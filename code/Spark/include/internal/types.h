@@ -16,18 +16,18 @@ namespace Spark
     template<> struct type_to_int<TYPE##2> {typedef INT_TYPE##2 type;};\
     template<> struct type_to_int<TYPE##4> {typedef INT_TYPE##4 type;};\
     template<> struct type_to_int<TYPE##8> {typedef INT_TYPE##8 type;};\
-    template<> struct type_to_int<TYPE##16> {typedef INT_TYPE##16 type;};
+    template<> struct type_to_int<TYPE##16> {typedef INT_TYPE##16 type;}
 
-    MAKE_TYPE_TO_INT(cl_char, cl_char)
-    MAKE_TYPE_TO_INT(cl_uchar, cl_char)
-    MAKE_TYPE_TO_INT(cl_short, cl_short)
-    MAKE_TYPE_TO_INT(cl_ushort, cl_short)
-    MAKE_TYPE_TO_INT(cl_int, cl_int)
-    MAKE_TYPE_TO_INT(cl_uint, cl_int)
-    MAKE_TYPE_TO_INT(cl_long, cl_long)
-    MAKE_TYPE_TO_INT(cl_ulong, cl_long)
-    MAKE_TYPE_TO_INT(cl_float, cl_int)
-    MAKE_TYPE_TO_INT(cl_double, cl_long)
+    MAKE_TYPE_TO_INT(cl_char, cl_char);
+    MAKE_TYPE_TO_INT(cl_uchar, cl_char);
+    MAKE_TYPE_TO_INT(cl_short, cl_short);
+    MAKE_TYPE_TO_INT(cl_ushort, cl_short);
+    MAKE_TYPE_TO_INT(cl_int, cl_int);
+    MAKE_TYPE_TO_INT(cl_uint, cl_int);
+    MAKE_TYPE_TO_INT(cl_long, cl_long);
+    MAKE_TYPE_TO_INT(cl_ulong, cl_long);
+    MAKE_TYPE_TO_INT(cl_float, cl_int);
+    MAKE_TYPE_TO_INT(cl_double, cl_long);
 
     template<typename TYPE> struct type_to_datatype {};
 #define MAKE_TYPE_TO_DATATYPE(TYPE, DATA_TYPE) template<> struct type_to_datatype<TYPE> {const static datatype_t datatype = DATA_TYPE;};
@@ -123,7 +123,8 @@ namespace Spark
     template<typename TYPE>
     void assignment_operator(TYPE* pThis, const TYPE& that)
     {
-        SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
+        SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
+                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_function.id == Operator::Index));
 
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Operator::Assignment;
@@ -139,14 +140,14 @@ namespace Spark
     template<typename TYPE, size_t SIZE>
     void assignment_operator(TYPE* pThis, const void* raw)
     {
-        SPARK_ASSERT(pThis->_node->_type == NodeType::Symbol);
+        SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
+                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_function.id == Operator::Index));
 
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Operator::Assignment;
 
         // init to val
         Node* thisNode = pThis->_node;
-        SPARK_ASSERT(thisNode->_type == NodeType::Symbol);
         Node* valNode = spark_create_constant_node(dt, raw, SIZE);
 
         // create assignment node
@@ -156,6 +157,10 @@ namespace Spark
         spark_add_child_node(currentScope, assignmentNode);
     }
 
+    // forward declare tyeps
+    template<typename CL_TYPE> struct scalar;
+    template<typename CL_TYPE> struct vector2;
+
     // scalar type wrapper
     template<typename CL_TYPE>
     struct scalar
@@ -163,6 +168,8 @@ namespace Spark
         friend struct rvalue<scalar>;
         template<typename S>
         friend struct scalar;
+        template<typename S>
+        friend struct vector2;
     private:
         // rvalue node constructor
         scalar(Node* node)
@@ -301,14 +308,44 @@ public:
 
         scalar<CL_SCALAR> operator[](const scalar<cl_int>& index)
         {
-            UNREFERENCED_PARAMETER(index);
-            return scalar<CL_SCALAR>();
+            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto op = Operator::Index;
+
+            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
+            return scalar<CL_SCALAR>(indexNode);
         }
 
-        const scalar<CL_SCALAR> operator[](const scalar<cl_int>& index) const
+        rvalue<scalar<CL_SCALAR>> operator[](const scalar<cl_int>& index) const
         {
-            UNREFERENCED_PARAMETER(index);
-            return scalar<CL_SCALAR>();
+            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto op = Operator::Index;
+
+            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
+            return rvalue<scalar<CL_SCALAR>>(indexNode);
+        }
+
+        scalar<CL_SCALAR> operator[](cl_int index)
+        {
+            SPARK_ASSERT(index == 0 || index == 1);
+
+            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto op = Operator::Index;
+
+            Node* valNode = spark_create_constant_node(DataType::Int, &index, sizeof(index));
+            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, valNode);
+            return scalar<CL_SCALAR>(indexNode);
+        }
+
+        rvalue<scalar<CL_SCALAR>> operator[](cl_int index) const
+        {
+            SPARK_ASSERT(index == 0 || index == 1);
+
+            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto op = Operator::Index;
+
+            Node* valNode = spark_create_constant_node(DataType::Int, &index, sizeof(index));
+            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, valNode);
+            return rvalue<scalar<CL_SCALAR>>(indexNode);
         }
 
         // cast operator
@@ -317,8 +354,8 @@ public:
         {
             static_assert(is_vector2_type<T>::value, "vector2 types can only be cast to other vector2 types");
 
-            auto dt = type_to_datatype<T>::datatype;
-            auto op = Operator::Cast;
+            const auto dt = type_to_datatype<T>::datatype;
+            const auto op = Operator::Cast;
 
             return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
         }

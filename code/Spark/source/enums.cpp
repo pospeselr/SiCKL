@@ -122,6 +122,7 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::LeftShift",
 		"Operator::Assignment",
 		"Operator::Cast",
+		"Operator::Index",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < Operator::Count);
@@ -159,9 +160,9 @@ const char* spark_property_to_str(property_t val, char* buffer, int32_t sz)
 					return 'x' + i - 1;
 				case 4:
 					return 'w';
-				default:
-					return 0;
 			}
+			SPARK_ASSERT(!!"Unexpected swizzle value");
+			return 0;
 		};
 
 		char stack[4];

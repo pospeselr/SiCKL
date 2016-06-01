@@ -361,6 +361,15 @@ Node* spark_create_property_node(datatype_t dt, property_t prop, Node* parent)
 
     spark_add_child_node(node, parent);
 
+    try
+    {
+        g_allocatedNodes.push_back(node);
+    }
+    catch(std::exception& ex)
+    {
+        spark_print_exception(ex);
+    }
+
     return node;
 }
 

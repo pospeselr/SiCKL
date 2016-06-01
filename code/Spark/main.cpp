@@ -5,8 +5,6 @@
 #include <iostream>
 using namespace std;
 
-
-
 // spark
 #include <spark.h>
 using namespace Spark;
@@ -16,7 +14,6 @@ int main()
 
     spark_begin_program();
     {
-
         auto root = spark_create_control_node(Control::Root);
         spark_push_scope_node(root);
         {
@@ -24,7 +21,6 @@ int main()
             Int c = a + b;
 
             UInt d = (a + b).As<UInt>();
-
             Int2 ivec1({12, 27});
             ivec1 + ivec1;
             ivec1 = {13, 61};
@@ -33,6 +29,7 @@ int main()
             ivec1.XY = ivec1;
 
             ivec1[a];
+            ivec1[0];
 
             d = a.As<UInt>();
 
@@ -47,6 +44,11 @@ int main()
             Float2 fvec1;
             fvec1  = {1.0f, 2.0f};
             ivec1 = (fvec1 == fvec1);
+
+
+            f = fvec1[a];
+            fvec1[a] = f;
+            fvec1[0] = 1.0f;
 
             -ivec1;
         }
