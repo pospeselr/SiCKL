@@ -39,7 +39,14 @@ namespace Spark
         rvalue(Node* node) : TYPE(node) {}
         ~rvalue()
         {
-            // used for prefix/postix operator (or any operator which has side effects and returns an rvalue)
+            // used for prefix/postix operator (or any operator which has side effects and
+            // also returns an rvalue which may be ignored)
+
+            // from 12.2/3:
+
+            // Temporary objects are destroyed as the last step in evaluating the full-
+            // expression (1.9) that (lexically) contains the point where they were created.
+
             if(DESTRUCT_ATTACH &&
                this->_node->_attached == false)
             {
