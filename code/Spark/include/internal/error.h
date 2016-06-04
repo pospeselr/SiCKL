@@ -19,6 +19,8 @@
 	#define SPARK_VERIFY(X) (void)(X)
 #endif
 
+#define SPARK_STATIC_ASSERT(...) static_assert((__VA_ARGS__), #__VA_ARGS__)
+
 // error handling
 extern "C" void spark_print_assert(const char* msg, const char* file, uint32_t line);
 extern "C" void spark_print_exception(const std::exception& ex);

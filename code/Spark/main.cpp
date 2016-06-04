@@ -3,11 +3,60 @@
 #include <cstdio>
 #include <memory>
 #include <iostream>
-using namespace std;
+
+using std::cout;
+using std::endl;
+using std::unique_ptr;
 
 // spark
 #include <spark.h>
 using namespace Spark;
+
+namespace Spark
+{
+
+    typedef uint8_t true_t;
+    typedef uint16_t false_t;
+
+    template<class T> T& get_lvalue();
+    template<class T> T get_rvalue();
+    template<class T> T get();
+
+    template<class L, class R>
+    struct is_assignable
+    {
+        template<class T, class U> static true_t test(char(*)[sizeof(get<T>() = get<U>())]);
+        template<class T, class U> static false_t test(...);
+        constexpr operator bool() const {return sizeof(true_t) == sizeof(test<L, R>(0));}
+    };
+
+    // verification assignment is working as expected
+
+    // rvalue
+    SPARK_STATIC_ASSERT(is_assignable<rvalue<Int>, Int>() == false);
+    // scalar and vector types
+    SPARK_STATIC_ASSERT(is_assignable<Int, Int>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<Int, UInt>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<Int2, Int2>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<Int2, UInt2>() == false);
+    // properties
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::X), Int>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::X), UInt>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::XY), Int2>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::XY), UInt2>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::XX), Int2>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<Int, decltype(Int2::X)>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<Int2, decltype(Int2::XY)>() == true);
+    // casting
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int().As<UInt>()), Int>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int().As<UInt>()), UInt>() == false);
+    // return from operator
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int() + Int()), Int>() == false);
+    // assignment operator
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int() = Int()), Int>() == true);
+
+}
+
 int main()
 {
     printf("hello world\n");

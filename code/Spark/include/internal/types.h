@@ -43,7 +43,7 @@ namespace Spark
     template<typename TYPE, property_t ID>
     struct property_r
     {
-        operator rvalue<TYPE>() const
+        operator const rvalue<TYPE>() const
         {
             Node* property = spark_create_property_node(ID);
             const auto dt = type_to_datatype<TYPE>::datatype;
@@ -52,7 +52,7 @@ namespace Spark
             return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
         };
 
-        rvalue<TYPE> operator()() const
+        const rvalue<TYPE> operator()() const
         {
             Node* property = spark_create_property_node(ID);
             const auto dt = type_to_datatype<TYPE>::datatype;
@@ -86,7 +86,19 @@ namespace Spark
 
         property_rw& operator=(const TYPE& right)
         {
-            UNREFERENCED_PARAMETER(right);
+            // create property node
+            Node* property = spark_create_property_node(ID);
+            Node* lvalue = spark_create_operator2_node(type_to_datatype<TYPE>::datatype, Operator::Property, this->_node, property);
+
+            // create assignment node
+            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto op = Operator::Assignment;
+            Node* assignmentNode = spark_create_operator2_node(dt, op, lvalue, right._node);
+
+            // add to tree
+            Node* currentScope = spark_peek_scope_node();
+            spark_add_child_node(currentScope, assignmentNode);
+
             return *this;
         }
         Node* _node;
