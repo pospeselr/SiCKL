@@ -30,7 +30,6 @@ namespace Spark
             } _constant;
             struct
             {
-                datatype_t type;
                 property_t id;
             } _property;
         };
@@ -50,7 +49,7 @@ extern "C" Spark::Node* spark_create_control_node(Spark::control_t c);
 extern "C" Spark::Node* spark_create_operator_node(Spark::datatype_t dt, Spark::operator_t id);
 extern "C" Spark::Node* spark_create_symbol_node(Spark::datatype_t dt, Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const void* raw, size_t sz);
-extern "C" Spark::Node* spark_create_property_node(Spark::datatype_t, Spark::property_t, Spark::Node* parent);
+extern "C" Spark::Node* spark_create_property_node(Spark::property_t);
 // compound node creation
 extern "C" Spark::Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1);
 extern "C" Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1, Spark::Node* arg2);

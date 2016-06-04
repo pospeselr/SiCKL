@@ -45,13 +45,20 @@ namespace Spark
     {
         operator rvalue<TYPE>() const
         {
-            return rvalue<TYPE>(nullptr);
+            Node* property = spark_create_property_node(ID);
+            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto op = Operator::Property;
+
+            return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
         };
 
-        const rvalue<TYPE> operator()() const
+        rvalue<TYPE> operator()() const
         {
+            Node* property = spark_create_property_node(ID);
             const auto dt = type_to_datatype<TYPE>::datatype;
-            return rvalue<TYPE>(spark_create_property_node(dt, ID, this->_node));
+            const auto op = Operator::Property;
+
+            return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
         }
         Node* _node;
     };
@@ -61,14 +68,28 @@ namespace Spark
     {
         operator TYPE() const
         {
-            return TYPE();
+            Node* property = spark_create_property_node(ID);
+            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto op = Operator::Property;
+
+            return TYPE(spark_create_operator2_node(dt, op, this->_node, property));
         };
+
+        TYPE operator()() const
+        {
+            Node* property = spark_create_property_node(ID);
+            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto op = Operator::Property;
+
+            return TYPE(spark_create_operator2_node(dt, op, this->_node, property));
+        }
 
         property_rw& operator=(const TYPE& right)
         {
             UNREFERENCED_PARAMETER(right);
             return *this;
         }
+        Node* _node;
     };
 
     // value constructor
@@ -170,6 +191,8 @@ namespace Spark
         friend struct scalar;
         template<typename S>
         friend struct vector2;
+        template<typename S, property_t id>
+        friend struct property_rw;
     private:
         // rvalue node constructor
         scalar(Node* node)
@@ -239,6 +262,8 @@ namespace Spark
         typedef CL_TYPE CL_VECTOR2;
 
         friend struct rvalue<vector2>;
+        template<typename S, property_t id>
+        friend struct property_rw;
 private:
         // rvalue node constructor
         vector2(Node* node)

@@ -173,11 +173,9 @@ namespace Spark
         int32_t propertyNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char propertyBuffer[8];
-            char datatypeBuffer[32];
             written = doSnprintf(buffer, buffer_size, written,
-                "Property::%s -> %s\n",
-                spark_property_to_str(node->_property.id, propertyBuffer, countof(propertyBuffer)),
-                spark_datatype_to_str(node->_property.type, datatypeBuffer, countof(datatypeBuffer)));
+                "Property::%s\n",
+                spark_property_to_str(node->_property.id, propertyBuffer, countof(propertyBuffer)));
             return written;
         }
 
@@ -349,17 +347,14 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
     return node;
 }
 
-Node* spark_create_property_node(datatype_t dt, property_t prop, Node* parent)
+Node* spark_create_property_node(property_t prop)
 {
     Node* node = new Node();
     node->_children = nullptr;
     node->_childCount = 0;
     node->_bufferSize = 0;
     node->_type = NodeType::Property;
-    node->_property.type = dt;
     node->_property.id = prop;
-
-    spark_add_child_node(node, parent);
 
     try
     {

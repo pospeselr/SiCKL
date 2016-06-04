@@ -104,6 +104,7 @@ namespace Spark
             Assignment,
             Cast,
             Index,
+            Property,
 
             Count
         };
