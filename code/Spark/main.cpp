@@ -54,7 +54,11 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int() + Int()), Int>() == false);
     // assignment operator
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int() = Int()), Int>() == true);
-
+    // post/pre inc/dec
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int()++), Int>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int()--), Int>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
 }
 
 int main()
@@ -100,6 +104,16 @@ int main()
             fvec1[0] = 1.0f;
 
             -ivec1;
+
+            a++;
+            a--;
+            ++a;
+            --a;
+
+            Int inc = a++;
+            inc = a--;
+            inc = --a;
+            inc = ++a;
         }
 
         const auto len = spark_node_to_text(root, nullptr, 0);

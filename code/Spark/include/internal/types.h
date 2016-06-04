@@ -33,10 +33,21 @@ namespace Spark
 #define MAKE_TYPE_TO_DATATYPE(TYPE, DATA_TYPE) template<> struct type_to_datatype<TYPE> {const static datatype_t datatype = DATA_TYPE;};
     /// Wrapper Objects
 
-    template<typename TYPE>
+    template<typename TYPE, bool DESTRUCT_ATTACH=false>
     struct rvalue : TYPE
     {
         rvalue(Node* node) : TYPE(node) {}
+        ~rvalue()
+        {
+            // used for prefix/postix operator (or any operator which has side effects and returns an rvalue)
+            if(DESTRUCT_ATTACH &&
+               this->_node->_attached == false)
+            {
+                // add to tree
+                Node* currentScope = spark_peek_scope_node();
+                spark_add_child_node(currentScope, this->_node);
+            }
+        }
         rvalue& operator=(const rvalue&) = delete;
     };
 
@@ -198,7 +209,8 @@ namespace Spark
     template<typename CL_TYPE>
     struct scalar
     {
-        friend struct rvalue<scalar>;
+        friend struct rvalue<scalar, true>;
+        friend struct rvalue<scalar, false>;
         template<typename S>
         friend struct scalar;
         template<typename S>
@@ -273,7 +285,8 @@ namespace Spark
         typedef decltype(CL_TYPE::x) CL_SCALAR;
         typedef CL_TYPE CL_VECTOR2;
 
-        friend struct rvalue<vector2>;
+        friend struct rvalue<vector2, true>;
+        friend struct rvalue<vector2, false>;
         template<typename S, property_t id>
         friend struct property_rw;
     private:
@@ -425,6 +438,22 @@ namespace Spark
         return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
 
+    #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
+    rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
+    {\
+        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto op = Operator::ENUM;\
+        return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
+    }
+
+    #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
+    rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
+    {\
+        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto op = Operator::ENUM;\
+        return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
+    }
+
     #define MAKE_INT_OPERATORS(TYPE)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, +, Add)\
@@ -446,7 +475,11 @@ namespace Spark
     MAKE_BINARY_OPERATOR(TYPE, TYPE, |, BitwiseOr)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, ^, BitwiseXor)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, >>, RightShift)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, <<, LeftShift)
+    MAKE_BINARY_OPERATOR(TYPE, TYPE, <<, LeftShift)\
+    MAKE_PREFIX_OPERATOR(TYPE, TYPE, ++, PrefixIncrement)\
+    MAKE_PREFIX_OPERATOR(TYPE, TYPE, --, PrefixDecrement)\
+    MAKE_POSTFIX_OPERATOR(TYPE, TYPE, ++, PostfixIncrement)\
+    MAKE_POSTFIX_OPERATOR(TYPE, TYPE, --, PostfixDecrement)
 
     #define MAKE_FLOAT_OPERATORS(TYPE)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\

@@ -9,6 +9,7 @@ namespace Spark
         uint32_t _childCount;
         uint32_t _bufferSize;
         nodetype_t _type;
+        bool _attached;
         union
         {
             control_t _control;
