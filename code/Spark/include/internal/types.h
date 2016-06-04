@@ -206,7 +206,7 @@ namespace Spark
         template<typename S, property_t id>
         friend struct property_rw;
     private:
-        // rvalue node constructor
+        // node constructor
         scalar(Node* node)
         : _node(node)
         {
@@ -276,14 +276,14 @@ namespace Spark
         friend struct rvalue<vector2>;
         template<typename S, property_t id>
         friend struct property_rw;
-private:
-        // rvalue node constructor
+    private:
+        // node constructor
         vector2(Node* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
         }
-public:
+    public:
         // constructors
         vector2()
         {
