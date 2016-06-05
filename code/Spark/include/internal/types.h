@@ -372,7 +372,7 @@ namespace Spark
             return scalar<CL_SCALAR>(indexNode);
         }
 
-        rvalue<scalar<CL_SCALAR>> operator[](const scalar<cl_int>& index) const
+        const rvalue<scalar<CL_SCALAR>> operator[](const scalar<cl_int>& index) const
         {
             const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
             const auto op = Operator::Index;
@@ -393,7 +393,7 @@ namespace Spark
             return scalar<CL_SCALAR>(indexNode);
         }
 
-        rvalue<scalar<CL_SCALAR>> operator[](cl_int index) const
+        const rvalue<scalar<CL_SCALAR>> operator[](cl_int index) const
         {
             SPARK_ASSERT(index == 0 || index == 1);
 
@@ -430,7 +430,7 @@ namespace Spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
+    const rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
     {\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Operator::ENUM;\
@@ -438,7 +438,7 @@ namespace Spark
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
+    const rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
     {\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Operator::ENUM;\
@@ -446,7 +446,7 @@ namespace Spark
     }
 
     #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
+    const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Operator::ENUM;\
@@ -454,7 +454,7 @@ namespace Spark
     }
 
     #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
+    const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
         const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
         const auto op = Operator::ENUM;\

@@ -36,6 +36,7 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<rvalue<Int>, Int>() == false);
     // scalar and vector types
     SPARK_STATIC_ASSERT(is_assignable<Int, Int>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<const Int, Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<Int, UInt>() == false);
     SPARK_STATIC_ASSERT(is_assignable<Int2, Int2>() == true);
     SPARK_STATIC_ASSERT(is_assignable<Int2, UInt2>() == false);
@@ -59,6 +60,12 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int()--), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
+    // vector index
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), Int>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), UInt>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(get<const Int2>()[0]), Int>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype((Int2() + Int2())[0]), Int>() == false);
+
 }
 
 int main()
