@@ -262,6 +262,7 @@ Node* spark_create_control_node(control_t c)
     node->_childCount = 0;
     node->_bufferSize = 0;
     node->_type = NodeType::Control;
+    node->_attached = false;
     node->_control = c;
 
     try
@@ -283,6 +284,7 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id)
     node->_childCount = 0;
     node->_bufferSize = 0;
     node->_type = NodeType::Operator;
+    node->_attached = false;
     node->_function.type = dt;
     node->_function.id = id;
 
@@ -305,6 +307,7 @@ Node* spark_create_symbol_node(datatype_t dt, symbolid_t id)
     node->_childCount = 0;
     node->_bufferSize = 0;
     node->_type = NodeType::Symbol;
+    node->_attached = false;
     node->_symbol.type = dt;
     node->_symbol.id = id;
 
@@ -330,6 +333,7 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
     node->_childCount = 0;
     node->_bufferSize = 0;
     node->_type = NodeType::Constant;
+    node->_attached = false;
     node->_constant.type = dt;
     node->_constant.buffer = new uint8_t[sz];
     std::memcpy(node->_constant.buffer, raw, sz);
@@ -353,6 +357,7 @@ Node* spark_create_property_node(property_t prop)
     node->_children = nullptr;
     node->_childCount = 0;
     node->_bufferSize = 0;
+    node->_attached = false;
     node->_type = NodeType::Property;
     node->_property.id = prop;
 
@@ -415,6 +420,7 @@ void spark_add_child_node(Node* root, Node* node)
 
     // add child node
     root->_children[root->_childCount++] = node;
+    node->_attached = true;
 
     // resize buffer if it is full
     if(root->_childCount == root->_bufferSize)
