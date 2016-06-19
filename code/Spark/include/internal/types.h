@@ -295,6 +295,7 @@ namespace Spark
 
         // private node ptr
         Node* _node;
+        static const char* name;
 
         typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
     };
@@ -382,6 +383,7 @@ namespace Spark
             // private node ptr
             Node* _node;
         };
+        static const char* name;
 
         scalar<CL_SCALAR> operator[](const scalar<cl_int>& index)
         {
@@ -533,6 +535,8 @@ namespace Spark
     #define MAKE_INT_TYPES(TYPE, CL_TYPE)\
     typedef scalar<CL_TYPE> TYPE;\
     typedef vector2<CL_TYPE##2> TYPE##2;\
+    template<> const char* TYPE::name = #TYPE;\
+    template<> const char* TYPE##2::name = #TYPE "2";\
     MAKE_TYPE_TO_DATATYPE(TYPE, DataType::TYPE);\
     MAKE_TYPE_TO_DATATYPE(TYPE##2, (datatype_t)(DataType::TYPE | DataType::Vector2))\
     MAKE_INT_OPERATORS(TYPE)\
@@ -541,6 +545,8 @@ namespace Spark
     #define MAKE_FLOAT_TYPES(TYPE, CL_TYPE)\
     typedef scalar<CL_TYPE> TYPE;\
     typedef vector2<CL_TYPE##2> TYPE##2;\
+    template<> const char* TYPE::name = #TYPE;\
+    template<> const char* TYPE##2::name = #TYPE "2";\
     MAKE_TYPE_TO_DATATYPE(TYPE, DataType::TYPE);\
     MAKE_TYPE_TO_DATATYPE(TYPE##2, (datatype_t)(DataType::TYPE | DataType::Vector2))\
     MAKE_FLOAT_OPERATORS(TYPE)\

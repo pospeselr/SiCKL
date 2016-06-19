@@ -77,11 +77,17 @@ int main()
         auto root = spark_create_control_node(Control::Root);
         spark_push_scope_node(root);
         {
-            Int ex(nullptr);
+            auto sum = make_function<Int, Int>(
+            [](const Int& a, const Int& b)
+            {
+                Int sum = a + b;
+                Return sum;
+            });
 
             Int a, b;
-            a = ex;
-            ex = a;
+            sum(a, b);
+#if 0
+            Int a, b;
             Int c = a + b;
 
             UInt d = (a + b).As<UInt>();
@@ -125,6 +131,7 @@ int main()
             inc = a--;
             inc = --a;
             inc = ++a;
+#endif
         }
 
         const auto len = spark_node_to_text(root, nullptr, 0);

@@ -41,13 +41,20 @@ namespace Spark
                 spark_control_to_str(node->_control));
         }
 
-        int32_t functionNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t operatorNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "%s -> %s\n",
                 spark_operator_to_str((operator_t)node->_operator.id),
                 spark_datatype_to_str(node->_operator.type, datatypeBuffer, sizeof(datatypeBuffer)));
+        }
+
+        int32_t functionNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        {
+            return doSnprintf(buffer, buffer_size, written,
+                "0x%x -> function\n",
+                node->_symbol.id);
         }
 
         int32_t symbolNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
@@ -198,6 +205,9 @@ namespace Spark
                     written = controlNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 case NodeType::Operator:
+                    written = operatorNodeToText(node, out_buffer, buffer_size, written);
+                    break;
+                case NodeType::Function:
                     written = functionNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 case NodeType::Symbol:
@@ -246,6 +256,7 @@ void spark_end_program()
 }
 
 // symbol functions
+
 Spark::symbolid_t spark_next_symbol()
 {
     return g_nextSymbol++;
@@ -287,6 +298,28 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id)
     node->_attached = false;
     node->_operator.type = dt;
     node->_operator.id = id;
+
+    try
+    {
+        g_allocatedNodes.push_back(node);
+    }
+    catch(std::exception& ex)
+    {
+        spark_print_exception(ex);
+    }
+
+    return node;
+}
+
+Node* spark_create_function_node(symbolid_t id)
+{
+    Node* node = new Node();
+    node->_children = nullptr;
+    node->_childCount = 0;
+    node->_bufferSize = 0;
+    node->_type = NodeType::Function;
+    node->_attached = false;
+    node->_function.id = id;
 
     try
     {

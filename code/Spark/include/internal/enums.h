@@ -10,6 +10,7 @@ namespace Spark
         {
             Control,
             Operator,
+            Function,
             Symbol,
             Constant,
             Property,
@@ -24,7 +25,6 @@ namespace Spark
         enum Type
         {
             Root,
-            Function,
             ParameterList,
             ScopeBlock,
             If,
@@ -109,6 +109,7 @@ namespace Spark
             Cast,
             Index,
             Property,
+            Call,
 
             Count
         };

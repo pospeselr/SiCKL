@@ -11,6 +11,7 @@ const char* spark_nodetype_to_str(nodetype_t val)
 	static const char* nodeNames[] =
 	{
 		"NodeType::Control",
+		"NodeType::Operator",
 		"NodeType::Function",
 		"NodeType::Symbol",
 		"NodeType::Constant",
@@ -27,7 +28,6 @@ const char* spark_control_to_str(control_t val)
 	static const char* names[] =
 	{
 		"Control::Root",
-		"Control::Function",
 		"Control::ParameterList",
 		"Control::ScopeBlock",
 		"Control::If",
@@ -128,6 +128,7 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::Cast",
 		"Operator::Index",
 		"Operator::Property",
+		"Operator::Call",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < Operator::Count);

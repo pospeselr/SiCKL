@@ -20,6 +20,10 @@ namespace Spark
             } _operator;
             struct
             {
+                symbolid_t id;
+            } _function;
+            struct
+            {
                 datatype_t type;
                 symbolid_t id;
             } _symbol;
@@ -37,7 +41,6 @@ namespace Spark
     };
 }
 
-
 // program scope
 extern "C" void spark_begin_program();
 extern "C" void spark_end_program();
@@ -48,6 +51,7 @@ extern "C" Spark::symbolid_t spark_next_symbol();
 // node creation
 extern "C" Spark::Node* spark_create_control_node(Spark::control_t c);
 extern "C" Spark::Node* spark_create_operator_node(Spark::datatype_t dt, Spark::operator_t id);
+extern "C" Spark::Node* spark_create_function_node(Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_symbol_node(Spark::datatype_t dt, Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const void* raw, size_t sz);
 extern "C" Spark::Node* spark_create_property_node(Spark::property_t);
