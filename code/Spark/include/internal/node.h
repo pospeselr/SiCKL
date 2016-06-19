@@ -17,7 +17,7 @@ namespace Spark
             {
                 datatype_t type;
                 operator_t id;
-            } _function;
+            } _operator;
             struct
             {
                 datatype_t type;

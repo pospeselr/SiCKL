@@ -46,8 +46,8 @@ namespace Spark
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "%s -> %s\n",
-                spark_operator_to_str((operator_t)node->_function.id),
-                spark_datatype_to_str(node->_function.type, datatypeBuffer, sizeof(datatypeBuffer)));
+                spark_operator_to_str((operator_t)node->_operator.id),
+                spark_datatype_to_str(node->_operator.type, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
         int32_t symbolNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
@@ -285,8 +285,8 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id)
     node->_bufferSize = 0;
     node->_type = NodeType::Operator;
     node->_attached = false;
-    node->_function.type = dt;
-    node->_function.id = id;
+    node->_operator.type = dt;
+    node->_operator.id = id;
 
     try
     {

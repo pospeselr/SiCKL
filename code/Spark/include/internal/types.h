@@ -185,7 +185,7 @@ namespace Spark
     void assignment_operator(TYPE* pThis, const TYPE& that)
     {
         SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
-                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_function.id == Operator::Index));
+                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index));
 
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Operator::Assignment;
@@ -202,7 +202,7 @@ namespace Spark
     void assignment_operator(TYPE* pThis, const void* raw)
     {
         SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
-                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_function.id == Operator::Index));
+                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index));
 
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Operator::Assignment;
