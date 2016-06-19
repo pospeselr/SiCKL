@@ -122,15 +122,25 @@ namespace Spark
         Node* _node;
     };
 
+    // variable declaration 'constructor' (used for symbols passed into functions with no defined value)
+    template<typename TYPE>
+    void extern_constructor(TYPE* pThis)
+    {
+        const auto dt = type_to_datatype<TYPE>::datatype;
+
+        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        pThis->_node = thisNode;
+    }
+
     // value constructor
     template<typename TYPE, size_t SIZE>
-    void value_constructor(TYPE* type, const void* raw)
+    void value_constructor(TYPE* pThis, const void* raw)
     {
         const auto dt = type_to_datatype<TYPE>::datatype;
         const auto op = Operator::Assignment;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
-        type->_node = thisNode;
+        pThis->_node = thisNode;
 
         // init to val
         Node* valNode = spark_create_constant_node(dt, raw, SIZE);
@@ -239,6 +249,11 @@ namespace Spark
             SPARK_ASSERT(_node != nullptr);
         }
 
+        scalar(nullptr_t)
+        {
+            extern_constructor(this);
+        }
+
         scalar(CL_TYPE val)
         {
             value_constructor<scalar<CL_TYPE>, sizeof(CL_TYPE)>(this, &val);
@@ -309,6 +324,11 @@ namespace Spark
         {
             default_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this);
             SPARK_ASSERT(_node != nullptr);
+        }
+
+        vector2(nullptr_t)
+        {
+            extern_constructor(this);
         }
 
         vector2(const CL_TYPE& val)

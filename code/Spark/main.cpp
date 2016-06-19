@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <memory>
 #include <iostream>
+#include <functional>
 
 using std::cout;
 using std::endl;
@@ -65,7 +66,6 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), UInt>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(get<const Int2>()[0]), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype((Int2() + Int2())[0]), Int>() == false);
-
 }
 
 int main()
@@ -77,7 +77,11 @@ int main()
         auto root = spark_create_control_node(Control::Root);
         spark_push_scope_node(root);
         {
+            Int ex(nullptr);
+
             Int a, b;
+            a = ex;
+            ex = a;
             Int c = a + b;
 
             UInt d = (a + b).As<UInt>();
