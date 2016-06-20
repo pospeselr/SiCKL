@@ -23,7 +23,7 @@ namespace Spark
 			push_param(opNode, params...);
 		}
 
-		void operator()(AllParams&... allParams)
+		void operator()(AllParams... allParams)
 		{
 			Node* opNode = spark_create_operator_node(DataType::Void, Operator::Call);
 			spark_add_child_node(opNode, this->_node);
@@ -41,6 +41,7 @@ namespace Spark
 	template<typename Param0, typename... Params>
 	void function_header(Node* parameterList, Param0&& param0, Params&&... params)
 	{
+		std::cout << param0.name << " id : " << param0._node->_symbol.id << std::endl;
 		spark_add_child_node(parameterList, param0._node);
 		return function_header(parameterList, params...);
 	}
@@ -71,7 +72,11 @@ namespace Spark
 		// done with function
 		spark_pop_scope_node();
 
-		return functionRoot;
+		// return a copy of the functionRoot (sans children) to pass
+		// around to callers
+
+		Node* result = spark_create_function_node(functionRoot->_function.id);
+		return result;
 	}
 
 	template<typename... Params>

@@ -54,7 +54,7 @@ namespace Spark
         {
             return doSnprintf(buffer, buffer_size, written,
                 "0x%x -> function\n",
-                node->_symbol.id);
+                node->_function.id);
         }
 
         int32_t symbolNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
