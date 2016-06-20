@@ -3,8 +3,8 @@
 #include "internal/error.h"
 #include "internal/enums.h"
 #include "internal/node.h"
-#include "internal/kernel.h"
 #include "internal/functions.h"
 #include "internal/types.h"
+#include "internal/kernel.h"
 
 

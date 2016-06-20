@@ -4,7 +4,6 @@
 #include <memory>
 #include <iostream>
 #include <functional>
-#include <utility>
 
 using std::cout;
 using std::endl;
@@ -61,7 +60,7 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int()++), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int()--), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(--Int()), Int>() == false);
     // vector index
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), Int>() == true);
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), UInt>() == false);
@@ -78,15 +77,14 @@ int main()
         auto root = spark_create_control_node(Control::Root);
         spark_push_scope_node(root);
         {
-            auto sum = make_function<Int, Int>(
+            auto sum = make_function<Int, Int, Int>(
             [](const Int& a, const Int& b)
             {
                 Int sum = a + b;
-                Return sum;
             });
 
             Int a, b;
-            sum(a, b);
+            Int c = sum(1, b);
 #if 0
             Int a, b;
             Int c = a + b;

@@ -1,10 +1,8 @@
 #pragma once
 
-#define Return (void)
-
 namespace Spark
 {
-	template<typename... AllParams>
+	template<typename RETURN, typename... PARAMS>
 	struct Function
 	{
 		Function(Node* functionRoot) : _node(functionRoot) {};
@@ -12,24 +10,24 @@ namespace Spark
 		// no-op ends recursion
 		void push_param(Node*) {};
 
-		template<typename Param0, typename... Params>
-		void push_param(Node* opNode, const Param0& param0, const Params&... params)
+		template<typename PARAM0, typename... TAIL_PARAMS>
+		void push_param(Node* opNode, const PARAM0& param0, const TAIL_PARAMS&... tailParams)
 		{
 			SPARK_ASSERT(opNode != nullptr);
 			SPARK_ASSERT(param0._node != nullptr);
 
 			spark_add_child_node(opNode, param0._node);
 
-			push_param(opNode, params...);
+			push_param(opNode, tailParams...);
 		}
 
-		void operator()(AllParams... allParams)
+		rvalue<RETURN> operator()(const PARAMS&... params)
 		{
 			Node* opNode = spark_create_operator_node(DataType::Void, Operator::Call);
 			spark_add_child_node(opNode, this->_node);
-			push_param(opNode, allParams...);
+			push_param(opNode, params...);
 
-			spark_push_scope_node(opNode);
+			return rvalue<RETURN>(opNode);
 		}
 	private:
 		Node* _node;
@@ -38,16 +36,15 @@ namespace Spark
 	// no-op ends recursion
 	void function_header(Node*) {};
 
-	template<typename Param0, typename... Params>
-	void function_header(Node* parameterList, Param0&& param0, Params&&... params)
+	template<typename PARAM, typename... TAIL_PARAMS>
+	void function_header(Node* parameterList, PARAM&& param0, TAIL_PARAMS&&... tailParams)
 	{
-		std::cout << param0.name << " id : " << param0._node->_symbol.id << std::endl;
 		spark_add_child_node(parameterList, param0._node);
-		return function_header(parameterList, params...);
+		return function_header(parameterList, tailParams...);
 	}
 
-	template<typename Func, typename... Params>
-	Node* create_function(Func&& function_body, Params&&... params)
+	template<typename FUNC, typename... PARAMS>
+	Node* create_function(FUNC&& function_body, PARAMS&&... params)
 	{
 		// create root of function node
 		Node* functionRoot = spark_create_function_node(spark_next_symbol());
@@ -79,9 +76,9 @@ namespace Spark
 		return result;
 	}
 
-	template<typename... Params>
-	Function<Params...> make_function(auto&& func)
+	template<typename RETURN, typename... PARAMS>
+	Function<RETURN, PARAMS...> make_function(auto&& func)
 	{
-		return Function<Params...>(create_function(func, Params(nullptr)...));
+		return Function<RETURN, PARAMS...>(create_function(func, PARAMS(nullptr)...));
 	}
 }
