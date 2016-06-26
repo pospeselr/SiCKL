@@ -5,7 +5,7 @@ namespace Spark
 {
 	struct Node
     {
-        Node** _children;;
+        Node** _children;
         uint32_t _childCount;
         uint32_t _bufferSize;
         nodetype_t _type;
@@ -37,6 +37,7 @@ namespace Spark
             {
                 property_t id;
             } _property;
+            const char* _comment;
         };
     };
 }
@@ -55,6 +56,7 @@ extern "C" Spark::Node* spark_create_function_node(Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_symbol_node(Spark::datatype_t dt, Spark::symbolid_t id);
 extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const void* raw, size_t sz);
 extern "C" Spark::Node* spark_create_property_node(Spark::property_t);
+extern "C" Spark::Node* spark_create_comment_node(const char* comment);
 // compound node creation
 extern "C" Spark::Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1);
 extern "C" Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1, Spark::Node* arg2);

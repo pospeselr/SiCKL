@@ -14,6 +14,7 @@ namespace Spark
             Symbol,
             Constant,
             Property,
+            Comment,
 
             Count
         };

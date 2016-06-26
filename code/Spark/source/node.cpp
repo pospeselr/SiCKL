@@ -186,6 +186,12 @@ namespace Spark
             return written;
         }
 
+        int32_t commentNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        {
+            written = doSnprintf(buffer, buffer_size, written, "Comment: '%s'\n", node->_comment);
+            return written;
+        }
+
         // if out_bufer is null
         int32_t nodeToText(Spark::Node* node, char* out_buffer, int32_t buffer_size, int32_t written, int32_t indentation)
         {
@@ -218,6 +224,9 @@ namespace Spark
                     break;
                 case NodeType::Property:
                     written = propertyNodeToText(node, out_buffer, buffer_size, written);
+                    break;
+                case NodeType::Comment:
+                    written = commentNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 default:
                     written = doSnprintf(out_buffer, buffer_size, written, "%s\n", spark_nodetype_to_str(node->_type));
@@ -393,6 +402,28 @@ Node* spark_create_property_node(property_t prop)
     node->_attached = false;
     node->_type = NodeType::Property;
     node->_property.id = prop;
+
+    try
+    {
+        g_allocatedNodes.push_back(node);
+    }
+    catch(std::exception& ex)
+    {
+        spark_print_exception(ex);
+    }
+
+    return node;
+}
+
+Node* spark_create_comment_node(const char* comment)
+{
+    Node* node = new Node();
+    node->_children = nullptr;
+    node->_childCount = 0;
+    node->_bufferSize = 0;
+    node->_attached = false;
+    node->_type = NodeType::Comment;
+    node->_comment = comment;
 
     try
     {

@@ -76,14 +76,19 @@ int main()
         auto root = spark_create_control_node(Control::Root);
         spark_push_scope_node(root);
         {
+            Comment("Hello Comment");
             auto sum = make_function<Int, Int, Int>(
             [](const Int a, Int b)
             {
+                Comment("In Lambda");
                 Int sum = a + b;
             });
 
+            Comment("Default Constructors");
             Int a, b;
+            Comment("Function call");
             Int c = sum(1, b);
+            Comment("Copy Constructor");
             Int d = a;
 #if 0
             Int a, b;
