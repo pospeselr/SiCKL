@@ -23,7 +23,7 @@ namespace Spark
 			push_param(opNode, tailParams...);
 		}
 
-		rvalue<RETURN> operator()(const PARAMS&... params)
+		const rvalue<RETURN> operator()(const PARAMS&... params)
 		{
 			Node* opNode = spark_create_operator_node(DataType::Void, Operator::Call);
 			spark_add_child_node(opNode, this->_node);
