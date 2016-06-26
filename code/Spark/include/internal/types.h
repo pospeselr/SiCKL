@@ -29,8 +29,6 @@ namespace Spark
     MAKE_TYPE_TO_INT(cl_float, cl_int);
     MAKE_TYPE_TO_INT(cl_double, cl_long);
 
-    template<typename TYPE> struct type_to_datatype {};
-#define MAKE_TYPE_TO_DATATYPE(TYPE, DATA_TYPE) template<> struct type_to_datatype<TYPE> {const static datatype_t datatype = DATA_TYPE;};
     /// Wrapper Objects
 
     template<typename TYPE, bool DESTRUCT_ATTACH=false>
@@ -64,7 +62,7 @@ namespace Spark
         operator const rvalue<TYPE>() const
         {
             Node* property = spark_create_property_node(ID);
-            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
             return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
@@ -73,7 +71,7 @@ namespace Spark
         const rvalue<TYPE> operator()() const
         {
             Node* property = spark_create_property_node(ID);
-            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
             return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
@@ -87,7 +85,7 @@ namespace Spark
         operator TYPE() const
         {
             Node* property = spark_create_property_node(ID);
-            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
             return TYPE(spark_create_operator2_node(dt, op, this->_node, property));
@@ -96,7 +94,7 @@ namespace Spark
         TYPE operator()() const
         {
             Node* property = spark_create_property_node(ID);
-            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
             return TYPE(spark_create_operator2_node(dt, op, this->_node, property));
@@ -106,10 +104,10 @@ namespace Spark
         {
             // create property node
             Node* property = spark_create_property_node(ID);
-            Node* lvalue = spark_create_operator2_node(type_to_datatype<TYPE>::datatype, Operator::Property, this->_node, property);
+            Node* lvalue = spark_create_operator2_node(TYPE::type, Operator::Property, this->_node, property);
 
             // create assignment node
-            const auto dt = type_to_datatype<TYPE>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Assignment;
             Node* assignmentNode = spark_create_operator2_node(dt, op, lvalue, right._node);
 
@@ -126,7 +124,7 @@ namespace Spark
     template<typename TYPE>
     void extern_constructor(TYPE* pThis)
     {
-        const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto dt = TYPE::type;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
         pThis->_node = thisNode;
@@ -136,7 +134,7 @@ namespace Spark
     template<typename TYPE, size_t SIZE>
     void value_constructor(TYPE* pThis, const void* raw)
     {
-        const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
@@ -165,7 +163,7 @@ namespace Spark
     template<typename TYPE>
     void copy_constructor(TYPE* pThis, const TYPE& that)
     {
-        const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
 
         Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
@@ -187,7 +185,7 @@ namespace Spark
         SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
                      (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index));
 
-        const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
 
         // create assignment node
@@ -204,7 +202,7 @@ namespace Spark
         SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
                      (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index));
 
-        const auto dt = type_to_datatype<TYPE>::datatype;
+        const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
 
         // init to val
@@ -284,20 +282,21 @@ namespace Spark
 
         // cast operator
 
-        template<typename T>
-        rvalue<T> As() const
+        template<typename TYPE>
+        const rvalue<TYPE> As() const
         {
-            static_assert(is_scalar_type<T>::value, "scalar types can only be cast to other scalar types");
+            static_assert(is_scalar_type<TYPE>::value, "scalar types can only be cast to other scalar types");
 
-            const auto dt = type_to_datatype<T>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Cast;
 
-            return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
+            return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         // private node ptr
         Node* _node;
         static const char* name;
+        static const datatype_t type;
 
         typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
     };
@@ -388,10 +387,11 @@ namespace Spark
             Node* _node;
         };
         static const char* name;
+        static const datatype_t type;
 
         scalar<CL_SCALAR> operator[](const scalar<cl_int>& index)
         {
-            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto dt = scalar<CL_SCALAR>::type;
             const auto op = Operator::Index;
 
             Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
@@ -400,7 +400,7 @@ namespace Spark
 
         const rvalue<scalar<CL_SCALAR>> operator[](const scalar<cl_int>& index) const
         {
-            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto dt = scalar<CL_SCALAR>::type;
             const auto op = Operator::Index;
 
             Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
@@ -411,7 +411,7 @@ namespace Spark
         {
             SPARK_ASSERT(index == 0 || index == 1);
 
-            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto dt = scalar<CL_SCALAR>::type;
             const auto op = Operator::Index;
 
             Node* valNode = spark_create_constant_node(DataType::Int, &index, sizeof(index));
@@ -423,7 +423,7 @@ namespace Spark
         {
             SPARK_ASSERT(index == 0 || index == 1);
 
-            const auto dt = type_to_datatype<scalar<CL_SCALAR>>::datatype;
+            const auto dt = scalar<CL_SCALAR>::type;
             const auto op = Operator::Index;
 
             Node* valNode = spark_create_constant_node(DataType::Int, &index, sizeof(index));
@@ -432,15 +432,15 @@ namespace Spark
         }
 
         // cast operator
-        template<typename T>
-        rvalue<T> As() const
+        template<typename TYPE>
+        const rvalue<TYPE> As() const
         {
-            static_assert(is_vector2_type<T>::value, "vector2 types can only be cast to other vector2 types");
+            static_assert(is_vector2_type<TYPE>::value, "vector2 types can only be cast to other vector2 types");
 
-            const auto dt = type_to_datatype<T>::datatype;
+            const auto dt = TYPE::type;
             const auto op = Operator::Cast;
 
-            return rvalue<T>(spark_create_operator1_node(dt, op, this->_node));
+            return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         typedef vector2<typename type_to_int<CL_VECTOR2>::type> int_type;
@@ -458,7 +458,7 @@ namespace Spark
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     const rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
     {\
-        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto dt = RETURN_TYPE::type;\
         const auto op = Operator::ENUM;\
         return rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
     }
@@ -466,7 +466,7 @@ namespace Spark
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     const rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
     {\
-        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto dt = RETURN_TYPE::type;\
         const auto op = Operator::ENUM;\
         return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
@@ -474,7 +474,7 @@ namespace Spark
     #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
-        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto dt = RETURN_TYPE::type;\
         const auto op = Operator::ENUM;\
         return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
     }
@@ -482,7 +482,7 @@ namespace Spark
     #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
-        const auto dt = type_to_datatype<RETURN_TYPE>::datatype;\
+        const auto dt = RETURN_TYPE::type;\
         const auto op = Operator::ENUM;\
         return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
     }
@@ -541,8 +541,8 @@ namespace Spark
     typedef vector2<CL_TYPE##2> TYPE##2;\
     template<> const char* TYPE::name = #TYPE;\
     template<> const char* TYPE##2::name = #TYPE "2";\
-    MAKE_TYPE_TO_DATATYPE(TYPE, DataType::TYPE);\
-    MAKE_TYPE_TO_DATATYPE(TYPE##2, (datatype_t)(DataType::TYPE | DataType::Vector2))\
+    template<> const datatype_t TYPE::type = DataType::TYPE;\
+    template<> const datatype_t TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2);\
     MAKE_INT_OPERATORS(TYPE)\
     MAKE_INT_OPERATORS(TYPE##2)
 
@@ -551,8 +551,8 @@ namespace Spark
     typedef vector2<CL_TYPE##2> TYPE##2;\
     template<> const char* TYPE::name = #TYPE;\
     template<> const char* TYPE##2::name = #TYPE "2";\
-    MAKE_TYPE_TO_DATATYPE(TYPE, DataType::TYPE);\
-    MAKE_TYPE_TO_DATATYPE(TYPE##2, (datatype_t)(DataType::TYPE | DataType::Vector2))\
+    template<> const datatype_t TYPE::type = DataType::TYPE;\
+    template<> const datatype_t TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2);\
     MAKE_FLOAT_OPERATORS(TYPE)\
     MAKE_FLOAT_OPERATORS(TYPE##2)
 
