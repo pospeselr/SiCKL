@@ -15,7 +15,6 @@ using namespace Spark;
 
 namespace Spark
 {
-
     typedef uint8_t true_t;
     typedef uint16_t false_t;
 
@@ -78,13 +77,14 @@ int main()
         spark_push_scope_node(root);
         {
             auto sum = make_function<Int, Int, Int>(
-            [](const Int& a, const Int& b)
+            [](const Int a, Int b)
             {
                 Int sum = a + b;
             });
 
             Int a, b;
             Int c = sum(1, b);
+            Int d = a;
 #if 0
             Int a, b;
             Int c = a + b;

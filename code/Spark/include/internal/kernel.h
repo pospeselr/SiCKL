@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 namespace Spark
 {
 	template<typename RETURN, typename... PARAMS>
@@ -37,16 +39,16 @@ namespace Spark
 	void function_header(Node*) {};
 
 	template<typename PARAM, typename... TAIL_PARAMS>
-	void function_header(Node* parameterList, PARAM&& param0, TAIL_PARAMS&&... tailParams)
+	void function_header(Node* parameterList, PARAM param0, TAIL_PARAMS... tailParams)
 	{
 		spark_add_child_node(parameterList, param0._node);
-		return function_header(parameterList, tailParams...);
+		return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
 	}
 
 	template<typename FUNC, typename... PARAMS>
-	Node* create_function(FUNC&& function_body, PARAMS&&... params)
+	Node* create_function(FUNC&& function_body, PARAMS... params)
 	{
-		// create root of function node
+		// create root of function Node
 		Node* functionRoot = spark_create_function_node(spark_next_symbol());
 		spark_push_scope_node(functionRoot);
 
@@ -55,7 +57,7 @@ namespace Spark
 		spark_push_scope_node(parameterList);
 
 		// fill out params
-		function_header(parameterList, params...);
+		function_header(parameterList, std::forward<PARAMS>(params)...);
 		spark_pop_scope_node();
 
 		// create the body and make current scope
@@ -63,7 +65,7 @@ namespace Spark
 		spark_push_scope_node(body);
 
 		// fill out body
-		function_body(params...);
+		function_body(std::forward<PARAMS>(params)...);
 		spark_pop_scope_node();
 
 		// done with function

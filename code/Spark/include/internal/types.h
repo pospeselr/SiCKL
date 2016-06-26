@@ -266,6 +266,8 @@ namespace Spark
             SPARK_ASSERT(_node != nullptr);
         }
 
+        scalar(scalar&&) = default;
+
         scalar& operator=(const scalar& that)
         {
             assignment_operator<scalar<CL_TYPE>>(this, that);
@@ -337,6 +339,8 @@ namespace Spark
             value_constructor<vector2<CL_VECTOR2>, sizeof(val)>(this, &val);
             SPARK_ASSERT(_node != nullptr);
         }
+
+        vector2(vector2&&) = default;
 
         vector2(const CL_SCALAR (&val)[2])
         {
