@@ -69,19 +69,24 @@ namespace Spark
 
 int main()
 {
-    printf("hello world\n");
-
     spark_begin_program();
     {
         auto root = spark_create_control_node(Control::Root);
         spark_push_scope_node(root);
         {
             Comment("Hello Comment");
-            auto sum = make_function<Int, Int, Int>(
-            [](const Int a, Int b)
+            auto sum = make_function<Int, Int>(
+            [](Int a, Int b) -> Int
             {
-                Comment("In Lambda");
-                Int sum = a + b;
+                Comment("In sum");
+                Return(a + b);
+            });
+
+            auto voidFunc = make_function<Int>(
+            [](Int a) -> Void
+            {
+                Comment("In voidFunc");
+                Return();
             });
 
             Comment("Default Constructors");
@@ -90,6 +95,12 @@ int main()
             Int c = sum(1, b);
             Comment("Copy Constructor");
             Int d = a;
+            Float f = sum(1, b).As<Float>();
+
+            Comment("Call voidFunc");
+            voidFunc(d);
+            Comment("Call sum");
+            sum(a, b);
 #if 0
             Int a, b;
             Int c = a + b;

@@ -111,6 +111,7 @@ namespace Spark
             Index,
             Property,
             Call,
+            Return,
 
             Count
         };

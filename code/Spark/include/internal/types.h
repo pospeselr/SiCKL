@@ -35,6 +35,7 @@ namespace Spark
     struct rvalue : TYPE
     {
         rvalue(Node* node) : TYPE(node) {}
+        rvalue(nullptr_t) : TYPE(nullptr) {}
         ~rvalue()
         {
             // used for prefix/postix operator (or any operator which has side effects and
@@ -55,6 +56,12 @@ namespace Spark
         }
         rvalue& operator=(const rvalue&) = delete;
     };
+
+    template<typename TYPE>
+    struct lvalue {using type = TYPE;};
+
+    template<> template<typename TYPE> struct lvalue<rvalue<TYPE>> {using type = TYPE;};
+    template<> template<typename TYPE> struct lvalue<const rvalue<TYPE>> {using type = TYPE;};
 
     template<typename TYPE, property_t ID>
     struct property_r
@@ -571,4 +578,6 @@ namespace Spark
     MAKE_FLOAT_TYPES(Float, cl_float)
     MAKE_FLOAT_TYPES(Double, cl_double)
 
+    // void type
+    typedef void Void;
 }

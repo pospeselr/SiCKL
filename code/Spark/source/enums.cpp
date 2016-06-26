@@ -130,6 +130,7 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::Index",
 		"Operator::Property",
 		"Operator::Call",
+		"Operator::Return",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < Operator::Count);
