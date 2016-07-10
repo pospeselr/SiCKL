@@ -1,19 +1,9 @@
 #pragma once
 
-
-#define Return(...)\
-	return_statement(__VA_ARGS__);\
-	do\
-	{\
-		auto __lambda = [&]()\
-		{\
-			return __VA_ARGS__;\
-		};\
-	 	return lvalue<decltype(__lambda())>::type(nullptr);\
-	} while(false)
-
 namespace Spark
 {
+	/// Function
+
 	// no-op ends recursion
 	void function_push_param(Node*) {};
 
@@ -107,7 +97,7 @@ namespace Spark
 	}
 
 	template<typename RETURN>
-	void return_statement(const RETURN& value)
+	void Return(const RETURN& value)
 	{
 		Node* returnNode = spark_create_operator1_node(value.type, Operator::Return, value._node);
 
@@ -115,7 +105,7 @@ namespace Spark
 		spark_add_child_node(currentScope, returnNode);
 	}
 
-	void return_statement()
+	void Return()
 	{
 		Node* returnNode = spark_create_operator_node(DataType::Void, Operator::Return);
 
@@ -123,11 +113,78 @@ namespace Spark
 		spark_add_child_node(currentScope, returnNode);
 	}
 
-	template<typename... PARAMS>
+	template<typename RETURN, typename... PARAMS>
 	auto make_function(auto&& func)
 	{
-		using RETURN = decltype(func(PARAMS()...));
 		symbolid_t id = spark_next_symbol();
 		return Function<RETURN, PARAMS...>(create_function(id, func, PARAMS(nullptr)...));
+	}
+
+	/// Kernel
+
+	template<typename... PARAMS>
+	struct Kernel
+	{
+		Kernel(Node* kernelRoot) : _node(kernelRoot) {};
+
+		void operator()() const
+		{
+
+		};
+	private:
+		Node* _node;
+	};
+
+	// no-op ends recursion
+	void kernel_header(Node*) {};
+
+	template<typename PARAM, typename... TAIL_PARAMS>
+	void kernel_header(Node* parameterList, PARAM param0, TAIL_PARAMS... tailParams)
+	{
+		spark_add_child_node(parameterList, param0._node);
+		return kernel_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
+	}
+
+	template<typename FUNC, typename... PARAMS>
+	Node* create_kernel(FUNC&& kernel_body, PARAMS... params)
+	{
+		// create root of kernel
+		Node* kernelRoot = spark_create_control_node(Control::Root);
+		spark_push_scope_node(kernelRoot);
+
+		// create kernel parameter list
+		Node* parameterList = spark_create_control_node(Control::ParameterList);
+		spark_push_scope_node(parameterList);
+
+		// fill out params
+		kernel_header(parameterList, std::forward<PARAMS>(params)...);
+		spark_pop_scope_node();
+
+		// create the kernel body and make current scope
+		Node* body = spark_create_control_node(Control::ScopeBlock);
+		spark_push_scope_node(body);
+
+		(void)kernel_body(std::forward<PARAMS>(params)...);
+		spark_pop_scope_node();
+
+		// done with kernel
+		spark_pop_scope_node();
+		return kernelRoot;
+	}
+
+	template<typename... PARAMS>
+	auto make_kernel(auto&& func)
+	{
+		spark_begin_program();
+		Node* kernelAst = create_kernel(func, PARAMS(nullptr)...);
+
+        const auto len = spark_node_to_text(kernelAst, nullptr, 0);
+        unique_ptr<char[]> buff(new char[len]);
+        spark_node_to_text(kernelAst, buff.get(), len);
+
+        printf("%s\n", buff.get());
+
+        spark_end_program();
+		return Kernel<PARAMS...>(kernelAst);
 	}
 }

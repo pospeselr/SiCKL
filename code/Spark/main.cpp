@@ -69,94 +69,83 @@ namespace Spark
 
 int main()
 {
-    spark_begin_program();
+    auto kernel = make_kernel<Int>(
+    [](Int i)
     {
-        auto root = spark_create_control_node(Control::Root);
-        spark_push_scope_node(root);
+        Comment("Hello Comment");
+        auto sum = make_function<Int, Int, Int>(
+        [](Int a, Int b)
         {
-            Comment("Hello Comment");
-            auto sum = make_function<Int, Int>(
-            [](Int a, Int b) -> Int
-            {
-                Comment("In sum");
-                Return(a + b);
-            });
+            Comment("In sum");
+            Return(a + b);
+        });
 
-            auto voidFunc = make_function<Int>(
-            [](Int a) -> Void
-            {
-                Comment("In voidFunc");
-                Return();
-            });
+        auto voidFunc = make_function<Void, Int>(
+        [](Int a)
+        {
+            Comment("In voidFunc");
+            Return();
+        });
 
-            Comment("Default Constructors");
-            Int a, b;
-            Comment("Function call");
-            Int c = sum(1, b);
-            Comment("Copy Constructor");
-            Int d = a;
-            Float f = sum(1, b).As<Float>();
+        Comment("Default Constructors");
+        Int a, b;
+        Comment("Function call");
+        Int c = sum(1, b);
+        Comment("Copy Constructor");
+        Int d = a;
+        Float f = sum(1, b).As<Float>();
 
-            Comment("Call voidFunc");
-            voidFunc(d);
-            Comment("Call sum");
-            sum(a, b);
+        Comment("Call voidFunc");
+        voidFunc(d);
+        Comment("Call sum");
+        sum(a, b);
 #if 0
-            Int a, b;
-            Int c = a + b;
+        Int a, b;
+        Int c = a + b;
 
-            UInt d = (a + b).As<UInt>();
-            Int2 ivec1({12, 27});
-            ivec1 + ivec1;
-            ivec1 = {13, 61};
+        UInt d = (a + b).As<UInt>();
+        Int2 ivec1({12, 27});
+        ivec1 + ivec1;
+        ivec1 = {13, 61};
 
-            ivec1 = ivec1.XX();
-            ivec1.XY = ivec1;
+        ivec1 = ivec1.XX();
+        ivec1.XY = ivec1;
 
-            ivec1[a];
-            ivec1[0];
+        ivec1[a];
+        ivec1[0];
 
-            d = a.As<UInt>();
+        d = a.As<UInt>();
 
-            a = (d == d);
+        a = (d == d);
 
-            Int eq = (c == c);
-            UNREFERENCED_PARAMETER(eq);
+        Int eq = (c == c);
+        UNREFERENCED_PARAMETER(eq);
 
-            Float f = 1.2f;
-            -f;
+        Float f = 1.2f;
+        -f;
 
-            Float2 fvec1;
-            fvec1  = {1.0f, 2.0f};
-            ivec1 = (fvec1 == fvec1);
+        Float2 fvec1;
+        fvec1  = {1.0f, 2.0f};
+        ivec1 = (fvec1 == fvec1);
 
 
-            f = fvec1[a];
-            fvec1[a] = f;
-            fvec1[0] = 1.0f;
+        f = fvec1[a];
+        fvec1[a] = f;
+        fvec1[0] = 1.0f;
 
-            -ivec1;
+        -ivec1;
 
-            a++;
-            a--;
-            ++a;
-            --a;
+        a++;
+        a--;
+        ++a;
+        --a;
 
-            Int inc = a++;
-            inc = a--;
-            inc = --a;
-            inc = ++a;
+        Int inc = a++;
+        inc = a--;
+        inc = --a;
+        inc = ++a;
 #endif
-        }
-
-        const auto len = spark_node_to_text(root, nullptr, 0);
-        unique_ptr<char[]> buff(new char[len]);
-        spark_node_to_text(root, buff.get(), len);
-
-        printf("%s\n", buff.get());
-    }
-    spark_end_program();
-
+    });
 
 
     #define PRINT_SIZEOF(TYPE) printf("sizeof(" #TYPE "): %lu\n", sizeof(TYPE))
