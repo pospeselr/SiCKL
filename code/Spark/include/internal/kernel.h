@@ -66,13 +66,16 @@ namespace Spark
 	template<typename FUNC, typename... PARAMS>
 	Node* create_function(symbolid_t id, FUNC&& function_body, PARAMS... params)
 	{
+        // get the root kernel node
+        Node* kernelRoot = spark_get_root_node();
+
 		// create root of function Node
-		Node* function = spark_create_function_node(id);
-        spark_push_scope_node(function);
+		Node* functionRoot = spark_create_function_node(id);
+        spark_push_scope_node(functionRoot);
 
 		// create the parameter list
 		Node* parameterList = spark_create_control_node(Control::ParameterList);
-        spark_add_child_node(function, parameterList);
+        spark_add_child_node(functionRoot, parameterList);
         spark_push_scope_node(parameterList);
 
 		// fill out params
@@ -81,24 +84,23 @@ namespace Spark
 
 		// create the body and make current scope
 		Node* body = spark_create_control_node(Control::ScopeBlock);
-        spark_add_child_node(function, body);
+        spark_add_child_node(functionRoot, body);
         spark_push_scope_node(body);
 
 		// fill out body
 		(void)function_body(std::forward<PARAMS>(params)...);
 		spark_pop_scope_node();
 
-        // add function to code section
-        Node* code = spark_get_code_node();
-        spark_add_child_node(code, function);
+        // add function to kernel root
+        spark_add_child_node(kernelRoot, functionRoot);
 
 		// done with function
 		spark_pop_scope_node();
 
-		// return a copy of the function (sans children) to pass
+		// return a copy of the functionRoot (sans children) to pass
 		// around to callers
 
-		Node* result = spark_create_function_node(function->_function.id);
+		Node* result = spark_create_function_node(functionRoot->_function.id);
 		return result;
 	}
 
@@ -155,23 +157,16 @@ namespace Spark
 	Node* create_kernel(symbolid_t id, FUNC&& kernel_body, PARAMS... params)
 	{
 		// create root of program
-		Node* root = spark_create_control_node(Control::Root);
-		spark_push_scope_node(root);
-
-        Node* data = spark_create_control_node(Control::Data);
-        spark_add_child_node(root, data);
-
-        Node* code = spark_create_control_node(Control::Code);
-        spark_add_child_node(root, code);
-        spark_push_scope_node(code);
+		Node* kernelRoot = spark_create_control_node(Control::Root);
+		spark_push_scope_node(kernelRoot);
 
         // create kernel function root
-        Node* function = spark_create_function_node(id);
-        spark_push_scope_node(function);
+        Node* functionRoot = spark_create_function_node(id);
+        spark_push_scope_node(functionRoot);
 
 		// create kernel parameter list
 		Node* parameterList = spark_create_control_node(Control::ParameterList);
-        spark_add_child_node(function, parameterList);
+        spark_add_child_node(functionRoot, parameterList);
         spark_push_scope_node(parameterList);
 
 		// fill out params
@@ -180,24 +175,21 @@ namespace Spark
 
 		// create the kernel body and make current scope
 		Node* body = spark_create_control_node(Control::ScopeBlock);
-        spark_add_child_node(function, body);
+        spark_add_child_node(functionRoot, body);
         spark_push_scope_node(body);
 
 		(void)kernel_body(std::forward<PARAMS>(params)...);
 		spark_pop_scope_node();
 
         // add function to kernel root
-        spark_add_child_node(code, function);
+        spark_add_child_node(kernelRoot, functionRoot);
 
-        // done with function node
-        spark_pop_scope_node();
-
-        // done with code node
+        // done with kernel function
         spark_pop_scope_node();
 
 		// done with program
 		spark_pop_scope_node();
-		return root;
+		return kernelRoot;
 	}
 
 	template<typename... PARAMS>

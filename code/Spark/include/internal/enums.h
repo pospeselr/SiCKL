@@ -26,8 +26,6 @@ namespace Spark
         enum Type
         {
             Root,
-            Data,
-            Code,
             ParameterList,
             ScopeBlock,
             If,
