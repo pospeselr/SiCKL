@@ -76,18 +76,15 @@ int main()
         auto sum = make_function<Int, Int, Int>(
         [](Int a, Int b)
         {
-            auto voidFunc = make_function<Void, Float>(
-            [](Float a)
-            {
-                Comment("In voidFunc");
-                Return();
-            });
-
-            Comment("Call voidFunc");
-            voidFunc(a.As<Float>());
-
             Comment("In sum");
             Return(a + b);
+        });
+
+        auto voidFunc = make_function<Void, Int>(
+        [](Int a)
+        {
+            Comment("In voidFunc");
+            Return();
         });
 
         Comment("Default Constructors");
@@ -98,7 +95,8 @@ int main()
         Int d = a;
         Float f = sum(1, b).As<Float>();
 
-
+        Comment("Call voidFunc");
+        voidFunc(d);
         Comment("Call sum");
         sum(a, b);
 #if 0
