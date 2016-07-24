@@ -29,6 +29,8 @@ const char* spark_control_to_str(control_t val)
 	static const char* names[] =
 	{
 		"Control::Root",
+		"Control::Data",
+		"Control::Code",
 		"Control::ParameterList",
 		"Control::ScopeBlock",
 		"Control::If",

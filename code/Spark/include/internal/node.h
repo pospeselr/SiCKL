@@ -70,6 +70,9 @@ extern "C" void spark_push_scope_node(Spark::Node* node);
 extern "C" void spark_pop_scope_node();
 extern "C" Spark::Node* spark_peek_scope_node();
 extern "C" Spark::Node* spark_get_root_node();
+extern "C" Spark::Node* spark_get_data_node();
+extern "C" Spark::Node* spark_get_code_node();
+
 // debug printing
 extern "C" int32_t spark_node_to_text(Spark::Node* node, char* buffer, int32_t buffer_size);
 

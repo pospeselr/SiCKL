@@ -544,6 +544,28 @@ Node* spark_get_root_node()
     return g_nodeStack.front();
 }
 
+Node* spark_get_data_node()
+{
+    SPARK_ASSERT(g_nodeStack.size() > 0);
+    Node* root = g_nodeStack.front();
+    SPARK_ASSERT(root->_childCount == 2);
+    Node* data = root->_children[0];
+    SPARK_ASSERT(data->_type == NodeType::Control);
+    SPARK_ASSERT(data->_control == Control::Data);
+    return data;
+}
+
+Node* spark_get_code_node()
+{
+    SPARK_ASSERT(g_nodeStack.size() > 0);
+    Node* root = g_nodeStack.front();
+    SPARK_ASSERT(root->_childCount == 2);
+    Node* code = root->_children[1];
+    SPARK_ASSERT(code->_type == NodeType::Control);
+    SPARK_ASSERT(code->_control == Control::Code);
+    return code;
+}
+
 int32_t spark_node_to_text(Spark::Node* node, char* out_buffer, int32_t buffer_size)
 {
     return Spark::Internal::nodeToText(node, out_buffer, buffer_size, 0, 0) + 1;
