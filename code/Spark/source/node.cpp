@@ -512,15 +512,12 @@ void spark_add_child_node(Node* root, Node* node)
 
     SPARK_ASSERT(root->_childCount < root->_bufferSize);
 }
+
 // source scope
 void spark_push_scope_node(Node* node)
 {
     try
     {
-        if(g_nodeStack.size() > 0)
-        {
-            spark_add_child_node(g_nodeStack.back(), node);
-        }
         g_nodeStack.push_back(node);
     }
     catch(std::exception& ex)
