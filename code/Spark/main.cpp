@@ -76,6 +76,26 @@ int main()
         auto sum = make_function<Int, Int, Int>(
         [](Int a, Int b)
         {
+            If(a)
+            {
+                Int c = a + b;
+                Return(c);
+            }
+            ElseIf(b)
+            {
+                Int c = a + 2 * b;
+                Return(c);
+            }
+            Else
+            {
+                Return(a);
+            }
+
+            While(1)
+            {
+
+            }
+
             auto voidFunc = make_function<Void, Float>(
             [](Float a)
             {

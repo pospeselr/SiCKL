@@ -7,6 +7,5 @@ namespace Spark
 		Node* commentNode = spark_create_comment_node(comment);
 		Node* currentScope = spark_peek_scope_node();
 		spark_add_child_node(currentScope, commentNode);
-
 	}
 }
