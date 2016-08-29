@@ -73,9 +73,10 @@ namespace Spark
 		bool _result = true;
 	};
 
+	template<typename TYPE>
 	struct Range
 	{
-		Range(int start, int stop)
+		Range(TYPE&& start, TYPE&& stop)
 		: _start(start),
 		  _stop(stop),
 		  _step(1),
@@ -100,7 +101,7 @@ namespace Spark
 			_val = _start;
 		}
 
-		Int& get_value()
+		TYPE& get_value()
 		{
 			return _val;
 		}
@@ -119,10 +120,10 @@ namespace Spark
 			 	Break();
 			}
 		}
-		int _start;
-		int _stop;
-		int _step;
-		Int _val;
+		TYPE _start;
+		TYPE _stop;
+		TYPE _step;
+		TYPE _val;
 	};
 #if 0
 	struct Range

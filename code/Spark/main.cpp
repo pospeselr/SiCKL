@@ -74,7 +74,7 @@ int main()
     [](Int i)
     {
         Comment("Before For");
-        For(Int& it : Range(0, 100))
+        For(auto& it : Range<Int>(0, 100))
         {
             TRACE
             Comment("Body");
