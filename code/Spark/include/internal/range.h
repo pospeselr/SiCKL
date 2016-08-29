@@ -2,13 +2,13 @@
 
 namespace Spark
 {
-	template<typename PARENT>
+	template<typename RANGE>
 	struct iterator
 	{
 		iterator() = default;
-		iterator(PARENT* parent) : _parent(parent)
+		iterator(RANGE* range) : _range(range)
 		{
-			parent->init();
+			_range->init();
 
 			Node* root = spark_create_control_node(Control::For);
 			spark_add_child_node(spark_peek_scope_node(), root);
@@ -22,8 +22,7 @@ namespace Spark
 
 		~iterator()
 		{
-			TRACE
-			if(_parent)
+			if(_range)
 			{
 				spark_pop_scope_node();
 				spark_pop_scope_node();
@@ -34,38 +33,30 @@ namespace Spark
 		{
 			if(_result)
 			{
-				TRACE
 				Node* compare = spark_create_control_node(Control::ScopeBlock);
 				spark_add_child_node(spark_peek_scope_node(), compare);
 				spark_push_scope_node(compare);
 
-				_parent->compare();
+				_range->compare();
 
 				spark_pop_scope_node();
-			}
-			else
-			{
-				TRACE
-
 			}
 			return _result;
 		}
 
 		iterator& operator++()
 		{
-			TRACE
 			_result = false;
 			return *this;
 		}
 
 		auto& operator*()
 		{
-			TRACE
 			Node* update = spark_create_control_node(Control::ScopeBlock);
 			spark_add_child_node(spark_peek_scope_node(), update);
 			spark_push_scope_node(update);
 
-			_parent->update_value();
+			_range->update_value();
 
 			spark_pop_scope_node();
 			spark_pop_scope_node();
@@ -74,11 +65,11 @@ namespace Spark
 			spark_add_child_node(spark_peek_scope_node(), body);
 			spark_push_scope_node(body);
 
-			return _parent->get_value();
+			return _range->get_value();
 		}
 
 	private:
-		PARENT* _parent = nullptr;
+		RANGE* _range = nullptr;
 		bool _result = true;
 	};
 
