@@ -26,6 +26,7 @@ namespace Spark
 			if(_parent)
 			{
 				spark_pop_scope_node();
+				spark_pop_scope_node();
 			}
 		}
 
@@ -66,6 +67,7 @@ namespace Spark
 
 			_parent->update_value();
 
+			spark_pop_scope_node();
 			spark_pop_scope_node();
 
 			Node* body = spark_create_control_node(Control::ScopeBlock);
