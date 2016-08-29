@@ -245,16 +245,14 @@ namespace Spark
             }
 
             // depth first traversal
-            const int32_t childIndentation = indentation + 1;
-            //written = doSnprintf(out_buffer, buffer_size, written, "bars: %08x\n", bars);
             for(uint32_t k = 0; k < node->_childCount; k++)
             {
                 Node* child = node->_children[k];
-                uint32_t childBars = bars;
-                if(k < node->_childCount - 1)
-                {
-                    childBars |= (1 << (indentation));
-                }
+                const uint32_t childBars =
+                    (k < node->_childCount - 1) ?
+                    bars | (1 << indentation) :
+                    bars;
+                const int32_t childIndentation = indentation + 1;
 
                 //uint32_t childBars = 0;
                 written = nodeToText(child, out_buffer, buffer_size, written, childBars, childIndentation);
