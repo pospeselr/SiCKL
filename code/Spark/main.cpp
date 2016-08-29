@@ -73,12 +73,14 @@ int main()
     auto kernel = make_kernel<Int>(
     [](Int i)
     {
+        Comment("Before For");
         For(Int& it : Range(0, 100))
         {
             TRACE
             Comment("Body");
             i = it + 12;
         }
+        Comment("After For");
 #if 0
         Comment("Hello Comment");
         auto sum = make_function<Int, Int, Int>(

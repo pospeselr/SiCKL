@@ -193,18 +193,29 @@ namespace Spark
         }
 
         // if out_bufer is null
-        int32_t nodeToText(Spark::Node* node, char* out_buffer, int32_t buffer_size, int32_t written, int32_t indentation)
+        int32_t nodeToText(Spark::Node* node, char* out_buffer, int32_t buffer_size, int32_t written, uint32_t bars, int32_t indentation)
         {
             SPARK_ASSERT(node != nullptr);
             SPARK_ASSERT((out_buffer == nullptr && buffer_size == 0) || (out_buffer != nullptr && buffer_size > 0));
 
-            // write indentation
+            // write graph lines
             for(int32_t k = 0; k < indentation; k++)
             {
-                written = doSnprintf(out_buffer, buffer_size, written, "%s", " ");
+                if(k == indentation - 1)
+                {
+                    written = doSnprintf(out_buffer, buffer_size, written, "%s", "├");
+                }
+                else if( bars & (1 << k) )
+                {
+                    written = doSnprintf(out_buffer, buffer_size, written, "%s", "│");
+                }
+                else
+                {
+                    written = doSnprintf(out_buffer, buffer_size, written, "%s", " ");
+                }
             }
-            // write node info
 
+            // write node info
             switch(node->_type)
             {
                 case NodeType::Control:
@@ -234,10 +245,19 @@ namespace Spark
             }
 
             // depth first traversal
+            const int32_t childIndentation = indentation + 1;
+            //written = doSnprintf(out_buffer, buffer_size, written, "bars: %08x\n", bars);
             for(uint32_t k = 0; k < node->_childCount; k++)
             {
                 Node* child = node->_children[k];
-                written = nodeToText(child, out_buffer, buffer_size, written, indentation + 1);
+                uint32_t childBars = bars;
+                if(k < node->_childCount - 1)
+                {
+                    childBars |= (1 << (indentation));
+                }
+
+                //uint32_t childBars = 0;
+                written = nodeToText(child, out_buffer, buffer_size, written, childBars, childIndentation);
             }
 
             // return characters written
@@ -546,5 +566,5 @@ Node* spark_get_root_node()
 
 int32_t spark_node_to_text(Spark::Node* node, char* out_buffer, int32_t buffer_size)
 {
-    return Spark::Internal::nodeToText(node, out_buffer, buffer_size, 0, 0) + 1;
+    return Spark::Internal::nodeToText(node, out_buffer, buffer_size, 0, 0, 0) + 1;
 }
