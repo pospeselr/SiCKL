@@ -85,44 +85,24 @@ int main()
         }
         Comment("After For");
 
-#if 0
         Comment("Hello Comment");
         auto sum = make_function<Int, Int, Int>(
         [](Int a, Int b)
         {
+            Comment("sum -> Int");
             If(a)
             {
-                Int c = a + b;
-                Return(c);
+                Return(a + b);
             }
             ElseIf(b)
             {
-                Int c = a + 2 * b;
-                Return(c);
+                Return(a + 2 * b);
             }
             Else
             {
                 Return(a);
             }
 
-            While(1)
-            {
-
-            }
-
-
-
-            auto voidFunc = make_function<Void, Float>(
-            [](Float a)
-            {
-                Comment("In voidFunc");
-                Return();
-            });
-
-            Comment("Call voidFunc");
-            voidFunc(a.As<Float>());
-
-            Comment("In sum");
             Return(a + b);
         });
 
@@ -137,7 +117,7 @@ int main()
 
         Comment("Call sum");
         sum(a, b);
-#endif
+
 #if 0
         Int a, b;
         Int c = a + b;

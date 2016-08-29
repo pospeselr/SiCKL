@@ -58,13 +58,7 @@ namespace Spark
         rvalue& operator=(const rvalue&) = delete;
         rvalue(typename TYPE::cl_type raw) : TYPE(spark_create_constant_node(TYPE::type, &raw, sizeof(raw))) {}
     };
-#if 0
-    template<typename TYPE>
-    struct lvalue {using type = TYPE;};
 
-    template<> template<typename TYPE> struct lvalue<rvalue<TYPE>> {using type = TYPE;};
-    template<> template<typename TYPE> struct lvalue<const rvalue<TYPE>> {using type = TYPE;};
-#endif
     template<typename TYPE, property_t ID>
     struct property_r
     {
@@ -399,7 +393,7 @@ namespace Spark
         static const char* name;
         static const datatype_t type;
 
-        scalar<CL_SCALAR> operator[](const scalar<cl_int>& index)
+        scalar<CL_SCALAR> operator[](const rvalue<scalar<cl_int>>& index)
         {
             const auto dt = scalar<CL_SCALAR>::type;
             const auto op = Operator::Index;
@@ -408,7 +402,7 @@ namespace Spark
             return scalar<CL_SCALAR>(indexNode);
         }
 
-        const rvalue<scalar<CL_SCALAR>> operator[](const scalar<cl_int>& index) const
+        const rvalue<scalar<CL_SCALAR>> operator[](const rvalue<scalar<cl_int>>& index) const
         {
             const auto dt = scalar<CL_SCALAR>::type;
             const auto op = Operator::Index;
@@ -467,7 +461,7 @@ namespace Spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    const rvalue<RETURN_TYPE> operator OP(const TYPE& right)\
+    const rvalue<RETURN_TYPE> operator OP(const rvalue<TYPE>& right)\
     {\
         const auto dt = RETURN_TYPE::type;\
         const auto op = Operator::ENUM;\
@@ -475,7 +469,7 @@ namespace Spark
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    const rvalue<RETURN_TYPE> operator OP (const TYPE& left, const TYPE& right)\
+    const rvalue<RETURN_TYPE> operator OP (const rvalue<TYPE>& left, const rvalue<TYPE>& right)\
     {\
         const auto dt = RETURN_TYPE::type;\
         const auto op = Operator::ENUM;\
