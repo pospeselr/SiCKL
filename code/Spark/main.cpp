@@ -77,14 +77,14 @@ int main()
         raw = (123);
 
         Comment("Before For");
-        For(auto& it : Range<Int>(0, raw))
+        For(auto& it : Range<Int>(0, raw, 13))
         {
             Comment("Body");
             i = it + 12;
 
         }
         Comment("After For");
-
+#if 0
         Comment("Hello Comment");
         auto sum = make_function<Int, Int, Int>(
         [](Int a, Int b)
@@ -117,7 +117,7 @@ int main()
 
         Comment("Call sum");
         sum(a, b);
-
+#endif
 #if 0
         Int a, b;
         Int c = a + b;

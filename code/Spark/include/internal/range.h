@@ -76,11 +76,13 @@ namespace Spark
 	template<typename TYPE>
 	struct Range
 	{
-		Range(const rvalue<TYPE>& start, const rvalue<TYPE>& stop)
-		: _start(start),
-		  _stop(stop),
-		  _step(1),
-		  _val(nullptr)
+		Range(const rvalue<TYPE>& start, const rvalue<TYPE>& stop) : Range(start, stop, 1) {}
+
+		Range(const rvalue<TYPE>& start, const rvalue<TYPE>& stop, const rvalue<TYPE>& step)
+		: _start(start)
+		, _stop(stop)
+		, _step(step)
+		, _val(nullptr)
 		{
 
 		}
