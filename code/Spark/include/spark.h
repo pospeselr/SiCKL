@@ -11,3 +11,4 @@
 #include "internal/kernel.h"
 #include "internal/comment.h"
 #include "internal/statement.h"
+#include "internal/range.h"

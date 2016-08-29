@@ -16,20 +16,20 @@ namespace Spark
         {
             Node* root = spark_create_control_node(Control::If);
             spark_add_child_node(spark_peek_scope_node(), root);
+            spark_push_scope_node(root);
 
             Node* parameterList = spark_create_control_node(Control::ParameterList);
-
             spark_add_child_node(root, parameterList);
             spark_add_child_node(parameterList, val._node);
 
             Node* body = spark_create_control_node(Control::ScopeBlock);
             spark_add_child_node(root, body);
-
             spark_push_scope_node(body);
         }
 
         ~if_statement()
         {
+            spark_pop_scope_node();
             spark_pop_scope_node();
         }
     };
@@ -40,20 +40,20 @@ namespace Spark
         {
             Node* root = spark_create_control_node(Control::ElseIf);
             spark_add_child_node(spark_peek_scope_node(), root);
+            spark_push_scope_node(root);
 
             Node* parameterList = spark_create_control_node(Control::ParameterList);
-
             spark_add_child_node(root, parameterList);
             spark_add_child_node(parameterList, val._node);
 
             Node* body = spark_create_control_node(Control::ScopeBlock);
             spark_add_child_node(root, body);
-
             spark_push_scope_node(body);
         }
 
         ~elseif_statement()
         {
+            spark_pop_scope_node();
             spark_pop_scope_node();
         }
     };
@@ -64,15 +64,16 @@ namespace Spark
         {
             Node* root = spark_create_control_node(Control::Else);
             spark_add_child_node(spark_peek_scope_node(), root);
+            spark_push_scope_node(root);
 
             Node* body = spark_create_control_node(Control::ScopeBlock);
             spark_add_child_node(root, body);
-
             spark_push_scope_node(body);
         }
 
         ~else_statement()
         {
+            spark_pop_scope_node();
             spark_pop_scope_node();
         }
     };
@@ -83,20 +84,20 @@ namespace Spark
         {
             Node* root = spark_create_control_node(Control::While);
             spark_add_child_node(spark_peek_scope_node(), root);
+            spark_push_scope_node(root);
 
             Node* parameterList = spark_create_control_node(Control::ParameterList);
-
             spark_add_child_node(root, parameterList);
             spark_add_child_node(parameterList, val._node);
 
             Node* body = spark_create_control_node(Control::ScopeBlock);
             spark_add_child_node(root, body);
-
             spark_push_scope_node(body);
         }
 
         ~while_statement()
         {
+            spark_pop_scope_node();
             spark_pop_scope_node();
         }
     };
@@ -105,5 +106,12 @@ namespace Spark
     #define ElseIf(X) if (auto __elseif_##__LINE__ = elseif_statement(X))
     #define Else      if (auto __else_##__LINE__ = else_statement())
     #define While(X)  if (auto __while_##__LINE__ = while_statement(X))
+    #define For(X)    for(X)
+
+    void Break()
+    {
+        Node* breakNode = spark_create_control_node(Control::Break);
+        spark_add_child_node(spark_peek_scope_node(), breakNode);
+    }
 
 }

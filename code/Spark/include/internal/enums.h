@@ -32,7 +32,8 @@ namespace Spark
             ElseIf,
             Else,
             While,
-            ForInRange,
+            For,
+            Break,
 
             Count
         };

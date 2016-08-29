@@ -69,9 +69,17 @@ namespace Spark
 
 int main()
 {
+
     auto kernel = make_kernel<Int>(
     [](Int i)
     {
+        For(Int& it : Range(0, 100))
+        {
+            TRACE
+            Comment("Body");
+            i = it + 12;
+        }
+#if 0
         Comment("Hello Comment");
         auto sum = make_function<Int, Int, Int>(
         [](Int a, Int b)
@@ -95,6 +103,8 @@ int main()
             {
 
             }
+
+
 
             auto voidFunc = make_function<Void, Float>(
             [](Float a)
@@ -121,6 +131,7 @@ int main()
 
         Comment("Call sum");
         sum(a, b);
+#endif
 #if 0
         Int a, b;
         Int c = a + b;

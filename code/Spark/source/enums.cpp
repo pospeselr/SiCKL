@@ -35,7 +35,8 @@ const char* spark_control_to_str(control_t val)
 		"Control::ElseIf",
 		"Control::Else",
 		"Control::While",
-		"Control::ForInRange",
+		"Control::For",
+		"Control::Break",
 	};
 	SPARK_ASSERT(val < Control::Count);
 	return names[val];
