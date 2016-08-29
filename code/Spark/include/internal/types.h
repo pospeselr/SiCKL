@@ -34,6 +34,7 @@ namespace Spark
     template<typename TYPE, bool DESTRUCT_ATTACH=false>
     struct rvalue : TYPE
     {
+        rvalue(const TYPE& that) : TYPE(that._node) {}
         rvalue(Node* node) : TYPE(node) {}
         rvalue(nullptr_t) : TYPE(nullptr) {}
         ~rvalue()
@@ -55,14 +56,15 @@ namespace Spark
             }
         }
         rvalue& operator=(const rvalue&) = delete;
+        rvalue(typename TYPE::cl_type raw) : TYPE(spark_create_constant_node(TYPE::type, &raw, sizeof(raw))) {}
     };
-
+#if 0
     template<typename TYPE>
     struct lvalue {using type = TYPE;};
 
     template<> template<typename TYPE> struct lvalue<rvalue<TYPE>> {using type = TYPE;};
     template<> template<typename TYPE> struct lvalue<const rvalue<TYPE>> {using type = TYPE;};
-
+#endif
     template<typename TYPE, property_t ID>
     struct property_r
     {
@@ -306,6 +308,7 @@ namespace Spark
         static const datatype_t type;
 
         typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
+        typedef CL_TYPE cl_type;
     };
     template<typename T> struct is_scalar_type<scalar<T>> {const static bool value = true;};
 
@@ -451,6 +454,7 @@ namespace Spark
         }
 
         typedef vector2<typename type_to_int<CL_VECTOR2>::type> int_type;
+        typedef CL_TYPE cl_type;
     };
     template<typename T> struct is_vector2_type<vector2<T>> {const static bool value = true;};
 
