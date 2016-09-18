@@ -45,35 +45,37 @@ namespace Spark
         enum Type
         {
             Invalid = -1,
-            // primitive
-            FirstPrimitive = 0,
-            Void = FirstPrimitive,
-            Char,
-            UChar,
-            Short,
-            UShort,
-            Int,
-            UInt,
-            Long,
-            ULong,
-            Float,
-            Double,
-            PrimitiveMask = 0xF,
+            // primitive (bits 0 - 3)
+            Void              = 0 << 0,
+            Char              = 1 << 0,
+            UChar             = 2 << 0,
+            Short             = 3 << 0,
+            UShort            = 4 << 0,
+            Int               = 5 << 0,
+            UInt              = 6 << 0,
+            Long              = 7 << 0,
+            ULong             = 8 << 0,
+            Float             = 9 << 0,
+            Double            = 10 << 0,
+            PrimitiveMask     = 0xF << 0,
 
-            // components
-            FirstComponent = PrimitiveMask + 1,
-            Vector2 = FirstComponent,
-            Vector3,
-            Vector4,
-            Vector8,
-            Vector16,
-            ComponentMask = 0x70,
+            // components (bits 4 - 6)
+            Vector2           = 1 << 4,
+            Vector3           = 2 << 4,
+            Vector4           = 3 << 4,
+            Vector8           = 4 << 4,
+            Vector16          = 5 << 4,
+            ComponentMask     = 0x7 << 4,
 
-            // container
-            FirstContainer = ComponentMask + 1,
-            Buffer1D = FirstContainer,
-            Buffer2D,
-            ContainerMask = 0x180,
+            // container (bits 7 - 8)
+            Buffer1D          = 1 << 7,
+            Buffer2D          = 2 << 7,
+            Pointer           = 3 << 7,
+            ContainerMask     = 0x3 << 7,
+
+            PrimitiveShift = 0,
+            ComponentShift = 4,
+            ContainerShift = 7,
         };
     }
     typedef enum DataType::Type datatype_t;
@@ -113,6 +115,7 @@ namespace Spark
             Property,
             Call,
             Return,
+            AddressOf,
 
             Count
         };

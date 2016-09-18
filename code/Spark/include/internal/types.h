@@ -223,6 +223,48 @@ namespace Spark
     template<typename CL_TYPE> struct scalar;
     template<typename CL_TYPE> struct vector2;
 
+    // pointer type
+    template<typename TYPE>
+    struct Pointer
+    {
+        friend struct rvalue<Pointer, true>;
+        friend struct rvalue<Pointer, false>;
+    private:
+        Pointer(Node* node)
+        : _node(node)
+        {
+            SPARK_ASSERT(_node != nullptr);
+        }
+    public:
+        Pointer()
+        {
+
+        }
+
+        Pointer(const Pointer& that)
+        {
+            copy_constructor<Pointer>(this, that);
+            SPARK_ASSERT(_node != nullptr);
+        }
+
+        Pointer(Pointer&&) = default;
+
+        Pointer& operator=(const Pointer& that)
+        {
+            assignment_operator<Pointer>(this, that);
+            SPARK_ASSERT(_node != nullptr);
+            return *this;
+        }
+
+        Node* _node = nullptr;
+        friend TYPE;
+
+        static const char* name;
+        static const datatype_t type;
+
+        typedef typename TYPE::cl_type* cl_type;
+    };
+
     // scalar type wrapper
     template<typename CL_TYPE>
     struct scalar
@@ -390,8 +432,6 @@ namespace Spark
             // private node ptr
             Node* _node;
         };
-        static const char* name;
-        static const datatype_t type;
 
         scalar<CL_SCALAR> operator[](const rvalue<scalar<cl_int>>& index)
         {
@@ -447,6 +487,9 @@ namespace Spark
             return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
+        static const char* name;
+        static const datatype_t type;
+
         typedef vector2<typename type_to_int<CL_VECTOR2>::type> int_type;
         typedef CL_TYPE cl_type;
     };
@@ -493,6 +536,7 @@ namespace Spark
     }
 
     #define MAKE_INT_OPERATORS(TYPE)\
+    MAKE_UNARY_OPERATOR(Pointer<TYPE>, TYPE, &, AddressOf)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, +, Add)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, -, Subtract)\
@@ -517,7 +561,7 @@ namespace Spark
     MAKE_PREFIX_OPERATOR(TYPE, TYPE, ++, PrefixIncrement)\
     MAKE_PREFIX_OPERATOR(TYPE, TYPE, --, PrefixDecrement)\
     MAKE_POSTFIX_OPERATOR(TYPE, TYPE, ++, PostfixIncrement)\
-    MAKE_POSTFIX_OPERATOR(TYPE, TYPE, --, PostfixDecrement)
+    MAKE_POSTFIX_OPERATOR(TYPE, TYPE, --, PostfixDecrement)\
 
     #define MAKE_FLOAT_OPERATORS(TYPE)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\
@@ -539,27 +583,35 @@ namespace Spark
     MAKE_BINARY_OPERATOR(TYPE, TYPE, |, BitwiseOr)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, ^, BitwiseXor)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, >>, RightShift)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, <<, LeftShift)
+    MAKE_BINARY_OPERATOR(TYPE, TYPE, <<, LeftShift)\
+
+    #define MAKE_TYPEDEFS(TYPE, CL_TYPE)\
+    typedef scalar<CL_TYPE> TYPE;\
+    typedef vector2<CL_TYPE##2> TYPE##2;\
+    typedef Pointer<TYPE> P##TYPE;\
+    typedef Pointer<TYPE##2> P##TYPE##2;\
+
+    #define MAKE_STATICS(TYPE)\
+    template<> const char* TYPE::name = #TYPE;\
+    template<> const char* TYPE##2::name = #TYPE "2";\
+    template<> const char* P##TYPE::name = "Pointer<" #TYPE ">";\
+    template<> const char* P##TYPE##2::name = "Pointer<" #TYPE "2>";\
+    template<> const datatype_t TYPE::type = DataType::TYPE;\
+    template<> const datatype_t TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2);\
+    template<> const datatype_t P##TYPE::type = (datatype_t)(DataType::TYPE | DataType::Pointer);\
+    template<> const datatype_t P##TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2 | DataType::Pointer);\
 
     #define MAKE_INT_TYPES(TYPE, CL_TYPE)\
-    typedef scalar<CL_TYPE> TYPE;\
-    typedef vector2<CL_TYPE##2> TYPE##2;\
-    template<> const char* TYPE::name = #TYPE;\
-    template<> const char* TYPE##2::name = #TYPE "2";\
-    template<> const datatype_t TYPE::type = DataType::TYPE;\
-    template<> const datatype_t TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2);\
+    MAKE_TYPEDEFS(TYPE, CL_TYPE)\
+    MAKE_STATICS(TYPE)\
     MAKE_INT_OPERATORS(TYPE)\
-    MAKE_INT_OPERATORS(TYPE##2)
+    MAKE_INT_OPERATORS(TYPE##2)\
 
     #define MAKE_FLOAT_TYPES(TYPE, CL_TYPE)\
-    typedef scalar<CL_TYPE> TYPE;\
-    typedef vector2<CL_TYPE##2> TYPE##2;\
-    template<> const char* TYPE::name = #TYPE;\
-    template<> const char* TYPE##2::name = #TYPE "2";\
-    template<> const datatype_t TYPE::type = DataType::TYPE;\
-    template<> const datatype_t TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2);\
+    MAKE_TYPEDEFS(TYPE, CL_TYPE)\
+    MAKE_STATICS(TYPE)\
     MAKE_FLOAT_OPERATORS(TYPE)\
-    MAKE_FLOAT_OPERATORS(TYPE##2)
+    MAKE_FLOAT_OPERATORS(TYPE##2)\
 
     // Int has to appear first since it is a return type of other scalar comparison operators
     MAKE_INT_TYPES(Int, cl_int)

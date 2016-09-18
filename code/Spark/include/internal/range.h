@@ -127,48 +127,4 @@ namespace Spark
 		TYPE _step;
 		TYPE _val;
 	};
-#if 0
-	struct Range
-	{
-		struct RangeIterator
-		{
-			bool operator!=(const RangeIterator&)
-			{
-				TRACE
-				return _result;
-			}
-
-			RangeIterator& operator++()
-			{
-				_result = false;
-				return *this;
-			}
-
-			Int operator*()
-			{
-				TRACE
-				return Int();
-			}
-
-			bool _result = true;
-		};
-
-		Range(int start, int stop)
-		{
-			TRACE
-		}
-
-		RangeIterator start()
-		{
-			TRACE
-			return RangeIterator();
-		}
-
-		RangeIterator end()
-		{
-			TRACE
-			return RangeIterator();
-		}
-	};
-#endif
 }

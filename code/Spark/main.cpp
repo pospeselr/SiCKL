@@ -69,15 +69,16 @@ namespace Spark
 
 int main()
 {
-
     auto kernel = make_kernel<Int>(
     [](Int i)
     {
         Int raw = (666);
+        Pointer<Int> pint = &raw;
+
         raw = (123);
 
         Comment("Before For");
-        For(auto& it : Range<Int>(0, raw, 13))
+        For(auto& it : Range<Int>(raw, 1, 13))
         {
             Comment("Body");
             i = it + 12;

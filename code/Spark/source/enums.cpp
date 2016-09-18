@@ -61,6 +61,7 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 
 	static const char* componentNames[] =
 	{
+		nullptr,
 		"2",
 		"3",
 		"4",
@@ -70,8 +71,10 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 
 	static const char* containerNames[] =
 	{
+		nullptr,
 		"buffer1d ",
 		"buffer2d ",
+		"pointer ",
 	};
 
 	auto primitive = val & DataType::PrimitiveMask;
@@ -80,11 +83,11 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 
 	// temporary asserts until other vectors and containers are implemented
 	SPARK_ASSERT(component == 0 || component == DataType::Vector2);
-	SPARK_ASSERT(container == 0);
+	SPARK_ASSERT(container == 0 || container == DataType::Pointer);
 
-	const char* primitiveName = primitiveNames[primitive - DataType::FirstPrimitive];
-	const char* componentName = component ? componentNames[component - DataType::FirstComponent] : "";
-	const char* containerName = container ? containerNames[container - DataType::FirstContainer] : "";
+	const char* primitiveName = primitiveNames[primitive >> DataType::PrimitiveShift];
+	const char* componentName = component ? componentNames[component >> DataType::ComponentShift] : "";
+	const char* containerName = container ? containerNames[container >> DataType::ContainerShift ] : "";
 
 	int32_t len = 1 + snprintf(nullptr, 0, "%s%s%s", containerName, primitiveName, componentName);
 	if(len > sz)
@@ -132,6 +135,7 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::Property",
 		"Operator::Call",
 		"Operator::Return",
+		"Operator::AddressOf",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < Operator::Count);
