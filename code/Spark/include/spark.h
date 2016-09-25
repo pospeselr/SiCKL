@@ -1,5 +1,6 @@
 // C++
 #include <utility>
+#include <functional>
 
 // spark internal
 #include "internal/common.h"

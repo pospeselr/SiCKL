@@ -241,6 +241,11 @@ namespace Spark
 
         }
 
+        Pointer(nullptr_t)
+        {
+            extern_constructor(this);
+        }
+
         Pointer(const Pointer& that)
         {
             copy_constructor<Pointer>(this, that);

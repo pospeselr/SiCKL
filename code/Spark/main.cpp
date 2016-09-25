@@ -67,24 +67,58 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype((Int2() + Int2())[0]), Int>() == false);
 }
 
+
+
 int main()
 {
-    auto kernel = make_kernel<Int>(
-    [](Int i)
+    auto cleanup = Spark::scope_exit(::spark_end_program);
+
+    Kernel<void(PInt, PInt)> kernel = []()
     {
+        Function<Int(Int,Int)> sum =
+        [](Int a, Int b)
+        {
+            Comment("Sum");
+            Return(a + b);
+        };
+
+        Function<void(PInt, PInt)> main =
+        [=](PInt buff1, PInt buff2)
+        {
+            Comment("Kernel Main");
+
+            Int a = 123;
+            Float b = 666.0f;
+
+            sum(a, b.As<Int>());
+        };
+    };
+
+
+#if 0
+        auto main = make_function<Void(Pointer<Int>, Pointer<Int>)>(
+        [](Pointer<Int> a, Pointer<Int> b)
+        {
+            sum(1, 2);
+        });
+#endif
+#if 0
         Int raw = (666);
         Pointer<Int> pint = &raw;
 
         raw = (123);
 
+        Int i = 0;
+
         Comment("Before For");
         For(auto& it : Range<Int>(raw, 1, 13))
         {
             Comment("Body");
-            i = it + 12;
+            //i = it + 12;
 
         }
         Comment("After For");
+#endif
 #if 0
         Comment("Hello Comment");
         auto sum = make_function<Int, Int, Int>(
@@ -164,9 +198,8 @@ int main()
         inc = a--;
         inc = --a;
         inc = ++a;
-#endif
     });
-
+#endif
 
     #define PRINT_SIZEOF(TYPE) printf("sizeof(" #TYPE "): %lu\n", sizeof(TYPE))
 

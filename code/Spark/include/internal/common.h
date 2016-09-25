@@ -29,4 +29,17 @@
 	constexpr size_t countof(const T (&)[N]) { return N; }
 #endif
 
-
+namespace Spark
+{
+    // scope exit
+    struct scope_exit
+    {
+        scope_exit(std::function<void()>&& func) : _func(func) {}
+        ~scope_exit()
+        {
+            _func();
+        }
+    private:
+        std::function<void(void)> _func;
+    };
+}

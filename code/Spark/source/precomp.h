@@ -7,6 +7,7 @@
 #include <csignal>
 #include <vector>
 #include <unordered_set>
+#include <functional>
 
 // OpenCL
 #ifdef __APPLE__
