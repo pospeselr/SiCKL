@@ -1,9 +1,7 @@
-#include "precomp.h"
-
-#include "internal/common.h"
-#include "internal/enums.h"
-#include "internal/node.h"
-#include "internal/error.h"
+#include "spark/common.h"
+#include "spark/enums.h"
+#include "spark/node.h"
+#include "spark/error.h"
 
 namespace Spark
 {

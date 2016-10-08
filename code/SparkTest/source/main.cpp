@@ -1,5 +1,3 @@
-#include "precomp.h"
-
 #include <cstdio>
 #include <memory>
 #include <iostream>
@@ -9,6 +7,8 @@
 using std::cout;
 using std::endl;
 using std::unique_ptr;
+
+#include <CL/cl.h>
 
 // spark
 #include <spark.h>

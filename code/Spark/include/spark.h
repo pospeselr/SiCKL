@@ -2,14 +2,14 @@
 #include <utility>
 #include <functional>
 
-// spark internal
-#include "internal/common.h"
-#include "internal/error.h"
-#include "internal/enums.h"
-#include "internal/node.h"
-#include "internal/functions.h"
-#include "internal/types.h"
-#include "internal/kernel.h"
-#include "internal/comment.h"
-#include "internal/statement.h"
-#include "internal/range.h"
+// spark spark
+#include "spark/common.h"
+#include "spark/error.h"
+#include "spark/enums.h"
+#include "spark/node.h"
+#include "spark/functions.h"
+#include "spark/types.h"
+#include "spark/kernel.h"
+#include "spark/comment.h"
+#include "spark/statement.h"
+#include "spark/range.h"

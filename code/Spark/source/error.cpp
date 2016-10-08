@@ -1,7 +1,5 @@
-#include "precomp.h"
-
-#include "internal/common.h"
-#include "internal/error.h"
+#include "spark/common.h"
+#include "spark/error.h"
 
 // error handling
 void spark_print_assert(const char* msg, const char* file, uint32_t line)
