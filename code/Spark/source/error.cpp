@@ -1,3 +1,7 @@
+// std
+#include <functional>
+
+// spark
 #include "spark/common.h"
 #include "spark/error.h"
 

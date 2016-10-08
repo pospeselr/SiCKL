@@ -1,3 +1,8 @@
+// std
+#include <cstring>
+#include <vector>
+
+// spark
 #include "spark/common.h"
 #include "spark/enums.h"
 #include "spark/node.h"

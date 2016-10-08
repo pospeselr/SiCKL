@@ -1,5 +1,8 @@
 #pragma once
 
+// std
+#include <csignal>
+
 #ifdef Compiler_MSVC
     #include <intrin.h>
     #define DEBUGBREAK() __debugbreak()

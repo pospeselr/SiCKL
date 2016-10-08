@@ -72,35 +72,3 @@ extern "C" Spark::Node* spark_peek_scope_node();
 extern "C" Spark::Node* spark_get_root_node();
 // debug printing
 extern "C" int32_t spark_node_to_text(Spark::Node* node, char* buffer, int32_t buffer_size);
-
-#if 0
-
-Function
-    ParamList
-        A
-        B
-        C
-    Block
-        Operator=
-            Symbol: D
-            Operator+
-                A
-                B
-        If
-            D
-            Block
-                Function
-                    A
-                    B
-        Else
-            Block
-
-        While
-            Literal : true
-            Block
-                Derp
-                Derp
-                Derp
-
-
-#endif

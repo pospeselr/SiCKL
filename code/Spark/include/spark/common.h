@@ -1,5 +1,8 @@
 #pragma once
 
+// std
+#include <functional>
+
 #ifdef _MSC_VER
 	#define Compiler_MSVC
 #endif
