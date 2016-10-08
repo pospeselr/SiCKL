@@ -203,7 +203,8 @@ namespace Spark
     void assignment_operator(TYPE* pThis, const void* raw)
     {
         SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
-                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index));
+                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index) ||
+                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Dereference));
 
         const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
@@ -236,11 +237,6 @@ namespace Spark
             SPARK_ASSERT(_node != nullptr);
         }
     public:
-        Pointer()
-        {
-
-        }
-
         Pointer(nullptr_t)
         {
             extern_constructor(this);
@@ -259,6 +255,21 @@ namespace Spark
             assignment_operator<Pointer>(this, that);
             SPARK_ASSERT(_node != nullptr);
             return *this;
+        }
+
+        // pointer dereference operator
+        TYPE operator*()
+        {
+            const auto dt = TYPE::type;
+            const auto op = Operator::Dereference;
+            return TYPE(spark_create_operator1_node(dt, op, this->_node));
+        }
+        rvalue<TYPE> operator*() const
+        {
+            TRACE
+            const auto dt = TYPE::type;
+            const auto op = Operator::Dereference;
+            return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         Node* _node = nullptr;
@@ -282,6 +293,8 @@ namespace Spark
         friend struct vector2;
         template<typename S, property_t id>
         friend struct property_rw;
+        template<typename S>
+        friend struct Pointer;
     private:
         // node constructor
         scalar(Node* node)
@@ -314,6 +327,12 @@ namespace Spark
             SPARK_ASSERT(_node != nullptr);
         }
 
+        scalar(const rvalue<scalar>& that)
+        {
+            copy_constructor<scalar<CL_TYPE>>(this, that);
+            SPARK_ASSERT(_node != nullptr);
+        }
+
         scalar(scalar&&) = default;
 
         scalar& operator=(const scalar& that)
@@ -339,7 +358,6 @@ namespace Spark
 
             const auto dt = TYPE::type;
             const auto op = Operator::Cast;
-
             return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
@@ -387,6 +405,12 @@ namespace Spark
         vector2(const CL_TYPE& val)
         {
             value_constructor<vector2<CL_VECTOR2>, sizeof(val)>(this, &val);
+            SPARK_ASSERT(_node != nullptr);
+        }
+
+        vector2(const rvalue<vector2>& that)
+        {
+            copy_constructor<vector2>(this, that);
             SPARK_ASSERT(_node != nullptr);
         }
 
@@ -635,4 +659,21 @@ namespace Spark
 
     // void type
     typedef void Void;
+
+    // pointer operators
+    template<typename TYPE>
+    const rvalue<Pointer<TYPE>> operator+(const Pointer<TYPE>& pointer, const rvalue<UInt>& offset)
+    {
+        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
+        const auto op = Operator::Add;
+        return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, pointer._node, offset._node));
+    }
+
+    template<typename TYPE>
+    const rvalue<Pointer<TYPE>> operator+(const rvalue<UInt>& offset, const Pointer<TYPE>& pointer)
+    {
+        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
+        const auto op = Operator::Add;
+        return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, pointer._node));
+    }
 }

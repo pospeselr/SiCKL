@@ -116,6 +116,7 @@ namespace Spark
             Call,
             Return,
             AddressOf,
+            Dereference,
 
             Count
         };

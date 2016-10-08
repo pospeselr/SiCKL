@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <functional>
+#include <typeinfo>
 
 using std::cout;
 using std::endl;
@@ -65,6 +66,9 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), UInt>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(get<const Int2>()[0]), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype((Int2() + Int2())[0]), Int>() == false);
+    // pointer dereference
+    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), Int>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), UInt>() == false);
 }
 
 
@@ -82,6 +86,8 @@ int main()
             Return(a + b);
         };
 
+
+
         Function<void(PInt, PInt)> main =
         [=](PInt buff1, PInt buff2)
         {
@@ -91,6 +97,16 @@ int main()
             Float b = 666.0f;
 
             sum(a, b.As<Int>());
+
+            buff1 = 2u + buff1 + 2u;
+
+            Comment("Before Dereference");
+
+            *buff1 = 12;
+            Int what = *(buff1 + 1u);
+            //printf("typeid: %s\n", typeid(what).name());
+
+            Comment("After Dereference");
         };
     };
 
