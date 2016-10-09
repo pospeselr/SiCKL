@@ -10,6 +10,44 @@
 
 namespace Spark
 {
+    struct Node
+    {
+        Node** _children;
+        uint32_t _childCount;
+        uint32_t _bufferSize;
+        nodetype_t _type;
+        bool _attached;
+        union
+        {
+            control_t _control;
+            struct
+            {
+                datatype_t type;
+                operator_t id;
+            } _operator;
+            struct
+            {
+                symbolid_t id;
+            } _function;
+            struct
+            {
+                datatype_t type;
+                symbolid_t id;
+            } _symbol;
+            struct
+            {
+                datatype_t type;
+                uint8_t* buffer;
+                uint32_t size;
+            } _constant;
+            struct
+            {
+                property_t id;
+            } _property;
+            const char* _comment;
+        };
+    };
+
     namespace Internal
     {
         thread_local symbolid_t g_nextSymbol;
@@ -532,6 +570,23 @@ void spark_add_child_node(Node* root, Node* node)
     }
 
     SPARK_ASSERT(root->_childCount < root->_bufferSize);
+}
+
+// node property query
+
+Spark::nodetype_t spark_node_get_type(Spark::Node* node)
+{
+    return node->_type;
+}
+
+Spark::operator_t spark_node_get_operator_id(Spark::Node* node)
+{
+    return node->_operator.id;
+}
+
+bool spark_node_get_attached(Spark::Node* node)
+{
+    return node->_attached;
 }
 
 // source scope

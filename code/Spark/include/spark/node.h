@@ -3,43 +3,7 @@
 
 namespace Spark
 {
-	struct Node
-    {
-        Node** _children;
-        uint32_t _childCount;
-        uint32_t _bufferSize;
-        nodetype_t _type;
-        bool _attached;
-        union
-        {
-            control_t _control;
-            struct
-            {
-                datatype_t type;
-                operator_t id;
-            } _operator;
-            struct
-            {
-                symbolid_t id;
-            } _function;
-            struct
-            {
-                datatype_t type;
-                symbolid_t id;
-            } _symbol;
-            struct
-            {
-                datatype_t type;
-                uint8_t* buffer;
-                uint32_t size;
-            } _constant;
-            struct
-            {
-                property_t id;
-            } _property;
-            const char* _comment;
-        };
-    };
+	struct Node;
 }
 
 // program scope
@@ -65,6 +29,11 @@ extern "C" Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark:
 extern "C" void spark_free_node(Spark::Node* node);
 // tree modification
 extern "C" void spark_add_child_node(Spark::Node* root, Spark::Node* node);
+// node property query
+extern "C" Spark::nodetype_t spark_node_get_type(Spark::Node* node);
+extern "C" Spark::operator_t spark_node_get_operator_id(Spark::Node* node);
+extern "C" bool spark_node_get_attached(Spark::Node* node);
+
 // source scope
 extern "C" void spark_push_scope_node(Spark::Node* node);
 extern "C" void spark_pop_scope_node();
@@ -72,3 +41,4 @@ extern "C" Spark::Node* spark_peek_scope_node();
 extern "C" Spark::Node* spark_get_root_node();
 // debug printing
 extern "C" int32_t spark_node_to_text(Spark::Node* node, char* buffer, int32_t buffer_size);
+extern "C" int32_t spark_node_to_json(Spark::Node* node, char* buffer, int32_t buffer_size);

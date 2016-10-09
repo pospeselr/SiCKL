@@ -62,7 +62,7 @@ namespace Spark
             // use a copy of the functionRoot (sans children) to pass
             // around to callers
 
-            this->_node = spark_create_function_node(functionRoot->_function.id);
+            this->_node = spark_create_function_node(id);
         }
 
         // build function AST

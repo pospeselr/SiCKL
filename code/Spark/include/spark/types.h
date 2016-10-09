@@ -33,8 +33,12 @@ namespace Spark
     template<typename TYPE>
     void assignment_operator(TYPE* pThis, const TYPE& that)
     {
-        SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
-                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index));
+        const auto type= spark_node_get_type(pThis->_node);
+        const auto operatorId = spark_node_get_operator_id(pThis->_node);
+
+        SPARK_ASSERT((type == NodeType::Symbol) ||
+                     (type == NodeType::Operator && operatorId == Operator::Index));
+
 
         const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
@@ -50,9 +54,12 @@ namespace Spark
     template<typename TYPE, size_t SIZE>
     void assignment_operator(TYPE* pThis, const void* raw)
     {
-        SPARK_ASSERT((pThis->_node->_type == NodeType::Symbol) ||
-                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Index) ||
-                     (pThis->_node->_type == NodeType::Operator && pThis->_node->_operator.id == Operator::Dereference));
+        const auto type = spark_node_get_type(pThis->_node);
+        const auto operatorId = spark_node_get_operator_id(pThis->_node);
+
+        SPARK_ASSERT((type == NodeType::Symbol) ||
+                     (type == NodeType::Operator && operatorId == Operator::Index) ||
+                     (type == NodeType::Operator && operatorId == Operator::Dereference));
 
         const auto dt = TYPE::type;
         const auto op = Operator::Assignment;

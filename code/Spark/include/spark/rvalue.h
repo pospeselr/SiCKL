@@ -18,12 +18,15 @@ namespace Spark
             // Temporary objects are destroyed as the last step in evaluating the full-
             // expression (1.9) that (lexically) contains the point where they were created.
 
-            if(DESTRUCT_ATTACH &&
-               this->_node->_attached == false)
+            if(DESTRUCT_ATTACH)
             {
-                // add to tree
-                Node* currentScope = spark_peek_scope_node();
-                spark_add_child_node(currentScope, this->_node);
+                bool nodeAttached = spark_node_get_attached(this->_node);
+                if(nodeAttached == false)
+                {
+                    // add to tree
+                    Node* currentScope = spark_peek_scope_node();
+                    spark_add_child_node(currentScope, this->_node);
+                }
             }
         }
         rvalue& operator=(const rvalue&) = delete;
