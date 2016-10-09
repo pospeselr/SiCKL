@@ -107,6 +107,10 @@ int main()
             //printf("typeid: %s\n", typeid(what).name());
 
             Comment("After Dereference");
+
+            Float2 vec2;
+            vec2.X = 1.0f;
+            b = vec2.X;
         };
     };
 

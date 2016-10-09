@@ -413,7 +413,6 @@ namespace Spark
     }
 
     #define MAKE_INT_OPERATORS(TYPE)\
-    MAKE_UNARY_OPERATOR(Pointer<TYPE>, TYPE, &, AddressOf)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, +, Add)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, -, Subtract)\
@@ -510,6 +509,22 @@ namespace Spark
 
     // pointer operators
     template<typename TYPE>
+    const rvalue<Pointer<TYPE>> operator&(const scalar<TYPE>& right)\
+    {\
+        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
+        const auto op = Operator::AddressOf;\
+        return rvalue<Pointer<TYPE>>(spark_create_operator1_node(dt, op, right._node));\
+    }
+
+    template<typename TYPE>
+    const rvalue<Pointer<TYPE>> operator&(const vector2<TYPE>& right)\
+    {\
+        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
+        const auto op = Operator::AddressOf;\
+        return rvalue<Pointer<TYPE>>(spark_create_operator1_node(dt, op, right._node));\
+    }
+
+    template<typename TYPE>
     const rvalue<Pointer<TYPE>> operator+(const Pointer<TYPE>& pointer, const rvalue<UInt>& offset)
     {
         const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
@@ -524,4 +539,5 @@ namespace Spark
         const auto op = Operator::Add;
         return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, pointer._node));
     }
+
 }
