@@ -28,6 +28,7 @@ namespace Spark
             struct
             {
                 symbolid_t id;
+                bool entrypoint;
             } _function;
             struct
             {
@@ -94,8 +95,9 @@ namespace Spark
         int32_t functionNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             return doSnprintf(buffer, buffer_size, written,
-                "0x%x -> function\n",
-                node->_function.id);
+                "0x%x -> function%s\n",
+                node->_function.id,
+                node->_function.entrypoint ? "(entrypoint)" : "");
         }
 
         int32_t symbolNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
@@ -587,6 +589,16 @@ Spark::operator_t spark_node_get_operator_id(Spark::Node* node)
 bool spark_node_get_attached(Spark::Node* node)
 {
     return node->_attached;
+}
+
+Spark::symbolid_t spark_node_get_function_id(Spark::Node* node)
+{
+    return node->_function.id;
+}
+
+void spark_node_make_entrypoint(Spark::Node* node)
+{
+    node->_function.entrypoint = true;
 }
 
 // source scope

@@ -86,8 +86,6 @@ int main()
             Return(a + b);
         };
 
-
-
         Function<void(PInt, PInt)> main =
         [=](PInt buff1, PInt buff2)
         {
@@ -112,6 +110,7 @@ int main()
             vec2.X = 1.0f;
             b = vec2.X;
         };
+        main.SetEntryPoint();
     };
 
 
@@ -227,14 +226,10 @@ int main()
     PRINT_SIZEOF(Spark::UInt);
     PRINT_SIZEOF(Spark::Int2);
 
-    PRINT_SIZEOF(Spark::Node);
     PRINT_SIZEOF(Spark::rvalue<Spark::Int>);
 
 
     #define PRINT_OFFSETOF(TYPE, MEMBER) printf("offsetof(" #TYPE ", " #MEMBER ") : %lu\n", __builtin_offsetof(TYPE, MEMBER))
-
-    PRINT_OFFSETOF(Spark::Node, _children);
-    PRINT_OFFSETOF(Spark::Node, _type);
 
     char prop[16] = {0};
     cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;

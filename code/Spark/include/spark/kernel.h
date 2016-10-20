@@ -7,16 +7,31 @@ namespace Spark
     template<typename RETURN, typename... PARAMS>
     struct Function<RETURN(PARAMS...)>
     {
-        Function<RETURN(PARAMS...)>(auto func)
+        Function(auto func)
         {
+            *this = func;
+        }
+
+        Function& operator=(auto func)
+        {
+            SPARK_ASSERT(this->_node == nullptr);
+
             const symbolid_t id = spark_next_symbol();
             function_create(func, id, PARAMS(nullptr)...);
+
+            return *this;
+        }
+
+        void SetEntryPoint()
+        {
+            spark_node_make_entrypoint(this->_node);
         }
 
         const rvalue<RETURN, true> operator()(const PARAMS&... params) const
         {
             Node* opNode = spark_create_operator_node(RETURN::type, Operator::Call);
-            spark_add_child_node(opNode, this->_node);
+            const symbolid_t id = spark_node_get_function_id(this->_node);
+            spark_add_child_node(opNode, spark_create_function_node(id));
             function_push_param(opNode, params...);
 
             return rvalue<RETURN, true>(opNode);
@@ -59,10 +74,7 @@ namespace Spark
             // done with function
             spark_pop_scope_node();
 
-            // use a copy of the functionRoot (sans children) to pass
-            // around to callers
-
-            this->_node = spark_create_function_node(id);
+            this->_node = functionRoot;
         }
 
         // build function AST

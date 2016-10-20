@@ -29,10 +29,14 @@ extern "C" Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark:
 extern "C" void spark_free_node(Spark::Node* node);
 // tree modification
 extern "C" void spark_add_child_node(Spark::Node* root, Spark::Node* node);
+
 // node property query
 extern "C" Spark::nodetype_t spark_node_get_type(Spark::Node* node);
 extern "C" Spark::operator_t spark_node_get_operator_id(Spark::Node* node);
 extern "C" bool spark_node_get_attached(Spark::Node* node);
+extern "C" Spark::symbolid_t spark_node_get_function_id(Spark::Node* node);
+// node property set
+extern "C" void spark_node_make_entrypoint(Spark::Node* node);
 
 // source scope
 extern "C" void spark_push_scope_node(Spark::Node* node);
