@@ -2,6 +2,7 @@
 
 // std
 #include <csignal>
+#include <exception>
 
 #ifdef Compiler_MSVC
     #include <intrin.h>

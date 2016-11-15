@@ -1,7 +1,4 @@
-// spark
-#include "spark/common.h"
-#include "spark/enums.h"
-#include "spark/error.h"
+#include "spark.hpp"
 
 using namespace Spark;
 

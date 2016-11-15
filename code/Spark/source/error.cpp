@@ -1,9 +1,4 @@
-// std
-#include <functional>
-
-// spark
-#include "spark/common.h"
-#include "spark/error.h"
+#include "spark.hpp"
 
 // error handling
 void spark_print_assert(const char* msg, const char* file, uint32_t line)
