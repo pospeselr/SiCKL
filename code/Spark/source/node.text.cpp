@@ -176,18 +176,26 @@ namespace Spark
             // write graph lines
             for(int32_t k = 0; k < indentation; k++)
             {
-                if(k == indentation - 1)
+                const bool printBar = (bars & (1 << k));
+                const bool printLeaf = (k == indentation - 1);
+
+                const char* str = "  ";
+                if(printLeaf)
                 {
-                    written = doSnprintf(out_buffer, buffer_size, written, "%s", "├");
+                    if(!printBar)
+                    {
+                        str = "└─";
+                    }
+                    else
+                    {
+                        str = "├─";
+                    }
                 }
-                else if( bars & (1 << k) )
+                else if(printBar)
                 {
-                    written = doSnprintf(out_buffer, buffer_size, written, "%s", "│");
+                    str = "│ ";
                 }
-                else
-                {
-                    written = doSnprintf(out_buffer, buffer_size, written, "%s", " ");
-                }
+                written = doSnprintf(out_buffer, buffer_size, written, "%s", str);
             }
 
             // write node info
