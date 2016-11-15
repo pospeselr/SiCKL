@@ -1,8 +1,5 @@
 #pragma once
 
-// std
-#include <cstdint>
-
 namespace Spark
 {
     typedef uint32_t symbolid_t;

@@ -1,6 +1,7 @@
 #pragma once
 
 // std
+#include <csignal>
 #include <cstdint>
 #include <cstring>
 #include <functional>

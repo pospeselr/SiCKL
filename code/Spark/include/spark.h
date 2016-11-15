@@ -1,8 +1,9 @@
-// C++
+// std
+#include <exception>
 #include <utility>
 #include <functional>
 
-// spark spark
+// spark
 #include "spark/common.h"
 #include "spark/error.h"
 #include "spark/enums.h"
