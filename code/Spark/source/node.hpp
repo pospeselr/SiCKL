@@ -4,11 +4,9 @@ namespace Spark
 {
     struct Node
     {
-        Node** _children;
-        uint32_t _childCount;
-        uint32_t _bufferSize;
-        nodetype_t _type;
-        bool _attached;
+        std::vector<Node*> _children;
+        nodetype_t _type = NodeType::Invalid;
+        bool _attached = false;
         union
         {
             control_t _control;

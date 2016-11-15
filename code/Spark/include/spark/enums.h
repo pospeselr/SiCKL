@@ -8,6 +8,7 @@ namespace Spark
     {
         enum Type
         {
+            Invalid = -1,
             Control,
             Operator,
             Function,

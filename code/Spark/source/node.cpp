@@ -49,11 +49,7 @@ Node* spark_create_control_node(control_t c)
     SPARK_ASSERT(c < Control::Count);
 
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
     node->_type = NodeType::Control;
-    node->_attached = false;
     node->_control = c;
 
     try
@@ -71,11 +67,7 @@ Node* spark_create_control_node(control_t c)
 Node* spark_create_operator_node(datatype_t dt, operator_t id)
 {
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
     node->_type = NodeType::Operator;
-    node->_attached = false;
     node->_operator.type = dt;
     node->_operator.id = id;
 
@@ -94,11 +86,7 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id)
 Node* spark_create_function_node(symbolid_t id)
 {
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
     node->_type = NodeType::Function;
-    node->_attached = false;
     node->_function.id = id;
 
     try
@@ -116,11 +104,7 @@ Node* spark_create_function_node(symbolid_t id)
 Node* spark_create_symbol_node(datatype_t dt, symbolid_t id)
 {
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
     node->_type = NodeType::Symbol;
-    node->_attached = false;
     node->_symbol.type = dt;
     node->_symbol.id = id;
 
@@ -142,11 +126,7 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
     SPARK_ASSERT(sz > 0);
 
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
     node->_type = NodeType::Constant;
-    node->_attached = false;
     node->_constant.type = dt;
     node->_constant.buffer = new uint8_t[sz];
     std::memcpy(node->_constant.buffer, raw, sz);
@@ -167,10 +147,6 @@ Node* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz)
 Node* spark_create_property_node(property_t prop)
 {
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
-    node->_attached = false;
     node->_type = NodeType::Property;
     node->_property.id = prop;
 
@@ -189,10 +165,6 @@ Node* spark_create_property_node(property_t prop)
 Node* spark_create_comment_node(const char* comment)
 {
     Node* node = new Node();
-    node->_children = nullptr;
-    node->_childCount = 0;
-    node->_bufferSize = 0;
-    node->_attached = false;
     node->_type = NodeType::Comment;
     node->_comment = comment;
 
@@ -226,7 +198,6 @@ Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::operator_t op, Sp
 // node deletion
 void spark_free_node(Node* node)
 {
-    delete[] node->_children;
     if(node->_type == NodeType::Constant)
     {
         delete[] node->_constant.buffer;
@@ -240,48 +211,7 @@ void spark_add_child_node(Node* root, Node* node)
     SPARK_ASSERT(node != nullptr);
     SPARK_ASSERT(root != node);
 
-    // init buffer if it is empty
-    if(root->_children == nullptr)
-    {
-        const uint32_t bufferSize = 8;
-        root->_children = new Node*[bufferSize];
-        for(uint32_t k = 0; k < bufferSize; k++)
-        {
-            root->_children[k] = nullptr;
-        }
-        root->_bufferSize = bufferSize;
-        root->_childCount = 0;
-    }
-
-    // add child node
-    root->_children[root->_childCount++] = node;
-    node->_attached = true;
-
-    // resize buffer if it is full
-    if(root->_childCount == root->_bufferSize)
-    {
-        // copy over nodes to new buffer
-        const uint32_t bufferSize = root->_bufferSize * 2;
-        const uint32_t childCount = root->_childCount;
-        Node** children = new Node*[bufferSize];
-        for(uint32_t k = 0; k < childCount; k++)
-        {
-            children[k] = root->_children[k];
-        }
-
-        for(uint32_t k = childCount; k < bufferSize; k++)
-        {
-            children[k] = nullptr;
-        }
-
-        // delete old buffer and copy over data
-        delete[] root->_children;
-        root->_children = children;
-        root->_childCount = childCount;
-        root->_bufferSize = bufferSize;
-    }
-
-    SPARK_ASSERT(root->_childCount < root->_bufferSize);
+    root->_children.push_back(node);
 }
 
 // node property query
