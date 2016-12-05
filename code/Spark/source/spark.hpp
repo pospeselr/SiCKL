@@ -6,6 +6,7 @@
 #include <cstring>
 #include <functional>
 #include <vector>
+#include <memory>
 
 // spark
 #include "spark/common.h"

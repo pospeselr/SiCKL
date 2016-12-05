@@ -239,6 +239,14 @@ int main()
     cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;
     cout << spark_property_to_str(Property::Lo, prop, countof(prop)) << endl;
 
+    try
+    {
+        spark_test_error(Spark::ThrowOnError());
+    }
+    catch(std::exception& ex)
+    {
+        cout << ex.what() << endl;
+    }
     return 0;
 }
 
