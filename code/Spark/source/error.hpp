@@ -1,30 +1,32 @@
 #pragma once
 
-struct spark_error
-{
-    spark_error(std::string&& message) : _message(message) {}
-
-    std::string _message;
-};
+typedef struct spark_error spark_error_t;
 
 namespace Spark
 {
     namespace Internal
     {
+        extern char g_errorMessage[1024];
+        extern void HandleException(spark_error_t** error, const std::exception& ex);
+
         template<typename FUNC>
-        void TranslateExceptions(spark_error** outError, FUNC&& func)
+        auto TranslateExceptions(spark_error_t** error, FUNC&& func) noexcept
         {
             try
             {
-                func();
+                return func();
             }
             catch(const std::exception& ex)
             {
-                if(outError)
-                {
-                    *outError = new spark_error(ex.what());
-                }
+                HandleException(error, ex);
             }
+            return decltype(func())();
+        }
+
+        template<typename FUNC>
+        auto TranslateExceptions(FUNC&& func) noexcept
+        {
+            return TranslateExceptions(nullptr, func);
         }
     }
 }

@@ -75,8 +75,6 @@ namespace Spark
 
 int main()
 {
-    auto cleanup = Spark::scope_exit(::spark_end_program);
-
     Kernel<void(PInt, PInt)> kernel = []()
     {
         Function<Int(Int,Int)> sum =
@@ -219,7 +217,6 @@ int main()
         inc = ++a;
     });
 #endif
-
     #define PRINT_SIZEOF(TYPE) printf("sizeof(" #TYPE "): %lu\n", sizeof(TYPE))
 
     PRINT_SIZEOF(Spark::Int);
@@ -241,7 +238,7 @@ int main()
 
     try
     {
-        spark_test_error(Spark::ThrowOnError());
+        spark_test_error(Spark::Internal::ThrowOnError());
     }
     catch(std::exception& ex)
     {

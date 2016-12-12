@@ -4,6 +4,7 @@ namespace Spark
 {
     struct Node
     {
+        ~Node();
         std::vector<Node*> _children;
         nodetype_t _type = NodeType::Invalid;
         bool _attached = false;

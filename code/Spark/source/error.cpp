@@ -2,14 +2,27 @@
 
 #include "error.hpp"
 
-void spark_free_error(spark_error_t error)
+struct spark_error
 {
-    delete error;
-}
+    spark_error(const char* msg) : _error_message(msg) {}
+    const char* _error_message;
+};
 
-const char* spark_get_error_message(spark_error_t error)
+namespace Spark
 {
-    return error->_message.c_str();
+    namespace Internal
+    {
+        char g_errorMessage[1024] = {};
+
+        void HandleException(spark_error_t** error, const std::exception& ex)
+        {
+            if(error)
+            {
+                snprintf(g_errorMessage, countof(g_errorMessage), "%s", ex.what());
+                *error = new spark_error(g_errorMessage);
+            }
+        }
+    }
 }
 
 // error handling
@@ -26,12 +39,23 @@ void spark_print_exception(const std::exception& ex)
     DEBUGBREAK();
 }
 
-void spark_test_error(spark_error_t* error)
+void spark_free_error(spark_error_t* error)
 {
-    Spark::Internal::TranslateExceptions(
+    delete error;
+}
+
+const char* spark_get_error_message(spark_error_t* error)
+{
+    return error->_error_message;
+}
+
+void spark_test_error(spark_error_t** error)
+{
+    return Spark::Internal::TranslateExceptions(
         error,
         [&]()
         {
             throw std::runtime_error("Hello World Error");
         });
 }
+

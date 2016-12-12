@@ -21,9 +21,6 @@ extern "C" Spark::Node* spark_create_symbol_node(Spark::datatype_t dt, Spark::sy
 extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const void* raw, size_t sz);
 extern "C" Spark::Node* spark_create_property_node(Spark::property_t);
 extern "C" Spark::Node* spark_create_comment_node(const char* comment);
-// compound node creation
-extern "C" Spark::Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1);
-extern "C" Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1, Spark::Node* arg2);
 
 // node deletion
 extern "C" void spark_free_node(Spark::Node* node);
@@ -46,3 +43,18 @@ extern "C" Spark::Node* spark_get_root_node();
 // debug printing
 extern "C" int32_t spark_node_to_text(Spark::Node* node, char* buffer, int32_t buffer_size);
 extern "C" int32_t spark_node_to_json(Spark::Node* node, char* buffer, int32_t buffer_size);
+
+// compound node creation
+inline Spark::Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1)
+{
+    auto result_node = spark_create_operator_node(dt, op);
+    spark_add_child_node(result_node, arg1);
+    return result_node;
+}
+inline Spark::Node* spark_create_operator2_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1, Spark::Node* arg2)
+{
+    auto result_node = spark_create_operator_node(dt, op);
+    spark_add_child_node(result_node, arg1);
+    spark_add_child_node(result_node, arg2);
+    return result_node;
+}

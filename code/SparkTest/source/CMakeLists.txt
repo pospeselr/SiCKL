@@ -1,4 +1,4 @@
-add_compile_options(-std=gnu++14)
+add_compile_options(-std=gnu++14 -O3)
 
 add_executable(spark_test
     main.cpp)
