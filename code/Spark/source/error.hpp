@@ -22,11 +22,5 @@ namespace Spark
             }
             return decltype(func())();
         }
-
-        template<typename FUNC>
-        auto TranslateExceptions(FUNC&& func) noexcept
-        {
-            return TranslateExceptions(nullptr, func);
-        }
     }
 }

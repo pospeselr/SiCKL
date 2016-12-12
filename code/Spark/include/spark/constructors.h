@@ -7,8 +7,9 @@ namespace Spark
     void extern_constructor(TYPE* pThis)
     {
         const auto dt = TYPE::type;
+        const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        Node* thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
         pThis->_node = thisNode;
     }
 
@@ -18,18 +19,19 @@ namespace Spark
     {
         const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
+        const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        Node* thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
         pThis->_node = thisNode;
 
         // init to val
-        Node* valNode = spark_create_constant_node(dt, raw, SIZE);
+        Node* valNode = spark_create_constant_node(dt, raw, SIZE, Spark::Internal::ThrowOnError());
 
         // create assignment node
         Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
         // add to tree
-        Node* currentScope = spark_peek_scope_node();
-        spark_add_child_node(currentScope, assignmentNode);
+        Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+        spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
     }
 
     // default constructor (ie 0)
@@ -47,8 +49,9 @@ namespace Spark
     {
         const auto dt = TYPE::type;
         const auto op = Operator::Assignment;
+        const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-        Node* thisNode = spark_create_symbol_node(dt, spark_next_symbol());
+        Node* thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
         pThis->_node = thisNode;
 
         Node* thatNode = that._node;
@@ -56,7 +59,7 @@ namespace Spark
         // create assignment node
         Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
         // add to tree
-        Node* currentScope = spark_peek_scope_node();
-        spark_add_child_node(currentScope, assignmentNode);
+        Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+        spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
     }
 }

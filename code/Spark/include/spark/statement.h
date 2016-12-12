@@ -14,23 +14,23 @@ namespace Spark
     {
         if_statement(const Int& val)
         {
-            Node* root = spark_create_control_node(Control::If);
-            spark_add_child_node(spark_peek_scope_node(), root);
-            spark_push_scope_node(root);
+            Node* root = spark_create_control_node(Control::If, Spark::Internal::ThrowOnError());
+            spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
-            Node* parameterList = spark_create_control_node(Control::ParameterList);
-            spark_add_child_node(root, parameterList);
-            spark_add_child_node(parameterList, val._node);
+            Node* parameterList = spark_create_control_node(Control::ParameterList, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, parameterList, Spark::Internal::ThrowOnError());
+            spark_add_child_node(parameterList, val._node, Spark::Internal::ThrowOnError());
 
-            Node* body = spark_create_control_node(Control::ScopeBlock);
-            spark_add_child_node(root, body);
-            spark_push_scope_node(body);
+            Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, body, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(body, Spark::Internal::ThrowOnError());
         }
 
         ~if_statement()
         {
-            spark_pop_scope_node();
-            spark_pop_scope_node();
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
         }
     };
 
@@ -38,23 +38,23 @@ namespace Spark
     {
         elseif_statement(const Int& val)
         {
-            Node* root = spark_create_control_node(Control::ElseIf);
-            spark_add_child_node(spark_peek_scope_node(), root);
-            spark_push_scope_node(root);
+            Node* root = spark_create_control_node(Control::ElseIf, Spark::Internal::ThrowOnError());
+            spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
-            Node* parameterList = spark_create_control_node(Control::ParameterList);
-            spark_add_child_node(root, parameterList);
-            spark_add_child_node(parameterList, val._node);
+            Node* parameterList = spark_create_control_node(Control::ParameterList, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, parameterList, Spark::Internal::ThrowOnError());
+            spark_add_child_node(parameterList, val._node, Spark::Internal::ThrowOnError());
 
-            Node* body = spark_create_control_node(Control::ScopeBlock);
-            spark_add_child_node(root, body);
-            spark_push_scope_node(body);
+            Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, body, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(body, Spark::Internal::ThrowOnError());
         }
 
         ~elseif_statement()
         {
-            spark_pop_scope_node();
-            spark_pop_scope_node();
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
         }
     };
 
@@ -62,19 +62,19 @@ namespace Spark
     {
         else_statement()
         {
-            Node* root = spark_create_control_node(Control::Else);
-            spark_add_child_node(spark_peek_scope_node(), root);
-            spark_push_scope_node(root);
+            Node* root = spark_create_control_node(Control::Else, Spark::Internal::ThrowOnError());
+            spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
-            Node* body = spark_create_control_node(Control::ScopeBlock);
-            spark_add_child_node(root, body);
-            spark_push_scope_node(body);
+            Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, body, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(body, Spark::Internal::ThrowOnError());
         }
 
         ~else_statement()
         {
-            spark_pop_scope_node();
-            spark_pop_scope_node();
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
         }
     };
 
@@ -82,23 +82,23 @@ namespace Spark
     {
         while_statement(const Int& val)
         {
-            Node* root = spark_create_control_node(Control::While);
-            spark_add_child_node(spark_peek_scope_node(), root);
-            spark_push_scope_node(root);
+            Node* root = spark_create_control_node(Control::While, Spark::Internal::ThrowOnError());
+            spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
-            Node* parameterList = spark_create_control_node(Control::ParameterList);
-            spark_add_child_node(root, parameterList);
-            spark_add_child_node(parameterList, val._node);
+            Node* parameterList = spark_create_control_node(Control::ParameterList, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, parameterList, Spark::Internal::ThrowOnError());
+            spark_add_child_node(parameterList, val._node, Spark::Internal::ThrowOnError());
 
-            Node* body = spark_create_control_node(Control::ScopeBlock);
-            spark_add_child_node(root, body);
-            spark_push_scope_node(body);
+            Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+            spark_add_child_node(root, body, Spark::Internal::ThrowOnError());
+            spark_push_scope_node(body, Spark::Internal::ThrowOnError());
         }
 
         ~while_statement()
         {
-            spark_pop_scope_node();
-            spark_pop_scope_node();
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
+            spark_pop_scope_node(Spark::Internal::ThrowOnError());
         }
     };
 
@@ -110,8 +110,8 @@ namespace Spark
 
     void Break()
     {
-        Node* breakNode = spark_create_control_node(Control::Break);
-        spark_add_child_node(spark_peek_scope_node(), breakNode);
+        Node* breakNode = spark_create_control_node(Control::Break, Spark::Internal::ThrowOnError());
+        spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), breakNode, Spark::Internal::ThrowOnError());
     }
 
 }

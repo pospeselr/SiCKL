@@ -10,22 +10,22 @@ namespace Spark
 		{
 			_range->init();
 
-			Node* root = spark_create_control_node(Control::For);
-			spark_add_child_node(spark_peek_scope_node(), root);
-			spark_push_scope_node(root);
+			Node* root = spark_create_control_node(Control::For, Spark::Internal::ThrowOnError());
+			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
+			spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
-			Node* parameterList = spark_create_control_node(Control::ParameterList);
-			spark_add_child_node(root, parameterList);
+			Node* parameterList = spark_create_control_node(Control::ParameterList, Spark::Internal::ThrowOnError());
+			spark_add_child_node(root, parameterList, Spark::Internal::ThrowOnError());
 
-			spark_push_scope_node(parameterList);
+			spark_push_scope_node(parameterList, Spark::Internal::ThrowOnError());
 		}
 
 		~iterator()
 		{
 			if(_range)
 			{
-				spark_pop_scope_node();
-				spark_pop_scope_node();
+				spark_pop_scope_node(Spark::Internal::ThrowOnError());
+				spark_pop_scope_node(Spark::Internal::ThrowOnError());
 			}
 		}
 
@@ -33,13 +33,13 @@ namespace Spark
 		{
 			if(_result)
 			{
-				Node* compare = spark_create_control_node(Control::ScopeBlock);
-				spark_add_child_node(spark_peek_scope_node(), compare);
-				spark_push_scope_node(compare);
+				Node* compare = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+				spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), compare, Spark::Internal::ThrowOnError());
+				spark_push_scope_node(compare, Spark::Internal::ThrowOnError());
 
 				_range->compare();
 
-				spark_pop_scope_node();
+				spark_pop_scope_node(Spark::Internal::ThrowOnError());
 			}
 			return _result;
 		}
@@ -52,18 +52,18 @@ namespace Spark
 
 		auto& operator*()
 		{
-			Node* update = spark_create_control_node(Control::ScopeBlock);
-			spark_add_child_node(spark_peek_scope_node(), update);
-			spark_push_scope_node(update);
+			Node* update = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), update, Spark::Internal::ThrowOnError());
+			spark_push_scope_node(update, Spark::Internal::ThrowOnError());
 
 			_range->update_value();
 
-			spark_pop_scope_node();
-			spark_pop_scope_node();
+			spark_pop_scope_node(Spark::Internal::ThrowOnError());
+			spark_pop_scope_node(Spark::Internal::ThrowOnError());
 
-			Node* body = spark_create_control_node(Control::ScopeBlock);
-			spark_add_child_node(spark_peek_scope_node(), body);
-			spark_push_scope_node(body);
+			Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), body,Spark::Internal::ThrowOnError());
+			spark_push_scope_node(body, Spark::Internal::ThrowOnError());
 
 			return _range->get_value();
 		}

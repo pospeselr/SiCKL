@@ -75,42 +75,48 @@ namespace Spark
 
 int main()
 {
-    Kernel<void(PInt, PInt)> kernel = []()
+    try
     {
-        Function<Int(Int,Int)> sum =
-        [](Int a, Int b)
+        Kernel<void(PInt, PInt)> kernel = []()
         {
-            Comment("Sum");
-            Return(a + b);
+            Function<Int(Int,Int)> sum =
+            [](Int a, Int b)
+            {
+                Comment("Sum");
+                Return(a + b);
+            };
+
+            Function<void(PInt, PInt)> main =
+            [=](PInt buff1, PInt buff2)
+            {
+                Comment("Kernel Main");
+
+                Int a = 123;
+                Float b = 666.0f;
+
+                sum(a, b.As<Int>());
+
+                buff1 = 2u + buff1 + 2u;
+
+                Comment("Before Dereference");
+
+                *buff1 = 12;
+                Int what = *(buff1 + 1u);
+                //printf("typeid: %s\n", typeid(what).name());
+
+                Comment("After Dereference");
+
+                Float2 vec2;
+                vec2.X = 1.0f;
+                b = vec2.X;
+            };
+            main.SetEntryPoint();
         };
-
-        Function<void(PInt, PInt)> main =
-        [=](PInt buff1, PInt buff2)
-        {
-            Comment("Kernel Main");
-
-            Int a = 123;
-            Float b = 666.0f;
-
-            sum(a, b.As<Int>());
-
-            buff1 = 2u + buff1 + 2u;
-
-            Comment("Before Dereference");
-
-            *buff1 = 12;
-            Int what = *(buff1 + 1u);
-            //printf("typeid: %s\n", typeid(what).name());
-
-            Comment("After Dereference");
-
-            Float2 vec2;
-            vec2.X = 1.0f;
-            b = vec2.X;
-        };
-        main.SetEntryPoint();
-    };
-
+    }
+    catch(std::exception& ex)
+    {
+        cout << ex.what() << endl;
+    }
 
 #if 0
         auto main = make_function<Void(Pointer<Int>, Pointer<Int>)>(
@@ -236,14 +242,6 @@ int main()
     cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;
     cout << spark_property_to_str(Property::Lo, prop, countof(prop)) << endl;
 
-    try
-    {
-        spark_test_error(Spark::Internal::ThrowOnError());
-    }
-    catch(std::exception& ex)
-    {
-        cout << ex.what() << endl;
-    }
     return 0;
 }
 

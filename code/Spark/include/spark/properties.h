@@ -7,7 +7,7 @@ namespace Spark
     {
         operator const rvalue<TYPE>() const
         {
-            Node* property = spark_create_property_node(ID);
+            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -16,7 +16,7 @@ namespace Spark
 
         const rvalue<TYPE> operator()() const
         {
-            Node* property = spark_create_property_node(ID);
+            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -30,7 +30,7 @@ namespace Spark
     {
         operator TYPE() const
         {
-            Node* property = spark_create_property_node(ID);
+            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -39,7 +39,7 @@ namespace Spark
 
         TYPE operator()() const
         {
-            Node* property = spark_create_property_node(ID);
+            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -49,7 +49,7 @@ namespace Spark
         property_rw& operator=(const TYPE& right)
         {
             // create property node
-            Node* property = spark_create_property_node(ID);
+            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             Node* lvalue = spark_create_operator2_node(TYPE::type, Operator::Property, this->_node, property);
 
             // create assignment node
@@ -58,8 +58,8 @@ namespace Spark
             Node* assignmentNode = spark_create_operator2_node(dt, op, lvalue, right._node);
 
             // add to tree
-            Node* currentScope = spark_peek_scope_node();
-            spark_add_child_node(currentScope, assignmentNode);
+            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
 
             return *this;
         }
