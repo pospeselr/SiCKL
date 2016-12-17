@@ -2,6 +2,51 @@
 
 namespace Spark
 {
+    namespace Internal
+    {
+        inline
+        __attribute__ ((noinline))
+        void assignment_operator(Node* thisNode, datatype_t dt, Node* thatNode)
+        {
+            const auto type= spark_node_get_type(thisNode, Spark::Internal::ThrowOnError());
+            const auto operatorId = spark_node_get_operator_id(thisNode, Spark::Internal::ThrowOnError());
+
+            SPARK_ASSERT((type == NodeType::Symbol) ||
+                         (type == NodeType::Operator && operatorId == Operator::Index));
+
+            const auto op = Operator::Assignment;
+
+            // create assignment node
+            Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
+            // add to tree
+            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
+        }
+
+        inline
+        __attribute__ ((noinline))
+        void assignment_operator(Node* thisNode, datatype_t dt, const void* raw, size_t sz)
+        {
+            const auto type = spark_node_get_type(thisNode, Spark::Internal::ThrowOnError());
+            const auto operatorId = spark_node_get_operator_id(thisNode, Spark::Internal::ThrowOnError());
+
+            SPARK_ASSERT((type == NodeType::Symbol) ||
+                         (type == NodeType::Operator && operatorId == Operator::Index) ||
+                         (type == NodeType::Operator && operatorId == Operator::Dereference));
+
+            const auto op = Operator::Assignment;
+
+            // init to val
+            Node* valNode = spark_create_constant_node(dt, raw, sz, Spark::Internal::ThrowOnError());
+
+            // create assignment node
+            Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
+            // add to tree
+            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
+        }
+    }
+
     /// Type properties
 
     template<typename T> struct is_scalar_type {const static bool value = false;};
@@ -33,46 +78,14 @@ namespace Spark
     template<typename TYPE>
     void assignment_operator(TYPE* pThis, const TYPE& that)
     {
-        const auto type= spark_node_get_type(pThis->_node, Spark::Internal::ThrowOnError());
-        const auto operatorId = spark_node_get_operator_id(pThis->_node, Spark::Internal::ThrowOnError());
-
-        SPARK_ASSERT((type == NodeType::Symbol) ||
-                     (type == NodeType::Operator && operatorId == Operator::Index));
-
-
-        const auto dt = TYPE::type;
-        const auto op = Operator::Assignment;
-
-        // create assignment node
-        Node* assignmentNode = spark_create_operator2_node(dt, op, pThis->_node, that._node);
-        // add to tree
-        Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
-        spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
+        Internal::assignment_operator(pThis->_node, TYPE::type, that._node);
     }
 
     // assignment operator for literals
     template<typename TYPE, size_t SIZE>
     void assignment_operator(TYPE* pThis, const void* raw)
     {
-        const auto type = spark_node_get_type(pThis->_node, Spark::Internal::ThrowOnError());
-        const auto operatorId = spark_node_get_operator_id(pThis->_node, Spark::Internal::ThrowOnError());
-
-        SPARK_ASSERT((type == NodeType::Symbol) ||
-                     (type == NodeType::Operator && operatorId == Operator::Index) ||
-                     (type == NodeType::Operator && operatorId == Operator::Dereference));
-
-        const auto dt = TYPE::type;
-        const auto op = Operator::Assignment;
-
-        // init to val
-        Node* thisNode = pThis->_node;
-        Node* valNode = spark_create_constant_node(dt, raw, SIZE, Spark::Internal::ThrowOnError());
-
-        // create assignment node
-        Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
-        // add to tree
-        Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
-        spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
+        Internal::assignment_operator(pThis->_node, TYPE::type, raw, SIZE);
     }
 
     // forward declare tyeps
@@ -169,11 +182,9 @@ namespace Spark
         {
             extern_constructor(this);
         }
-
         scalar(CL_TYPE val)
         {
             value_constructor<scalar<CL_TYPE>, sizeof(CL_TYPE)>(this, &val);
-            SPARK_ASSERT(_node != nullptr);
         }
 
         scalar(const scalar& that)
@@ -388,6 +399,8 @@ namespace Spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
+    inline\
+    __attribute__((always_inline))\
     const rvalue<RETURN_TYPE> operator OP(const rvalue<TYPE>& right)\
     {\
         const auto dt = RETURN_TYPE::type;\
@@ -396,6 +409,8 @@ namespace Spark
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
+    inline\
+    __attribute__((always_inline))\
     const rvalue<RETURN_TYPE> operator OP (const rvalue<TYPE>& left, const rvalue<TYPE>& right)\
     {\
         const auto dt = RETURN_TYPE::type;\
@@ -404,6 +419,8 @@ namespace Spark
     }
 
     #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
+    inline\
+    __attribute__((always_inline))\
     const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
         const auto dt = RETURN_TYPE::type;\
@@ -412,6 +429,8 @@ namespace Spark
     }
 
     #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
+    inline\
+    __attribute__((always_inline))\
     const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
         const auto dt = RETURN_TYPE::type;\
@@ -516,6 +535,8 @@ namespace Spark
 
     // pointer operators
     template<typename TYPE>
+    inline
+    __attribute__((always_inline))
     const rvalue<Pointer<TYPE>> operator&(const scalar<TYPE>& right)\
     {\
         const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
@@ -524,6 +545,8 @@ namespace Spark
     }
 
     template<typename TYPE>
+    inline
+    __attribute__((always_inline))
     const rvalue<Pointer<TYPE>> operator&(const vector2<TYPE>& right)\
     {\
         const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
@@ -532,6 +555,8 @@ namespace Spark
     }
 
     template<typename TYPE>
+    inline
+    __attribute__((always_inline))
     const rvalue<Pointer<TYPE>> operator+(const Pointer<TYPE>& pointer, const rvalue<UInt>& offset)
     {
         const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
@@ -540,6 +565,8 @@ namespace Spark
     }
 
     template<typename TYPE>
+    inline
+    __attribute__((always_inline))
     const rvalue<Pointer<TYPE>> operator+(const rvalue<UInt>& offset, const Pointer<TYPE>& pointer)
     {
         const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);

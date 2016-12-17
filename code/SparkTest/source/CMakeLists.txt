@@ -1,4 +1,6 @@
-add_compile_options(-std=gnu++14 -O3)
+add_compile_options(-std=gnu++1z)
+add_compile_options(-Wfatal-errors)
+add_compile_options(-O3)
 
 add_executable(spark_test
     main.cpp)

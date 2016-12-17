@@ -77,7 +77,7 @@ int main()
 {
     try
     {
-        Kernel<void(PInt, PInt)> kernel = []()
+        Kernel<void(PInt, PFloat)> kernel = []()
         {
             Function<Int(Int,Int)> sum =
             [](Int a, Int b)
@@ -86,9 +86,16 @@ int main()
                 Return(a + b);
             };
 
-            Function<void(PInt, PInt)> main =
-            [=](PInt buff1, PInt buff2)
+            Function<Float(Float)> square =
+            [](Float val)
             {
+                Return(val * val);
+            };
+
+            Function<void(PInt, PFloat)> main =
+            [=](PInt buff1, PFloat buff2)
+            {
+
                 Comment("Kernel Main");
 
                 Int a = 123;
@@ -96,8 +103,10 @@ int main()
 
                 sum(a, b.As<Int>());
 
-                buff1 = 2u + buff1 + 2u;
+                a = a + 17;
 
+                buff1 = 7u + buff1 + 2u;
+#if 0
                 Comment("Before Dereference");
 
                 *buff1 = 12;
@@ -108,7 +117,9 @@ int main()
 
                 Float2 vec2;
                 vec2.X = 1.0f;
+                *buff2 = square(2.0f);
                 b = vec2.X;
+#endif
             };
             main.SetEntryPoint();
         };

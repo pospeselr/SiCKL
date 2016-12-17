@@ -2,6 +2,7 @@
 #include <exception>
 #include <utility>
 #include <functional>
+#include <tuple>
 
 // spark
 #include "spark/common.h"
