@@ -63,16 +63,16 @@ namespace Spark
 #define MAKE_TYPE_TO_INT(TYPE, INT_TYPE)\
     template<> struct type_to_signed_int<TYPE> {typedef INT_TYPE type;};\
 
-    MAKE_TYPE_TO_INT(cl_char, cl_char);
-    MAKE_TYPE_TO_INT(cl_uchar, cl_char);
-    MAKE_TYPE_TO_INT(cl_short, cl_short);
-    MAKE_TYPE_TO_INT(cl_ushort, cl_short);
-    MAKE_TYPE_TO_INT(cl_int, cl_int);
-    MAKE_TYPE_TO_INT(cl_uint, cl_int);
-    MAKE_TYPE_TO_INT(cl_long, cl_long);
-    MAKE_TYPE_TO_INT(cl_ulong, cl_long);
-    MAKE_TYPE_TO_INT(cl_float, cl_int);
-    MAKE_TYPE_TO_INT(cl_double, cl_long);
+    MAKE_TYPE_TO_INT(int8_t, int8_t);
+    MAKE_TYPE_TO_INT(uint8_t, int8_t);
+    MAKE_TYPE_TO_INT(int16_t, int16_t);
+    MAKE_TYPE_TO_INT(uint16_t, int16_t);
+    MAKE_TYPE_TO_INT(int32_t, int32_t);
+    MAKE_TYPE_TO_INT(uint32_t, int32_t);
+    MAKE_TYPE_TO_INT(int64_t, int64_t);
+    MAKE_TYPE_TO_INT(uint64_t, int64_t);
+    MAKE_TYPE_TO_INT(float, int32_t);
+    MAKE_TYPE_TO_INT(double, int64_t);
 
     // assignment operator for types
     template<typename TYPE>
@@ -322,7 +322,7 @@ namespace Spark
         };
 
         // indexing operators
-        lvalue<TYPE> operator[](const rvalue<scalar<cl_int>>& index)
+        lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
         {
             const auto dt = TYPE::type;
             const auto op = Operator::Index;
@@ -331,7 +331,7 @@ namespace Spark
             return lvalue<TYPE>(indexNode);
         }
 
-        const rvalue<TYPE> operator[](const rvalue<scalar<cl_int>>& index) const
+        const rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
         {
             const auto dt = TYPE::type;
             const auto op = Operator::Index;
@@ -484,19 +484,19 @@ namespace Spark
     MAKE_FLOAT_OPERATORS(TYPE##2)\
 
     // Int has to appear first since it is a return type of other scalar comparison operators
-    MAKE_INT_TYPES(Int, cl_int)
+    MAKE_INT_TYPES(Int, int32_t);
     // other ints
-    MAKE_INT_TYPES(Char, cl_char)
-    MAKE_INT_TYPES(UChar, cl_uchar)
-    MAKE_INT_TYPES(Short, cl_short)
-    MAKE_INT_TYPES(UShort, cl_ushort)
-    MAKE_INT_TYPES(UInt, cl_uint)
-    MAKE_INT_TYPES(Long, cl_long)
-    MAKE_INT_TYPES(ULong, cl_ulong)
+    MAKE_INT_TYPES(Char, int8_t);
+    MAKE_INT_TYPES(UChar, uint8_t);
+    MAKE_INT_TYPES(Short, int16_t);
+    MAKE_INT_TYPES(UShort, uint16_t);
+    MAKE_INT_TYPES(UInt, uint32_t);
+    MAKE_INT_TYPES(Long, int64_t);
+    MAKE_INT_TYPES(ULong, uint64_t);
 
     // floating point
-    MAKE_FLOAT_TYPES(Float, cl_float)
-    MAKE_FLOAT_TYPES(Double, cl_double)
+    MAKE_FLOAT_TYPES(Float, float);
+    MAKE_FLOAT_TYPES(Double, double);
 
     // void type
     typedef void Void;

@@ -8,8 +8,6 @@ using std::cout;
 using std::endl;
 using std::unique_ptr;
 
-#include <CL/cl.h>
-
 // spark
 #include <spark.h>
 using namespace Spark;
