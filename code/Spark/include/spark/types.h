@@ -12,7 +12,9 @@ namespace Spark
             const auto operatorId = spark_node_get_operator_id(thisNode, Spark::Internal::ThrowOnError());
 
             SPARK_ASSERT((type == NodeType::Symbol) ||
-                         (type == NodeType::Operator && operatorId == Operator::Index));
+                         (type == NodeType::Operator && operatorId == Operator::Index) ||
+                         (type == NodeType::Operator && operatorId == Operator::Dereference) ||
+                         (type == NodeType::Operator && operatorId == Operator::Property));
 
             const auto op = Operator::Assignment;
 
@@ -32,7 +34,8 @@ namespace Spark
 
             SPARK_ASSERT((type == NodeType::Symbol) ||
                          (type == NodeType::Operator && operatorId == Operator::Index) ||
-                         (type == NodeType::Operator && operatorId == Operator::Dereference));
+                         (type == NodeType::Operator && operatorId == Operator::Dereference) ||
+                         (type == NodeType::Operator && operatorId == Operator::Property));
 
             const auto op = Operator::Assignment;
 
@@ -55,13 +58,10 @@ namespace Spark
      /// Type Translations
 
     // gets the equivalent integer type (used for comparison operators)
-    template<typename T> struct type_to_int {typedef void type;};
+    template<typename T> struct type_to_signed_int {typedef void type;};
+
 #define MAKE_TYPE_TO_INT(TYPE, INT_TYPE)\
-    template<> struct type_to_int<TYPE> {typedef cl_int type;};\
-    template<> struct type_to_int<TYPE##2> {typedef INT_TYPE##2 type;};\
-    template<> struct type_to_int<TYPE##4> {typedef INT_TYPE##4 type;};\
-    template<> struct type_to_int<TYPE##8> {typedef INT_TYPE##8 type;};\
-    template<> struct type_to_int<TYPE##16> {typedef INT_TYPE##16 type;}
+    template<> struct type_to_signed_int<TYPE> {typedef INT_TYPE type;};\
 
     MAKE_TYPE_TO_INT(cl_char, cl_char);
     MAKE_TYPE_TO_INT(cl_uchar, cl_char);
@@ -89,23 +89,21 @@ namespace Spark
     }
 
     // forward declare tyeps
-    template<typename CL_TYPE> struct scalar;
-    template<typename CL_TYPE> struct vector2;
+    template<typename RAW_TYPE> struct scalar;
+    template<typename TYPE> struct vector2;
 
     // pointer type
     template<typename TYPE>
     struct Pointer
     {
-        friend struct rvalue<Pointer, true>;
-        friend struct rvalue<Pointer, false>;
-    private:
+    protected:
         Pointer(Node* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
         }
     public:
-        Pointer(nullptr_t)
+        Pointer(std::nullptr_t)
         {
             extern_constructor(this);
         }
@@ -145,16 +143,18 @@ namespace Spark
 
         static const char* name;
         static const datatype_t type;
-
-        typedef typename TYPE::cl_type* cl_type;
     };
 
     // scalar type wrapper
-    template<typename CL_TYPE>
+    template<typename RAW_TYPE>
     struct scalar
     {
-        friend struct rvalue<scalar, true>;
-        friend struct rvalue<scalar, false>;
+    public:
+        // typedefs
+        typedef scalar<int32_t> int_type;
+        typedef RAW_TYPE raw_type;
+
+        // friends
         template<typename S>
         friend struct scalar;
         template<typename S>
@@ -163,7 +163,7 @@ namespace Spark
         friend struct property_rw;
         template<typename S>
         friend struct Pointer;
-    private:
+    protected:
         // node constructor
         scalar(Node* node)
         : _node(node)
@@ -174,81 +174,80 @@ namespace Spark
         // constructors
         scalar()
         {
-            default_constructor<scalar<CL_TYPE>, CL_TYPE>(this);
-            SPARK_ASSERT(_node != nullptr);
+            RAW_TYPE val = {};
+            this->_node = Internal::value_constructor(scalar::type, &val, sizeof(val));
         }
 
-        scalar(nullptr_t)
+        scalar(std::nullptr_t)
         {
-            extern_constructor(this);
+            this->_node = Internal::extern_constructor(scalar::type);
         }
-        scalar(CL_TYPE val)
+
+        scalar(RAW_TYPE val)
         {
-            value_constructor<scalar<CL_TYPE>, sizeof(CL_TYPE)>(this, &val);
+            this->_node = Internal::value_constructor(scalar::type, &val, sizeof(val));
         }
 
         scalar(const scalar& that)
         {
-            copy_constructor<scalar<CL_TYPE>>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::copy_constructor(scalar::type, that._node);
+        }
+
+        scalar(const lvalue<scalar>& that)
+        {
+            this->_node = Internal::copy_constructor(scalar::type, that._node);
         }
 
         scalar(const rvalue<scalar>& that)
         {
-            copy_constructor<scalar<CL_TYPE>>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::copy_constructor(scalar::type, that._node);
         }
 
         scalar(scalar&&) = default;
 
         scalar& operator=(const scalar& that)
         {
-            assignment_operator<scalar<CL_TYPE>>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            Internal::assignment_operator(this->_node, scalar::type, that._node);
             return *this;
         }
 
-        scalar& operator=(CL_TYPE val)
+        scalar& operator=(RAW_TYPE val)
         {
-            assignment_operator<scalar<CL_TYPE>, sizeof(val)>(this, &val);
-            SPARK_ASSERT(_node != nullptr);
+            Internal::assignment_operator(this->_node, scalar::type, &val, sizeof(val));
             return *this;
         }
 
         // cast operator
 
-        template<typename TYPE>
-        const rvalue<TYPE> As() const
+        template<typename CAST_TYPE>
+        const rvalue<CAST_TYPE> As() const
         {
-            static_assert(is_scalar_type<TYPE>::value, "scalar types can only be cast to other scalar types");
+            static_assert(is_scalar_type<CAST_TYPE>::value, "scalar types can only be cast to other scalar types");
 
-            const auto dt = TYPE::type;
+            const auto dt = CAST_TYPE::type;
             const auto op = Operator::Cast;
-            return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
+            return rvalue<CAST_TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         // private node ptr
         Node* _node;
         static const char* name;
         static const datatype_t type;
-
-        typedef scalar<typename type_to_int<CL_TYPE>::type> int_type;
-        typedef CL_TYPE cl_type;
     };
     template<typename T> struct is_scalar_type<scalar<T>> {const static bool value = true;};
 
     // wrapper for all vector2 types
-    template<typename CL_TYPE>
+    template<typename TYPE>
     struct vector2
     {
-        typedef decltype(CL_TYPE::x) CL_SCALAR;
-        typedef CL_TYPE CL_VECTOR2;
+    public:
+        // typedefs
+        typedef vector2<scalar<typename type_to_signed_int<typename TYPE::raw_type>::type>> int_type;
 
-        friend struct rvalue<vector2, true>;
-        friend struct rvalue<vector2, false>;
+        // friends
         template<typename S, property_t id>
         friend struct property_rw;
-    private:
+    protected:
         // node constructor
         vector2(Node* node)
         : _node(node)
@@ -259,52 +258,46 @@ namespace Spark
         // constructors
         vector2()
         {
-            default_constructor<vector2<CL_VECTOR2>, CL_VECTOR2>(this);
-            SPARK_ASSERT(_node != nullptr);
+            typename TYPE::raw_type val[2] = {};
+            this->_node = Internal::value_constructor(vector2::type, &val[0], sizeof(val));
         }
 
-        vector2(nullptr_t)
+        vector2(std::nullptr_t)
         {
-            extern_constructor(this);
-        }
-
-        vector2(const CL_TYPE& val)
-        {
-            value_constructor<vector2<CL_VECTOR2>, sizeof(val)>(this, &val);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::extern_constructor(vector2::type);
         }
 
         vector2(const rvalue<vector2>& that)
         {
-            copy_constructor<vector2>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::copy_constructor(vector2::type, that._node);
         }
 
-        vector2(vector2&&) = default;
-
-        vector2(const CL_SCALAR (&val)[2])
+        vector2(const lvalue<vector2>& that)
         {
-            value_constructor<vector2<CL_VECTOR2>, 2 * sizeof(CL_SCALAR)>(this, &val[0]);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::copy_constructor(vector2::type, that._node);
+        }
+
+        vector2(const typename TYPE::raw_type (&val)[2])
+        {
+            this->_node = Internal::value_constructor(vector2::type, &val[0], sizeof(val));
         }
 
         vector2(const vector2& that)
         {
-            copy_constructor<vector2<CL_TYPE>>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::copy_constructor(vector2::type, that._node);
         }
+
+        vector2(vector2&&) = default;
 
         vector2& operator=(const vector2& that)
         {
-            assignment_operator<vector2<CL_VECTOR2>>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            Internal::assignment_operator(this->_node, vector2::type, that._node);
             return *this;
         }
 
-        vector2& operator=(const CL_SCALAR (&val)[2])
+        vector2& operator=(const typename TYPE::raw_type (&val)[2])
         {
-            assignment_operator<vector2<CL_VECTOR2>, 2 * sizeof(CL_SCALAR)>(this, &val[0]);
-            SPARK_ASSERT(_node != nullptr);
+            Internal::assignment_operator(this->_node, vector2::type, &val[0], sizeof(val));
             return *this;
         }
 
@@ -312,83 +305,58 @@ namespace Spark
         union
         {
             // swizzles
-            property_rw<scalar<CL_SCALAR>, Property::X> X;
-            property_rw<scalar<CL_SCALAR>, Property::Y> Y;
-            property_r<vector2<CL_VECTOR2>, Property::XX> XX;
-            property_rw<vector2<CL_VECTOR2>, Property::XY> XY;
-            property_rw<vector2<CL_VECTOR2>, Property::YX> YX;
-            property_r<vector2<CL_VECTOR2>, Property::YY> YY;
+            property_rw<TYPE, Property::X> X;
+            property_rw<TYPE, Property::Y> Y;
+            property_r<vector2, Property::XX> XX;
+            property_rw<vector2, Property::XY> XY;
+            property_rw<vector2, Property::YX> YX;
+            property_r<vector2, Property::YY> YY;
             // others
-            property_rw<scalar<CL_SCALAR>, Property::Lo> Lo;
-            property_rw<scalar<CL_SCALAR>, Property::Hi> Hi;
-            property_rw<scalar<CL_SCALAR>, Property::Even> Even;
-            property_rw<scalar<CL_SCALAR>, Property::Odd> Odd;
+            property_rw<TYPE, Property::Lo> Lo;
+            property_rw<TYPE, Property::Hi> Hi;
+            property_rw<TYPE, Property::Even> Even;
+            property_rw<TYPE, Property::Odd> Odd;
 
             // private node ptr
             Node* _node;
         };
 
-        scalar<CL_SCALAR> operator[](const rvalue<scalar<cl_int>>& index)
+        // indexing operators
+        lvalue<TYPE> operator[](const rvalue<scalar<cl_int>>& index)
         {
-            const auto dt = scalar<CL_SCALAR>::type;
+            const auto dt = TYPE::type;
             const auto op = Operator::Index;
 
             Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
-            return scalar<CL_SCALAR>(indexNode);
+            return lvalue<TYPE>(indexNode);
         }
 
-        const rvalue<scalar<CL_SCALAR>> operator[](const rvalue<scalar<cl_int>>& index) const
+        const rvalue<TYPE> operator[](const rvalue<scalar<cl_int>>& index) const
         {
-            const auto dt = scalar<CL_SCALAR>::type;
+            const auto dt = TYPE::type;
             const auto op = Operator::Index;
 
             Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
-            return rvalue<scalar<CL_SCALAR>>(indexNode);
-        }
-
-        scalar<CL_SCALAR> operator[](cl_int index)
-        {
-            SPARK_ASSERT(index == 0 || index == 1);
-
-            const auto dt = scalar<CL_SCALAR>::type;
-            const auto op = Operator::Index;
-
-            Node* valNode = spark_create_constant_node(DataType::Int, &index, sizeof(index), Spark::Internal::ThrowOnError());
-            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, valNode);
-            return scalar<CL_SCALAR>(indexNode);
-        }
-
-        const rvalue<scalar<CL_SCALAR>> operator[](cl_int index) const
-        {
-            SPARK_ASSERT(index == 0 || index == 1);
-
-            const auto dt = scalar<CL_SCALAR>::type;
-            const auto op = Operator::Index;
-
-            Node* valNode = spark_create_constant_node(DataType::Int, &index, sizeof(index), Spark::Internal::ThrowOnError());
-            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, valNode);
-            return rvalue<scalar<CL_SCALAR>>(indexNode);
+            return rvalue<TYPE>(indexNode);
         }
 
         // cast operator
-        template<typename TYPE>
-        const rvalue<TYPE> As() const
+        template<typename CAST_TYPE>
+        const rvalue<CAST_TYPE> As() const
         {
-            static_assert(is_vector2_type<TYPE>::value, "vector2 types can only be cast to other vector2 types");
+            static_assert(is_vector2_type<CAST_TYPE>::value, "vector2 types can only be cast to other vector2 types");
 
-            const auto dt = TYPE::type;
+            const auto dt = CAST_TYPE::type;
             const auto op = Operator::Cast;
 
-            return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
+            return rvalue<CAST_TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         static const char* name;
         static const datatype_t type;
-
-        typedef vector2<typename type_to_int<CL_VECTOR2>::type> int_type;
-        typedef CL_TYPE cl_type;
     };
-    template<typename T> struct is_vector2_type<vector2<T>> {const static bool value = true;};
+    template<typename T>
+    struct is_vector2_type<vector2<T>> {const static bool value = true;};
 
 
     /// int_type used to determine what boolean operators should return
@@ -487,9 +455,9 @@ namespace Spark
     MAKE_BINARY_OPERATOR(TYPE, TYPE, >>, RightShift)\
     MAKE_BINARY_OPERATOR(TYPE, TYPE, <<, LeftShift)\
 
-    #define MAKE_TYPEDEFS(TYPE, CL_TYPE)\
-    typedef scalar<CL_TYPE> TYPE;\
-    typedef vector2<CL_TYPE##2> TYPE##2;\
+    #define MAKE_TYPEDEFS(TYPE, RAW_TYPE)\
+    typedef scalar<RAW_TYPE> TYPE;\
+    typedef vector2<scalar<RAW_TYPE>> TYPE##2;\
     typedef Pointer<TYPE> P##TYPE;\
     typedef Pointer<TYPE##2> P##TYPE##2;\
 

@@ -49,23 +49,23 @@ namespace Spark
     struct property_rw
     {
         __attribute__((always_inline))
-        operator TYPE() const
+        operator lvalue<TYPE>() const
         {
             Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
-            return TYPE(spark_create_operator2_node(dt, op, this->_node, property));
+            return lvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
         };
 
         __attribute__((always_inline))
-        TYPE operator()() const
+        lvalue<TYPE> operator()() const
         {
             Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
-            return TYPE(spark_create_operator2_node(dt, op, this->_node, property));
+            return lvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
         }
 
         __attribute__((always_inline))

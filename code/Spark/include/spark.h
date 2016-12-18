@@ -11,6 +11,7 @@
 #include "spark/node.h"
 #include "spark/functions.h"
 #include "spark/rvalue.h"
+#include "spark/lvalue.h"
 #include "spark/properties.h"
 #include "spark/constructors.h"
 #include "spark/types.h"

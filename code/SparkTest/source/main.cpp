@@ -106,7 +106,7 @@ int main()
                 a = a + 17;
 
                 buff1 = 7u + buff1 + 2u;
-#if 0
+
                 Comment("Before Dereference");
 
                 *buff1 = 12;
@@ -119,7 +119,15 @@ int main()
                 vec2.X = 1.0f;
                 *buff2 = square(2.0f);
                 b = vec2.X;
-#endif
+                Int2 equals = vec2 == vec2;
+
+                Float first = vec2[0];
+                vec2[0] = 13.6f;
+                //first = first * first;
+
+                Float second = vec2.Y;
+                vec2.Y = second;
+                second = second * second;
             };
             main.SetEntryPoint();
         };
