@@ -31,9 +31,19 @@ namespace Spark
     {
         typedef scalar<RAW_TYPE> TYPE;
 
+        inline
+        __attribute__ ((always_inline))
         rvalue(Node* node) : TYPE(node) {}
+
+        inline
+        __attribute__ ((always_inline))
         rvalue(std::nullptr_t) : rvalue((Node*)nullptr) {}
+
+        inline
+        __attribute__ ((always_inline))
         rvalue(const TYPE& that) : rvalue(that._node) {}
+        inline
+        __attribute__ ((always_inline))
         rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(TYPE::type, &val, sizeof(val), Spark::Internal::ThrowOnError())) {}
 
         inline
@@ -70,9 +80,8 @@ namespace Spark
         : rvalue(
             [](Node* x, Node* y) -> Node*
             {
-                Node* listNode = spark_create_list_node(Spark::Internal::ThrowOnError());
-                spark_add_child_node(listNode, x, Spark::Internal::ThrowOnError());
-                spark_add_child_node(listNode, y, Spark::Internal::ThrowOnError());
+                Node* children[] = {x, y};
+                Node* listNode = spark_create_list_node(children, countof(children), Spark::Internal::ThrowOnError());
                 return listNode;
             }(x._node, y._node))
         {

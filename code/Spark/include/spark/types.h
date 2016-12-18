@@ -24,30 +24,6 @@ namespace Spark
             Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
             spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
         }
-
-        inline
-        __attribute__ ((noinline))
-        void assignment_operator(Node* thisNode, datatype_t dt, const void* raw, size_t sz)
-        {
-            const auto type = spark_node_get_type(thisNode, Spark::Internal::ThrowOnError());
-            const auto operatorId = spark_node_get_operator_id(thisNode, Spark::Internal::ThrowOnError());
-
-            SPARK_ASSERT((type == NodeType::Symbol) ||
-                         (type == NodeType::Operator && operatorId == Operator::Index) ||
-                         (type == NodeType::Operator && operatorId == Operator::Dereference) ||
-                         (type == NodeType::Operator && operatorId == Operator::Property));
-
-            const auto op = Operator::Assignment;
-
-            // init to val
-            Node* valNode = spark_create_constant_node(dt, raw, sz, Spark::Internal::ThrowOnError());
-
-            // create assignment node
-            Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
-            // add to tree
-            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
-            spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
-        }
     }
 
     /// Type properties
@@ -165,6 +141,8 @@ namespace Spark
         friend struct Pointer;
     protected:
         // node constructor
+        inline
+        __attribute__ ((always_inline))
         scalar(Node* node)
         : _node(node)
         {
@@ -172,32 +150,44 @@ namespace Spark
         }
     public:
         // constructors
+        inline
+        __attribute__ ((always_inline))
         scalar()
         {
             RAW_TYPE val = {};
             this->_node = Internal::value_constructor(scalar::type, &val, sizeof(val));
         }
 
+        inline
+        __attribute__ ((always_inline))
         scalar(std::nullptr_t)
         {
             this->_node = Internal::extern_constructor(scalar::type);
         }
 
+        inline
+        __attribute__ ((always_inline))
         scalar(RAW_TYPE val)
         {
             this->_node = Internal::value_constructor(scalar::type, &val, sizeof(val));
         }
 
+        inline
+        __attribute__ ((always_inline))
         scalar(const scalar& that)
         {
             this->_node = Internal::copy_constructor(scalar::type, that._node);
         }
 
+        inline
+        __attribute__ ((always_inline))
         scalar(const lvalue<scalar>& that)
         {
             this->_node = Internal::copy_constructor(scalar::type, that._node);
         }
 
+        inline
+        __attribute__ ((always_inline))
         scalar(const rvalue<scalar>& that)
         {
             this->_node = Internal::copy_constructor(scalar::type, that._node);
@@ -205,20 +195,24 @@ namespace Spark
 
         scalar(scalar&&) = default;
 
+        inline
+        __attribute__ ((always_inline))
         scalar& operator=(const scalar& that)
         {
             Internal::assignment_operator(this->_node, scalar::type, that._node);
             return *this;
         }
 
+        inline
+        __attribute__ ((always_inline))
         scalar& operator=(RAW_TYPE val)
         {
-            Internal::assignment_operator(this->_node, scalar::type, &val, sizeof(val));
+            Node* constant = spark_create_constant_node(scalar::type, &val, sizeof(val), Internal::ThrowOnError());
+            Internal::assignment_operator(this->_node, scalar::type, constant);
             return *this;
         }
 
         // cast operator
-
         template<typename CAST_TYPE>
         const rvalue<CAST_TYPE> As() const
         {
@@ -249,6 +243,8 @@ namespace Spark
         friend struct property_rw;
     protected:
         // node constructor
+        inline
+        __attribute__ ((always_inline))
         vector2(Node* node)
         : _node(node)
         {
@@ -256,28 +252,40 @@ namespace Spark
         }
     public:
         // constructors
+        inline
+        __attribute__ ((always_inline))
         vector2() : vector2(0.0f, 0.0f) {}
 
+        inline
+        __attribute__ ((always_inline))
         vector2(std::nullptr_t)
         {
             this->_node = Internal::extern_constructor(vector2::type);
         }
 
+        inline
+        __attribute__ ((always_inline))
         vector2(const rvalue<vector2>& that)
         {
             this->_node = Internal::copy_constructor(vector2::type, that._node);
         }
 
+        inline
+        __attribute__ ((always_inline))
         vector2(const lvalue<vector2>& that)
         {
             this->_node = Internal::copy_constructor(vector2::type, that._node);
         }
 
+        inline
+        __attribute__ ((always_inline))
         vector2(const vector2& that)
         {
             this->_node = Internal::copy_constructor(vector2::type, that._node);
         }
 
+        inline
+        __attribute__ ((always_inline))
         vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
         {
             Node* children[] = {x._node, y._node};
@@ -286,15 +294,11 @@ namespace Spark
 
         vector2(vector2&&) = default;
 
+        inline
+        __attribute__ ((always_inline))
         vector2& operator=(const vector2& that)
         {
             Internal::assignment_operator(this->_node, vector2::type, that._node);
-            return *this;
-        }
-
-        vector2& operator=(const typename TYPE::raw_type (&val)[2])
-        {
-            Internal::assignment_operator(this->_node, vector2::type, &val[0], sizeof(val));
             return *this;
         }
 
@@ -319,6 +323,8 @@ namespace Spark
         };
 
         // indexing operators
+        inline
+        __attribute__ ((always_inline))
         lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
         {
             const auto dt = TYPE::type;
@@ -328,6 +334,8 @@ namespace Spark
             return lvalue<TYPE>(indexNode);
         }
 
+        inline
+        __attribute__ ((always_inline))
         const rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
         {
             const auto dt = TYPE::type;

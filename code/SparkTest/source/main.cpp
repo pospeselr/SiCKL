@@ -125,8 +125,11 @@ int main()
                 vec2.Y = second;
                 second = second * second;
 
-                rvalue<Float2> temp = {1.0f, 2.0f};
-                vec2 = vec2 + temp;
+                Float2 vec3 = {first, 112345.0f};
+                vec3 = {second, 19.0f};
+
+                Float aFloat;
+                aFloat = 15.0f;
             };
             main.SetEntryPoint();
         };

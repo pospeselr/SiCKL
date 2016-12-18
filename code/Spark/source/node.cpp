@@ -184,7 +184,7 @@ Node* spark_create_comment_node(const char* comment, spark_error_t** error)
         });
 }
 
-Node* spark_create_list_node(spark_error_t** error)
+Node* spark_create_list_node(Node** children, size_t count, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -194,6 +194,12 @@ Node* spark_create_list_node(spark_error_t** error)
             node->_type = NodeType::List;
 
             g_allocatedNodes.push_back(node);
+
+            for(size_t k = 0; k < count; k++)
+            {
+                node->_children.push_back(children[k]);
+            }
+
             return node;
         });
 }
