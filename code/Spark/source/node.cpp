@@ -184,6 +184,20 @@ Node* spark_create_comment_node(const char* comment, spark_error_t** error)
         });
 }
 
+Node* spark_create_list_node(spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            Node* node = new Node();
+            node->_type = NodeType::List;
+
+            g_allocatedNodes.push_back(node);
+            return node;
+        });
+}
+
 // tree modification
 void spark_add_child_node(Node* root, Node* node, spark_error_t** error)
 {

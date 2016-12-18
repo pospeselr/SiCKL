@@ -13,6 +13,7 @@ const char* spark_nodetype_to_str(nodetype_t val)
 		"NodeType::Constant",
 		"NodeType::Property",
 		"NodeType::Comment",
+		"NodeType::List",
 	};
 	static_assert(countof(nodeNames) == NodeType::Count, "size mismatch between nodeNames and NodeType::Count");
 	SPARK_ASSERT(val < NodeType::Count);

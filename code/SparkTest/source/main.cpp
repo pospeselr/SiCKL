@@ -126,6 +126,8 @@ int main()
                 Float second = vec2.Y;
                 vec2.Y = second;
                 second = second * second;
+
+                Float2 fvec = {1.0f, 19.0f};
             };
             main.SetEntryPoint();
         };

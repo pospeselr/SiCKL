@@ -16,6 +16,7 @@ namespace Spark
             Constant,
             Property,
             Comment,
+            List,
 
             Count
         };

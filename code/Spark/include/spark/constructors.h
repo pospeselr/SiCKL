@@ -53,6 +53,21 @@ namespace Spark
 
             return thisNode;
         }
+
+        inline
+        __attribute__ ((noinline))
+        Node* list_constructor(datatype_t dt, Node** children, size_t count)
+        {
+            Node* listNode = spark_create_list_node(Spark::Internal::ThrowOnError());
+            for(size_t k = 0; k < count; k++)
+            {
+                spark_add_child_node(listNode, children[k], Spark::Internal::ThrowOnError());
+            }
+
+            Node* thisNode = copy_constructor(dt, listNode);
+            return thisNode;
+        }
+
     }
 
     // variable declaration 'constructor' (used for symbols passed into functions with no defined value)
