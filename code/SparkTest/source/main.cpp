@@ -69,8 +69,6 @@ namespace Spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), UInt>() == false);
 }
 
-
-
 int main()
 {
     try
@@ -127,7 +125,8 @@ int main()
                 vec2.Y = second;
                 second = second * second;
 
-                Float2 fvec = {1.0f, 19.0f};
+                rvalue<Float2> temp = {1.0f, 2.0f};
+                vec2 = vec2 + temp;
             };
             main.SetEntryPoint();
         };

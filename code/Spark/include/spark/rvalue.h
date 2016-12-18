@@ -66,7 +66,18 @@ namespace Spark
         rvalue(Node* node) : TYPE(node) {}
         rvalue(std::nullptr_t) : rvalue((Node*)nullptr) {}
         rvalue(const TYPE& that) : rvalue(that._node) {}
-        rvalue(const RAW_TYPE (&val)[2]) : rvalue(spark_create_constant_node(TYPE::type, &val, sizeof(val), Spark::Internal::ThrowOnError())) {}
+        rvalue(const rvalue<SCALAR_TYPE>& x, const rvalue<SCALAR_TYPE>& y)
+        : rvalue(
+            [](Node* x, Node* y) -> Node*
+            {
+                Node* listNode = spark_create_list_node(Spark::Internal::ThrowOnError());
+                spark_add_child_node(listNode, x, Spark::Internal::ThrowOnError());
+                spark_add_child_node(listNode, y, Spark::Internal::ThrowOnError());
+                return listNode;
+            }(x._node, y._node))
+        {
+
+        }
 
         inline
         __attribute__ ((always_inline))

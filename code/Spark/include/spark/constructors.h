@@ -18,6 +18,17 @@ namespace Spark
         __attribute__ ((noinline))
         Node* value_constructor(datatype_t dt, const void* raw, size_t sz)
         {
+            SPARK_ASSERT(dt == DataType::Char ||
+                         dt == DataType::UChar ||
+                         dt == DataType::Short ||
+                         dt == DataType::UShort ||
+                         dt == DataType::Int ||
+                         dt == DataType::UInt ||
+                         dt == DataType::Long ||
+                         dt == DataType::ULong ||
+                         dt == DataType::Float ||
+                         dt == DataType::Double);
+
             const auto op = Operator::Assignment;
             const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
