@@ -7,6 +7,7 @@ add_library(spark SHARED
     enums.cpp
     error.cpp
     node.cpp
-    node.text.cpp)
+    codegen.tree.cpp
+    codegen.opencl.cpp)
 
 include_directories(../include)
