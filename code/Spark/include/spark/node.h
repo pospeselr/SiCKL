@@ -16,7 +16,7 @@ extern "C" Spark::symbolid_t spark_next_symbol(spark_error_t** error);
 // node creation
 extern "C" Spark::Node* spark_create_control_node(Spark::control_t c, spark_error_t** error);
 extern "C" Spark::Node* spark_create_operator_node(Spark::datatype_t dt, Spark::operator_t id, spark_error_t** error);
-extern "C" Spark::Node* spark_create_function_node(Spark::symbolid_t id, spark_error_t** error);
+extern "C" Spark::Node* spark_create_function_node(Spark::symbolid_t id, Spark::datatype_t returnType, spark_error_t** error);
 extern "C" Spark::Node* spark_create_symbol_node(Spark::datatype_t dt, Spark::symbolid_t id, spark_error_t** error);
 extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const void* raw, size_t sz, spark_error_t** error);
 extern "C" Spark::Node* spark_create_property_node(Spark::property_t, spark_error_t** error);
@@ -41,9 +41,6 @@ extern "C" void spark_push_scope_node(Spark::Node* node, spark_error_t** error);
 extern "C" void spark_pop_scope_node(spark_error_t** error);
 extern "C" Spark::Node* spark_peek_scope_node(spark_error_t** error);
 extern "C" Spark::Node* spark_get_root_node(spark_error_t** error);
-// debug printing
-extern "C" int32_t spark_node_to_text(Spark::Node* node, char* buffer, int32_t buffer_size, spark_error_t** error);
-extern "C" int32_t spark_node_to_json(Spark::Node* node, char* buffer, int32_t buffer_size, spark_error_t** error);
 
 // compound node creation
 inline Spark::Node* spark_create_operator1_node(Spark::datatype_t dt, Spark::operator_t op, Spark::Node* arg1)

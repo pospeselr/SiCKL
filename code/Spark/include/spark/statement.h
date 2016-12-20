@@ -12,7 +12,7 @@ namespace Spark
 
     struct if_statement : public statement
     {
-        if_statement(const Int& val)
+        if_statement(const rvalue<Int>& val)
         {
             Node* root = spark_create_control_node(Control::If, Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
@@ -36,7 +36,7 @@ namespace Spark
 
     struct elseif_statement : public statement
     {
-        elseif_statement(const Int& val)
+        elseif_statement(const rvalue<Int>& val)
         {
             Node* root = spark_create_control_node(Control::ElseIf, Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
@@ -80,7 +80,7 @@ namespace Spark
 
     struct while_statement : public statement
     {
-        while_statement(const Int& val)
+        while_statement(const rvalue<Int>& val)
         {
             Node* root = spark_create_control_node(Control::While, Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());

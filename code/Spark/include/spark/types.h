@@ -64,6 +64,12 @@ namespace Spark
         Internal::assignment_operator(pThis->_node, TYPE::type, raw, SIZE);
     }
 
+    // void type
+    struct Void
+    {
+        static const datatype_t type = DataType::Void;
+    };
+
     // forward declare tyeps
     template<typename RAW_TYPE> struct scalar;
     template<typename TYPE> struct vector2;
@@ -502,9 +508,6 @@ namespace Spark
     // floating point
     MAKE_FLOAT_TYPES(Float, float);
     MAKE_FLOAT_TYPES(Double, double);
-
-    // void type
-    typedef void Void;
 
     // pointer operators
     template<typename TYPE>

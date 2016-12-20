@@ -73,7 +73,7 @@ int main()
 {
     try
     {
-        Kernel<void(PInt, PFloat)> kernel = []()
+        Kernel<Void(PInt, PFloat)> kernel = []()
         {
             Function<Int(Int,Int)> sum =
             [](Int a, Int b)
@@ -88,10 +88,9 @@ int main()
                 Return(val * val);
             };
 
-            Function<void(PInt, PFloat)> main =
+            Function<Void(PInt, PFloat)> main =
             [=](PInt buff1, PFloat buff2)
             {
-
                 Comment("Kernel Main");
 
                 Int a = 123;
@@ -99,6 +98,18 @@ int main()
 
                 sum(a, b.As<Int>());
 
+                If(b == 123.0f)
+                {
+                    Comment("Equal!");
+                }
+                ElseIf(a == 125)
+                {
+                    Comment("Elseif!");
+                }
+                Else
+                {
+                    Comment("Else");
+                }
                 a = a + 17;
 
                 buff1 = 7u + buff1 + 2u;
@@ -130,6 +141,11 @@ int main()
 
                 Float aFloat;
                 aFloat = 15.0f;
+
+                If(vec3.X() == 12.0f)
+                {
+                    Comment("What");
+                }
             };
             main.SetEntryPoint();
         };

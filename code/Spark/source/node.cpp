@@ -102,7 +102,7 @@ Node* spark_create_operator_node(datatype_t dt, operator_t id, spark_error_t** e
         });
 }
 
-Node* spark_create_function_node(symbolid_t id, spark_error_t** error)
+Node* spark_create_function_node(symbolid_t id, datatype_t returnType, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -111,6 +111,8 @@ Node* spark_create_function_node(symbolid_t id, spark_error_t** error)
             Node* node = new Node();
             node->_type = NodeType::Function;
             node->_function.id = id;
+            node->_function.returnType = returnType;
+            node->_function.entrypoint = false;
 
             g_allocatedNodes.push_back(node);
             return node;
@@ -308,15 +310,5 @@ Node* spark_get_root_node(spark_error_t** error)
         [&]
         {
             return g_nodeStack.front();
-        });
-}
-
-int32_t spark_node_to_text(Spark::Node* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
-{
-    return TranslateExceptions(
-        error,
-        [&]
-        {
-            return Spark::Internal::nodeToText(node, out_buffer, buffer_size, 0, 0, 0) + 1;
         });
 }

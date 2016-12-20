@@ -19,6 +19,7 @@ namespace Spark
             struct
             {
                 symbolid_t id;
+                datatype_t returnType;
                 bool entrypoint;
             } _function;
             struct

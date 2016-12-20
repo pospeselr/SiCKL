@@ -74,6 +74,7 @@ namespace Spark
             Buffer2D          = 2 << 7,
             Pointer           = 3 << 7,
             ContainerMask     = 0x3 << 7,
+            PointerMask       = Pointer,
 
             PrimitiveShift = 0,
             ComponentShift = 4,

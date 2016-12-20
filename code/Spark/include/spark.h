@@ -9,6 +9,7 @@
 #include "spark/error.h"
 #include "spark/enums.h"
 #include "spark/node.h"
+#include "spark/codegen.h"
 #include "spark/functions.h"
 #include "spark/rvalue.h"
 #include "spark/lvalue.h"
