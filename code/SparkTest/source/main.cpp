@@ -142,9 +142,10 @@ int main()
                 Float aFloat;
                 aFloat = 15.0f;
 
-                If(vec3.X() == 12.0f)
+                While(vec3.X() == 12.0f)
                 {
                     Comment("What");
+                    Break();
                 }
             };
             main.SetEntryPoint();

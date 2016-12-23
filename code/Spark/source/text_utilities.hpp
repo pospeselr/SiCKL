@@ -14,10 +14,11 @@ namespace Spark
 
             SPARK_ASSERT(written >= 0);
             auto len = snprintf(nullOrOffset(buffer, written),  buffer_size == 0 ? 0 : buffer_size - written, args...);
+
             SPARK_ASSERT(len >= 0);
             SPARK_ASSERT(buffer_size == 0 || (written + len < buffer_size));
 
-            return written + len;
+            return (written + len);
         }
     }
 }

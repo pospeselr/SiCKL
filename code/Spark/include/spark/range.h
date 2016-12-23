@@ -33,7 +33,7 @@ namespace Spark
 		{
 			if(_result)
 			{
-				Node* compare = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+				Node* compare = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
 				spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), compare, Spark::Internal::ThrowOnError());
 				spark_push_scope_node(compare, Spark::Internal::ThrowOnError());
 
@@ -52,7 +52,7 @@ namespace Spark
 
 		auto& operator*()
 		{
-			Node* update = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+			Node* update = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
 			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), update, Spark::Internal::ThrowOnError());
 			spark_push_scope_node(update, Spark::Internal::ThrowOnError());
 
@@ -61,7 +61,7 @@ namespace Spark
 			spark_pop_scope_node(Spark::Internal::ThrowOnError());
 			spark_pop_scope_node(Spark::Internal::ThrowOnError());
 
-			Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+			Node* body = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
 			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), body,Spark::Internal::ThrowOnError());
 			spark_push_scope_node(body, Spark::Internal::ThrowOnError());
 

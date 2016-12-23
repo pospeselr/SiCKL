@@ -17,6 +17,7 @@ namespace Spark
             Property,
             Comment,
             List,
+            ScopeBlock,
 
             Count
         };
@@ -29,7 +30,6 @@ namespace Spark
         {
             Root,
             ParameterList,
-            ScopeBlock,
             If,
             ElseIf,
             Else,

@@ -45,7 +45,7 @@ namespace Spark
             spark_pop_scope_node(Spark::Internal::ThrowOnError());
 
             // create the body and make current scope
-            Node* body = spark_create_control_node(Control::ScopeBlock, Spark::Internal::ThrowOnError());
+            Node* body = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
             spark_add_child_node(functionRoot, body, Spark::Internal::ThrowOnError());
             spark_push_scope_node(body, Spark::Internal::ThrowOnError());
         }
@@ -173,11 +173,21 @@ namespace Spark
 
             // compile and cache program
 
-            const auto len = spark_node_to_text(kernelRoot, nullptr, 0, Spark::Internal::ThrowOnError());
-            unique_ptr<char[]> buff(new char[len]);
-            spark_node_to_text(kernelRoot, buff.get(), len, Spark::Internal::ThrowOnError());
+            {
+                const auto len = spark_node_to_text(kernelRoot, nullptr, 0, Spark::Internal::ThrowOnError());
+                unique_ptr<char[]> buff(new char[len]);
+                spark_node_to_text(kernelRoot, buff.get(), len, Spark::Internal::ThrowOnError());
 
-            printf("%s\n", buff.get());
+                printf("%s\n", buff.get());
+            }
+
+            {
+                const auto len = spark_node_to_opencl(kernelRoot, nullptr, 0, Spark::Internal::ThrowOnError());
+                unique_ptr<char[]> buff(new char[len]);
+                spark_node_to_opencl(kernelRoot, buff.get(), len, Spark::Internal::ThrowOnError());
+
+                printf("%s\n", buff.get());
+            }
 
             spark_end_program(Spark::Internal::ThrowOnError());
         };

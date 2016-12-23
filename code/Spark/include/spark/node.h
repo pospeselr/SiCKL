@@ -22,6 +22,7 @@ extern "C" Spark::Node* spark_create_constant_node(Spark::datatype_t dt, const v
 extern "C" Spark::Node* spark_create_property_node(Spark::property_t, spark_error_t** error);
 extern "C" Spark::Node* spark_create_comment_node(const char* comment, spark_error_t** error);
 extern "C" Spark::Node* spark_create_list_node(Spark::Node** children, size_t count, spark_error_t** error);
+extern "C" Spark::Node* spark_create_scope_block_node(spark_error_t** error);
 
 // node deletion
 extern "C" void spark_free_node(Spark::Node* node, spark_error_t** error);

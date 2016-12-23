@@ -206,6 +206,18 @@ Node* spark_create_list_node(Node** children, size_t count, spark_error_t** erro
         });
 }
 
+Node* spark_create_scope_block_node(spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            Node* node = new Node();
+            node->_type = NodeType::ScopeBlock;
+            return node;
+        });
+}
+
 // tree modification
 void spark_add_child_node(Node* root, Node* node, spark_error_t** error)
 {

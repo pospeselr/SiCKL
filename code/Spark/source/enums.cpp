@@ -14,6 +14,7 @@ const char* spark_nodetype_to_str(nodetype_t val)
 		"NodeType::Property",
 		"NodeType::Comment",
 		"NodeType::List",
+		"NodeType::ScopeBlock",
 	};
 	static_assert(countof(nodeNames) == NodeType::Count, "size mismatch between nodeNames and NodeType::Count");
 	SPARK_ASSERT(val < NodeType::Count);
@@ -23,19 +24,19 @@ const char* spark_nodetype_to_str(nodetype_t val)
 
 const char* spark_control_to_str(control_t val)
 {
-	static const char* names[] =
+	static const char* controlNames[] =
 	{
 		"Control::Root",
 		"Control::ParameterList",
-		"Control::ScopeBlock",
 		"Control::If",
 		"Control::ElseIf",
 		"Control::Else",
 		"Control::While",
 		"Control::For",
 	};
+	static_assert(countof(controlNames) == Control::Count, "size mismatch between contorlNames and Control::Count");
 	SPARK_ASSERT(val < Control::Count);
-	return names[val];
+	return controlNames[val];
 }
 
 const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
