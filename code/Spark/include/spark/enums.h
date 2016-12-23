@@ -35,7 +35,6 @@ namespace Spark
             Else,
             While,
             For,
-            Break,
 
             Count
         };
@@ -120,6 +119,7 @@ namespace Spark
             Return,
             AddressOf,
             Dereference,
+            Break,
 
             Count
         };

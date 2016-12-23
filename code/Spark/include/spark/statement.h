@@ -110,7 +110,7 @@ namespace Spark
 
     void Break()
     {
-        Node* breakNode = spark_create_control_node(Control::Break, Spark::Internal::ThrowOnError());
+        Node* breakNode = spark_create_operator_node(DataType::Void, Operator::Break, Spark::Internal::ThrowOnError());
         spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), breakNode, Spark::Internal::ThrowOnError());
     }
 

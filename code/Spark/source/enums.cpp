@@ -33,7 +33,6 @@ const char* spark_control_to_str(control_t val)
 		"Control::Else",
 		"Control::While",
 		"Control::For",
-		"Control::Break",
 	};
 	SPARK_ASSERT(val < Control::Count);
 	return names[val];
@@ -134,6 +133,7 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::Return",
 		"Operator::AddressOf",
 		"Operator::Dereference",
+		"Operator::Break",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < Operator::Count);
