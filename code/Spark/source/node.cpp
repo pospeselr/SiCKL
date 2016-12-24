@@ -229,6 +229,7 @@ void spark_add_child_node(Node* root, Node* node, spark_error_t** error)
             SPARK_ASSERT(node != nullptr);
             SPARK_ASSERT(root != node);
 
+            node->_attached = true;
             root->_children.push_back(node);
         });
 }
