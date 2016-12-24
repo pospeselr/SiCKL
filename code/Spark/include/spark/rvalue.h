@@ -81,7 +81,7 @@ namespace Spark
             [](Node* x, Node* y) -> Node*
             {
                 Node* children[] = {x, y};
-                Node* listNode = spark_create_list_node(children, countof(children), Spark::Internal::ThrowOnError());
+                Node* listNode = spark_create_vector_node(TYPE::type, children, countof(children), Spark::Internal::ThrowOnError());
                 return listNode;
             }(x._node, y._node))
         {

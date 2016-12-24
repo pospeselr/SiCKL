@@ -5,12 +5,11 @@ namespace Spark
     namespace Internal
     {
         template<typename T>
-        struct codegen_context
+        struct codegen_context : public T
         {
             char* buffer = nullptr;
             int32_t capacity = 0;
             int32_t written = 0;
-            T context;
         };
 
         template<int32_t N, typename... Args>

@@ -136,17 +136,23 @@ int main()
                 vec2.Y = second;
                 second = second * second;
 
-                Float2 vec3 = {first, 112345.0f};
-                vec3 = {second, 19.0f};
-
                 Float aFloat;
                 aFloat = 15.0f;
 
-                While(vec3.X() == 12.0f)
+                Float2 vec3 = {first, 112345.0f};
+                vec3 = {second, 19.0f};
+
+                While(aFloat == 12.0f)
                 {
                     Comment("What");
                     Break();
+                    what = equals[1];
+                    ++what;
                 }
+
+                vec3.X = 13.2f;
+                Int2 swiz = equals.XX;
+                Return();
             };
             main.SetEntryPoint();
         };

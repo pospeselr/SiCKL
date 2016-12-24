@@ -16,7 +16,7 @@ namespace Spark
             Constant,
             Property,
             Comment,
-            List,
+            Vector,
             ScopeBlock,
 
             Count
@@ -86,7 +86,22 @@ namespace Spark
     {
         enum Type
         {
+            // nullary operators
+            Break,
+            // prefix unary operators
             Negate,
+            AddressOf,
+            PrefixIncrement,
+            PrefixDecrement,
+            LogicalNot,
+            BitwiseNot,
+            Dereference,
+            // postfix uniary operators
+            PostfixIncrement,
+            PostfixDecrement,
+            // index operator
+            Index,
+            // binary infix operators
             Add,
             Subtract,
             Multiply,
@@ -98,28 +113,19 @@ namespace Spark
             LessEqualThan,
             NotEqual,
             Equal,
-            LogicalNot,
             LogicalAnd,
             LogicalOr,
-            BitwiseNot,
             BitwiseAnd,
             BitwiseOr,
             BitwiseXor,
             RightShift,
             LeftShift,
-            PrefixIncrement,
-            PostfixIncrement,
-            PrefixDecrement,
-            PostfixDecrement,
             Assignment,
-            Cast,
-            Index,
-            Property,
+            // n-ary operators
             Call,
+            Property,
             Return,
-            AddressOf,
-            Dereference,
-            Break,
+            Cast,
 
             Count
         };

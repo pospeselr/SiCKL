@@ -67,9 +67,9 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        Node* list_constructor(datatype_t dt, Node** children, size_t count)
+        Node* vector_constructor(datatype_t dt, Node** children, size_t count)
         {
-            Node* listNode = spark_create_list_node(children, count, Spark::Internal::ThrowOnError());
+            Node* listNode = spark_create_vector_node(dt, children, count, Spark::Internal::ThrowOnError());
             Node* thisNode = copy_constructor(dt, listNode);
             return thisNode;
         }

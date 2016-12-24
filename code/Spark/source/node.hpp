@@ -37,6 +37,10 @@ namespace Spark
             {
                 property_t id;
             } _property;
+            struct
+            {
+                datatype_t type;
+            } _vector;
             const char* _comment;
         };
     };

@@ -30,7 +30,7 @@ namespace Spark
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "0x%x : function -> %s %s\n",
-                node->_function.id,
+                (uint32_t)node->_function.id,
                 spark_datatype_to_str(node->_function.returnType, datatypeBuffer, sizeof(datatypeBuffer)),
                 node->_function.entrypoint ? "(entrypoint)" : "");
         }
@@ -40,7 +40,7 @@ namespace Spark
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "0x%x : %s\n",
-                node->_symbol.id,
+                (uint32_t)node->_symbol.id,
                 spark_datatype_to_str(node->_symbol.type, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
@@ -82,7 +82,7 @@ namespace Spark
             {
                 if(k > 0)
                 {
-                    written = doSnprintf(buffer, buffer_size, written, "%s", ", ");
+                    written = doSnprintf(buffer, buffer_size, written, ", ");
                 }
 
                 union
@@ -166,7 +166,14 @@ namespace Spark
 
         int32_t commentNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
         {
-            written = doSnprintf(buffer, buffer_size, written, "Comment : '%s'\n", node->_comment);
+            written = doSnprintf(buffer, buffer_size, written, "NodeType::Comment : '%s'\n", node->_comment);
+            return written;
+        }
+
+        int32_t vectorNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        {
+            char datatypeBuffer[32];
+            written = doSnprintf(buffer, buffer_size, written, "NodeType::Vector : '%s'\n", spark_datatype_to_str(node->_vector.type, datatypeBuffer, sizeof(datatypeBuffer)));
             return written;
         }
 
@@ -224,6 +231,9 @@ namespace Spark
                     break;
                 case NodeType::Comment:
                     written = commentNodeToText(node, out_buffer, buffer_size, written);
+                    break;
+                case NodeType::Vector:
+                    written = vectorNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 default:
                     written = doSnprintf(out_buffer, buffer_size, written, "%s\n", spark_nodetype_to_str(node->_type));

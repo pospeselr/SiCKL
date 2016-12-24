@@ -11,7 +11,18 @@ namespace Spark
 {
     namespace Internal
     {
-        int32_t generateSymbolName(symbolid_t id, datatype_t dt, char* out_buffer, int32_t buffer_size, int32_t written)
+        struct context_data
+        {
+            int32_t indent = 0;
+        };
+
+        using context = codegen_context<context_data>;
+
+        // forward declare
+        static void generateValueNode(context& ctx, Spark::Node* value);
+        static void generateScopeBlock(context& ctx, Spark::Node* scopeBlock);
+
+        static void generateSymbolName(context& ctx, symbolid_t id, datatype_t dt)
         {
             const auto primitive_component = dt & DataType::PrimitiveMask;
             const auto vector_component = dt & DataType::ComponentMask;
@@ -47,15 +58,15 @@ namespace Spark
                 default:                pointer = ""; break;
             }
 
-            return doSnprintf(out_buffer, buffer_size, written, "%s%s%s%u", pointer, vector, primitive, (uint32_t)id);
+            doSnprintf(ctx, "%s%s%s%u", pointer, vector, primitive, (uint32_t)id);
         }
 
-        int32_t generateFunctionName(symbolid_t id, char* out_buffer, int32_t buffer_size, int32_t written)
+        static void generateFunctionName(context& ctx, symbolid_t id)
         {
-            return doSnprintf(out_buffer, buffer_size, written, "func_%u", (uint32_t)id);
+            doSnprintf(ctx, "func_%u", (uint32_t)id);
         }
 
-        int32_t generateOpenCLType(datatype_t dt, char* out_buffer, int32_t buffer_size, int32_t written)
+        static void generateOpenCLType(context& ctx, datatype_t dt)
         {
             const auto primitive_component = dt & DataType::PrimitiveMask;
             const auto vector_component = dt & DataType::ComponentMask;
@@ -92,24 +103,226 @@ namespace Spark
                 default:                pointer = ""; break;
             }
 
-            return doSnprintf(out_buffer, buffer_size, written, "%s%s%s ", primitive, vector, pointer);
+            doSnprintf(ctx, "%s%s%s", primitive, vector, pointer);
         }
 
-        int32_t generateIndent(uint32_t indent, char* out_buffer, int32_t buffer_size, int32_t written)
+        static void generateIndent(context& ctx)
         {
-            for(uint32_t k = 0; k < indent; k++)
+            for(int32_t k = 0; k < ctx.indent; k++)
             {
-                written = doSnprintf(out_buffer, buffer_size, written, "%s", "    ");
+                doSnprintf(ctx, "    ");
             }
-            return written;
         }
 
-        int32_t generateValueNode(Spark::Node* value, char* out_buffer, int32_t buffer_size, int32_t written)
+
+        static void generateOperatorNode(context& ctx, Spark::Node* value)
         {
-            return written;
+            SPARK_ASSERT(value->_type == NodeType::Operator);
+
+            auto op = value->_operator.id;
+            if(op == Operator::Break)
+            {
+                SPARK_ASSERT(value->_children.size() == 0);
+                doSnprintf(ctx, "break");
+            }
+            else if(op >= Operator::Negate && op <= Operator::Dereference)
+            {
+                SPARK_ASSERT(value->_children.size() == 1);
+                const char* unary[] =
+                {
+                    "-",
+                    "&",
+                    "++",
+                    "--",
+                    "!",
+                    "~",
+                    "*",
+                };
+                doSnprintf(ctx, "(%s", unary[op - Operator::Negate]);
+                generateValueNode(ctx, value->_children.front());
+                doSnprintf(ctx, ")");
+            }
+            else if(op >= Operator::PostfixIncrement && op <= Operator::PostfixIncrement)
+            {
+                SPARK_ASSERT(value->_children.size() == 1);
+                const char* unary[] =
+                {
+                    "++",
+                    "--",
+                };
+                doSnprintf(ctx, "(");
+                generateValueNode(ctx, value->_children.front());
+                doSnprintf(ctx, "%s)", unary[op - Operator::PostfixIncrement]);
+            }
+            else if(op == Operator::Index)
+            {
+                SPARK_ASSERT(value->_children.size() == 2);
+                generateValueNode(ctx, value->_children.front());
+                doSnprintf(ctx, "[");
+                generateValueNode(ctx, value->_children.back());
+                doSnprintf(ctx, "]");
+            }
+            else if(op >= Operator::Add && op <= Operator::LeftShift)
+            {
+                SPARK_ASSERT(value->_children.size() == 2);
+                const char* binary[] =
+                {
+                    "+",
+                    "-",
+                    "*",
+                    "/",
+                    "%",
+                    ">",
+                    "<",
+                    ">=",
+                    "<=",
+                    "!=",
+                    "==",
+                    "&&",
+                    "||",
+                    "&",
+                    "|",
+                    "^",
+                    ">>",
+                    "<<",
+                };
+                doSnprintf(ctx, "(");
+                generateValueNode(ctx, value->_children.front());
+                doSnprintf(ctx, " %s ", binary[op - Operator::Add]);
+                generateValueNode(ctx, value->_children.back());
+                doSnprintf(ctx, ")");
+            }
+            else if(op == Operator::Assignment)
+            {
+                SPARK_ASSERT(value->_children.size() == 2);
+                generateValueNode(ctx, value->_children.front());
+                doSnprintf(ctx, " = ");
+                generateValueNode(ctx, value->_children.back());
+            }
+            else if(op == Operator::Call)
+            {
+                SPARK_ASSERT(value->_children.size() >= 1);
+                SPARK_ASSERT(value->_children.front()->_type == NodeType::Function);
+                generateFunctionName(ctx, value->_children.front()->_function.id);
+                doSnprintf(ctx, "(");
+                for(size_t k = 1; k < value->_children.size(); k++)
+                {
+                    Node* currentChild = value->_children[k];
+                    if(k > 1)
+                    {
+                       doSnprintf(ctx, ", ");
+                    }
+                    generateValueNode(ctx, currentChild);
+                }
+                doSnprintf(ctx, ")");
+            }
+            else if(op == Operator::Property)
+            {
+                SPARK_ASSERT(value->_children.size() == 2);
+                generateValueNode(ctx, value->_children.front());
+
+                SPARK_ASSERT(value->_children.back()->_type == NodeType::Property);
+                char property[5];
+                spark_property_to_str(value->_children.back()->_property.id, property, countof(property));
+                doSnprintf(ctx, ".%s", property);
+            }
+            else if(op == Operator::Return)
+            {
+                if(value->_children.size() == 0)
+                {
+                    SPARK_ASSERT(value->_operator.type == DataType::Void);
+                    doSnprintf(ctx, "return");
+                }
+                else
+                {
+                    SPARK_ASSERT(value->_children.size() == 1);
+                    doSnprintf(ctx, "return ");
+                    generateValueNode(ctx, value->_children.front());
+                }
+            }
+            else if(op == Operator::Cast)
+            {
+                SPARK_ASSERT(value->_children.size() == 1);
+                doSnprintf(ctx, "(");
+                generateOpenCLType(ctx, value->_operator.type);
+                doSnprintf(ctx, ")");
+
+                generateValueNode(ctx, value->_children.front());
+            }
         }
 
-        int32_t generateControlNode(Spark::Node* control, uint32_t indent, char* out_buffer, int32_t buffer_size, int32_t written)
+        static void generateSymbolNode(context& ctx, Spark::Node* symbol)
+        {
+            generateSymbolName(ctx, symbol->_symbol.id, symbol->_symbol.type);
+        }
+
+        static void generateConstantNode(context& ctx, Spark::Node* constant)
+        {
+            SPARK_ASSERT(constant->_type == NodeType::Constant);
+            void* raw = constant->_constant.buffer;
+            switch(constant->_constant.type)
+            {
+                case DataType::Char:
+                    doSnprintf(ctx, "%lli", *reinterpret_cast<int8_t*>(raw));
+                    break;
+                case DataType::UChar:
+                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint8_t*>(raw));
+                    break;
+                case DataType::Short:
+                    doSnprintf(ctx, "%lli", *reinterpret_cast<int16_t*>(raw));
+                    break;
+                case DataType::UShort:
+                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint16_t*>(raw));
+                    break;
+                case DataType::Int:
+                    doSnprintf(ctx, "%lli", *reinterpret_cast<int32_t*>(raw));
+                    break;
+                case DataType::UInt:
+                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint32_t*>(raw));
+                    break;
+                case DataType::Long:
+                    doSnprintf(ctx, "%lli", *reinterpret_cast<int64_t*>(raw));
+                    break;
+                case DataType::ULong:
+                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint64_t*>(raw));
+                    break;
+                case DataType::Float:
+                    doSnprintf(ctx, "%.9ef", *reinterpret_cast<float*>(raw));
+                    break;
+                case DataType::Double:
+                    doSnprintf(ctx, "%.17e", *reinterpret_cast<double*>(raw));
+                    break;
+                default:
+                    SPARK_ASSERT(!!"Invalid Constant Datatype");
+            }
+        }
+
+
+
+        static void generateValueNode(context& ctx, Spark::Node* value)
+        {
+            switch(value->_type)
+            {
+                case NodeType::Operator:
+                    generateOperatorNode(ctx, value);
+                    break;
+                case NodeType::Symbol:
+                    generateSymbolNode(ctx, value);
+                    break;
+                case NodeType::Constant:
+                    generateConstantNode(ctx, value);
+                    break;
+                case NodeType::Vector:
+                    break;
+                default:
+                    SPARK_ASSERT(value->_type == NodeType::Operator ||
+                                 value->_type == NodeType::Symbol ||
+                                 value->_type == NodeType::Constant ||
+                                 value->_type == NodeType::Vector);
+            }
+        }
+
+        static void generateControlNode(context& ctx, Spark::Node* control)
         {
             SPARK_ASSERT(control->_type == NodeType::Control);
 
@@ -117,73 +330,94 @@ namespace Spark
             {
                 case Control::If:
                     SPARK_ASSERT(control->_children.size() == 2);
-
+                    doSnprintf(ctx, "if (");
+                    generateValueNode(ctx, control->_children.front());
+                    doSnprintf(ctx, ")\n");
+                    generateScopeBlock(ctx, control->_children.back());
                     break;
                 case Control::ElseIf:
                     SPARK_ASSERT(control->_children.size() == 2);
-
+                    doSnprintf(ctx, "else if (");
+                    generateValueNode(ctx, control->_children.front());
+                    doSnprintf(ctx, ")\n");
+                    generateScopeBlock(ctx, control->_children.back());
                     break;
                 case Control::Else:
                     SPARK_ASSERT(control->_children.size() == 1);
-
+                    doSnprintf(ctx, "else\n");
+                    generateScopeBlock(ctx, control->_children.back());
                     break;
                 case Control::While:
+                {
                     SPARK_ASSERT(control->_children.size() == 2);
-
+                    doSnprintf(ctx, "while (");
+                    generateValueNode(ctx, control->_children.front());
+                    doSnprintf(ctx, ")\n");
+                    generateScopeBlock(ctx, control->_children.back());
                     break;
+                }
                 default:
                     SPARK_ASSERT(false);
             }
-
-            return written;
         }
 
-        int32_t generateScopeBlock(Spark::Node* scopeBlock, uint32_t indent, char* out_buffer, int32_t buffer_size, int32_t written)
+        static void generateScopeBlock(context& ctx, Spark::Node* scopeBlock)
         {
             SPARK_ASSERT(scopeBlock->_type == NodeType::ScopeBlock);
-            written = generateIndent(indent, out_buffer, buffer_size, written);
-            written = doSnprintf(out_buffer, buffer_size, written, "%s", "{\n");
 
+            generateIndent(ctx);
+            doSnprintf(ctx, "{\n");
+
+            ctx.indent += 1;
             for(Node* currentNode : scopeBlock->_children)
             {
-                written = generateIndent(indent + 1, out_buffer, buffer_size, written);
+                generateIndent(ctx);
 
                 switch(currentNode->_type)
                 {
                     case NodeType::Control:
                     {
-                        written = generateControlNode(currentNode, indent + 1, out_buffer, buffer_size, written);
+                        generateControlNode(ctx, currentNode);
+                        break;
                     }
+                    case NodeType::Operator:
+                    case NodeType::Symbol:
+                    case NodeType::Constant:
+                    case NodeType::Vector:
+                        generateValueNode(ctx, currentNode);
+                        doSnprintf(ctx, ";\n");
+                        break;
+                    case NodeType::Comment:
+                        doSnprintf(ctx, "// %s\n", currentNode->_comment);
+                        break;
                     default:
+                        doSnprintf(ctx, "#unimplemented\n");
                         break;
                 }
-
-                written = doSnprintf(out_buffer, buffer_size, written, "%s", "\n");
             }
+            ctx.indent -= 1;
 
-
-            written = generateIndent(indent, out_buffer, buffer_size, written);
-            written = doSnprintf(out_buffer, buffer_size, written, "%s", "}\n\n");
-
-            return written;
+            generateIndent(ctx);
+            doSnprintf(ctx, "}\n");
         }
 
-        int32_t generateFunction(Spark::Node* node, char* out_buffer, int32_t buffer_size, int32_t written)
+        static void generateFunction(context& ctx, Spark::Node* node)
         {
             SPARK_ASSERT(node->_type == NodeType::Function);
             SPARK_ASSERT(node->_children.size() == 2);
 
             if(node->_function.entrypoint)
             {
-                written = doSnprintf(out_buffer, buffer_size, written, "%s", "__kernel ");
+                doSnprintf(ctx, "__kernel ");
             }
 
             // name and return type
-            written = generateOpenCLType(node->_function.returnType, out_buffer, buffer_size, written);
-            written = generateFunctionName(node->_function.id, out_buffer, buffer_size, written);
+            generateOpenCLType(ctx, node->_function.returnType);
+            doSnprintf(ctx, " ");
+            generateFunctionName(ctx, node->_function.id);
 
             // print parameter list
-            written = doSnprintf(out_buffer, buffer_size, written, "%s", "(");
+            doSnprintf(ctx, "(");
             Node* parameterList = node->_children.front();
             SPARK_ASSERT(parameterList->_type == NodeType::Control && parameterList->_control == Control::ParameterList);
 
@@ -192,32 +426,27 @@ namespace Spark
             {
                 if(k > 0)
                 {
-                    written = doSnprintf(out_buffer, buffer_size, written, "%s", ", ");
+                    doSnprintf(ctx, ", ");
                 }
                 Node* currentChild = parameterList->_children[k];
-                written = generateOpenCLType(currentChild->_symbol.type, out_buffer, buffer_size, written);
-                written = generateSymbolName(currentChild->_symbol.id, currentChild->_symbol.type, out_buffer, buffer_size, written);
+                generateOpenCLType(ctx, currentChild->_symbol.type);
+                doSnprintf(ctx, " ");
+                generateSymbolName(ctx, currentChild->_symbol.id, currentChild->_symbol.type);
             }
-            written = doSnprintf(out_buffer, buffer_size, written, "%s", ")\n");
+            doSnprintf(ctx, ")\n");
 
             // function contents
             Node* functionBody = node->_children.back();
-            written = generateScopeBlock(functionBody, 0, out_buffer, buffer_size, written);
-
-            return written;
+            generateScopeBlock(ctx, functionBody);
         }
 
-        int32_t generateSource(Spark::Node* node, char* out_buffer, int32_t buffer_size)
+        static void generateSource(context& ctx, Spark::Node* node)
         {
             SPARK_ASSERT(node->_type == NodeType::Control && node->_control == Control::Root);
-
-            int32_t written = 0;
             for(Node* func : node->_children)
             {
-                written = generateFunction(func, out_buffer, buffer_size, written);
+                generateFunction(ctx, func);
             }
-
-            return written;
         }
     }
 }
@@ -228,7 +457,15 @@ int32_t spark_node_to_opencl(Spark::Node* node, char* out_buffer, int32_t buffer
         error,
         [&]
         {
+            Spark::Internal::context ctx;
+            {
+                ctx.buffer = out_buffer;
+                ctx.capacity = buffer_size;
+            }
+
+            Spark::Internal::generateSource(ctx, node);
+
             // +1 for null terminator
-            return Spark::Internal::generateSource(node, out_buffer, buffer_size) + 1;
+            return ctx.written + 1;
         });
 }

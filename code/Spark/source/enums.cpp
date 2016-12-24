@@ -13,7 +13,7 @@ const char* spark_nodetype_to_str(nodetype_t val)
 		"NodeType::Constant",
 		"NodeType::Property",
 		"NodeType::Comment",
-		"NodeType::List",
+		"NodeType::Vector",
 		"NodeType::ScopeBlock",
 	};
 	static_assert(countof(nodeNames) == NodeType::Count, "size mismatch between nodeNames and NodeType::Count");
@@ -101,7 +101,17 @@ const char* spark_operator_to_str(operator_t val)
 {
 	static const char* operatorNames[] =
 	{
+		"Operator::Break",
 		"Operator::Negate",
+		"Operator::AddressOf",
+		"Operator::PrefixIncrement",
+		"Operator::PrefixDecrement",
+		"Operator::LogicalNot",
+		"Operator::BitwiseNot",
+		"Operator::Dereference",
+		"Operator::PostfixIncrement",
+		"Operator::PostfixDecrement",
+		"Operator::Index",
 		"Operator::Add",
 		"Operator::Subtract",
 		"Operator::Multiply",
@@ -113,28 +123,18 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::LessEqualThan",
 		"Operator::NotEqual",
 		"Operator::Equal",
-		"Operator::LogicalNot",
 		"Operator::LogicalAnd",
 		"Operator::LogicalOr",
-		"Operator::BitwiseNot",
 		"Operator::BitwiseAnd",
 		"Operator::BitwiseOr",
 		"Operator::BitwiseXor",
 		"Operator::RightShift",
 		"Operator::LeftShift",
-        "Operator::PrefixIncrement",
-        "Operator::PostfixIncrement",
-        "Operator::PrefixDecrement",
-        "Operator::PostfixDecrement",
 		"Operator::Assignment",
-		"Operator::Cast",
-		"Operator::Index",
-		"Operator::Property",
 		"Operator::Call",
+		"Operator::Property",
 		"Operator::Return",
-		"Operator::AddressOf",
-		"Operator::Dereference",
-		"Operator::Break",
+		"Operator::Cast",
 	};
 	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < Operator::Count);

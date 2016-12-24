@@ -186,14 +186,16 @@ Node* spark_create_comment_node(const char* comment, spark_error_t** error)
         });
 }
 
-Node* spark_create_list_node(Node** children, size_t count, spark_error_t** error)
+Node* spark_create_vector_node(datatype_t type, Node** children, size_t count, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
+            SPARK_ASSERT((type & DataType::ComponentMask) != 0);
             Node* node = new Node();
-            node->_type = NodeType::List;
+            node->_type = NodeType::Vector;
+            node->_vector.type = type;
 
             g_allocatedNodes.push_back(node);
 

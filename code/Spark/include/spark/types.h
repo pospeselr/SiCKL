@@ -295,7 +295,7 @@ namespace Spark
         vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
         {
             Node* children[] = {x._node, y._node};
-            this->_node = Internal::list_constructor(vector2::type, children, countof(children));
+            this->_node = Internal::vector_constructor(vector2::type, children, countof(children));
         }
 
         vector2(vector2&&) = default;
