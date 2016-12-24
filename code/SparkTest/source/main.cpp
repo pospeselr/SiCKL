@@ -79,6 +79,7 @@ int main()
             [](Int a, Int b)
             {
                 Comment("Sum");
+                a = 12;
                 Return(a + b);
             };
 

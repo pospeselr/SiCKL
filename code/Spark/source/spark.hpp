@@ -9,6 +9,7 @@
 #include <memory>
 #include <stdexcept>
 #include <utility>
+#include <unordered_set>
 
 // spark
 #include "spark/common.h"

@@ -6,17 +6,19 @@
 #include "error.hpp"
 
 using std::string;
+using std::unordered_set;
 
 namespace Spark
 {
     namespace Internal
     {
-        struct context_data
+        struct opencl_data
         {
             int32_t indent = 0;
+            unordered_set<symbolid_t> inited_variables;
         };
 
-        using context = codegen_context<context_data>;
+        using context = codegen_context<opencl_data>;
 
         // forward declare
         static void generateValueNode(context& ctx, Spark::Node* value);
@@ -114,7 +116,6 @@ namespace Spark
             }
         }
 
-
         static void generateOperatorNode(context& ctx, Spark::Node* value)
         {
             SPARK_ASSERT(value->_type == NodeType::Operator);
@@ -195,6 +196,18 @@ namespace Spark
             else if(op == Operator::Assignment)
             {
                 SPARK_ASSERT(value->_children.size() == 2);
+                if(value->_children.front()->_type == NodeType::Symbol)
+                {
+                    const auto id = value->_children.front()->_symbol.id;
+                    if(ctx.inited_variables.find(id) == ctx.inited_variables.end())
+                    {
+                        ctx.inited_variables.insert(id);
+                        const auto type = value->_children.front()->_symbol.type;
+                        generateOpenCLType(ctx, type);
+                        doSnprintf(ctx, " ");
+                    }
+                }
+
                 generateValueNode(ctx, value->_children.front());
                 doSnprintf(ctx, " = ");
                 generateValueNode(ctx, value->_children.back());
@@ -297,7 +310,27 @@ namespace Spark
             }
         }
 
-
+        static void generateVectorNode(context& ctx, Spark::Node* vector)
+        {
+            SPARK_ASSERT(vector->_type == NodeType::Vector);
+            datatype_t type = vector->_vector.type;
+            if(type & DataType::Vector2)
+            {
+                SPARK_ASSERT(vector->_children.size() == 2);
+                doSnprintf(ctx, "(");
+                generateOpenCLType(ctx, type);
+                doSnprintf(ctx, ")(");
+                for(size_t k = 0; k < vector->_children.size(); k++)
+                {
+                    if(k > 0)
+                    {
+                        doSnprintf(ctx, ", ");
+                    }
+                    generateValueNode(ctx, vector->_children[k]);
+                }
+                doSnprintf(ctx, ")");
+            }
+        }
 
         static void generateValueNode(context& ctx, Spark::Node* value)
         {
@@ -313,6 +346,7 @@ namespace Spark
                     generateConstantNode(ctx, value);
                     break;
                 case NodeType::Vector:
+                    generateVectorNode(ctx, value);
                     break;
                 default:
                     SPARK_ASSERT(value->_type == NodeType::Operator ||
@@ -429,6 +463,10 @@ namespace Spark
                     doSnprintf(ctx, ", ");
                 }
                 Node* currentChild = parameterList->_children[k];
+                SPARK_ASSERT(currentChild->_type == NodeType::Symbol);
+                // add to our set of init'd variables
+                ctx.inited_variables.insert(currentChild->_symbol.id);
+
                 generateOpenCLType(ctx, currentChild->_symbol.type);
                 doSnprintf(ctx, " ");
                 generateSymbolName(ctx, currentChild->_symbol.id, currentChild->_symbol.type);
