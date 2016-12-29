@@ -96,6 +96,8 @@ int main()
 
                 Int a = 123;
                 Float b = 666.0f;
+                Pointer<Int> pA = &a;
+                *pA = 14;
 
                 sum(a, b.As<Int>());
 

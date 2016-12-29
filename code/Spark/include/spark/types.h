@@ -101,6 +101,13 @@ namespace Spark
             this->_node = Internal::copy_constructor(Pointer::type, that._node);
         }
 
+        inline
+        __attribute__ ((always_inline))
+        Pointer(const rvalue<Pointer>& that)
+        {
+            this->_node = Internal::copy_constructor(Pointer::type, that._node);
+        }
+
         Pointer(Pointer&&) = default;
 
         inline
@@ -453,6 +460,7 @@ namespace Spark
     MAKE_PREFIX_OPERATOR(TYPE, TYPE, --, PrefixDecrement)\
     MAKE_POSTFIX_OPERATOR(TYPE, TYPE, ++, PostfixIncrement)\
     MAKE_POSTFIX_OPERATOR(TYPE, TYPE, --, PostfixDecrement)\
+    MAKE_UNARY_OPERATOR(Pointer<TYPE>, TYPE, &, AddressOf)\
 
     #define MAKE_FLOAT_OPERATORS(TYPE)\
     MAKE_UNARY_OPERATOR(TYPE, TYPE, -, Negate)\
@@ -469,12 +477,7 @@ namespace Spark
     MAKE_UNARY_OPERATOR(int_type<TYPE>, TYPE, !, LogicalNot)\
     MAKE_BINARY_OPERATOR(int_type<TYPE>, TYPE, &&, LogicalAnd)\
     MAKE_BINARY_OPERATOR(int_type<TYPE>, TYPE, ||, LogicalOr)\
-    MAKE_UNARY_OPERATOR(TYPE, TYPE, ~, BitwiseNot)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, &, BitwiseAnd)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, |, BitwiseOr)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, ^, BitwiseXor)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, >>, RightShift)\
-    MAKE_BINARY_OPERATOR(TYPE, TYPE, <<, LeftShift)\
+    MAKE_UNARY_OPERATOR(Pointer<TYPE>, TYPE, &, AddressOf)\
 
     #define MAKE_TYPEDEFS(TYPE, RAW_TYPE)\
     typedef scalar<RAW_TYPE> TYPE;\
@@ -518,27 +521,6 @@ namespace Spark
     // floating point
     MAKE_FLOAT_TYPES(Float, float);
     MAKE_FLOAT_TYPES(Double, double);
-
-    // pointer operators
-    template<typename TYPE>
-    inline
-    __attribute__((always_inline))
-    const rvalue<Pointer<TYPE>> operator&(const scalar<TYPE>& right)\
-    {\
-        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
-        const auto op = Operator::AddressOf;\
-        return rvalue<Pointer<TYPE>>(spark_create_operator1_node(dt, op, right._node));\
-    }
-
-    template<typename TYPE>
-    inline
-    __attribute__((always_inline))
-    const rvalue<Pointer<TYPE>> operator&(const vector2<TYPE>& right)\
-    {\
-        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
-        const auto op = Operator::AddressOf;\
-        return rvalue<Pointer<TYPE>>(spark_create_operator1_node(dt, op, right._node));\
-    }
 
     template<typename TYPE>
     inline
