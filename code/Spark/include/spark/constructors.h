@@ -75,34 +75,4 @@ namespace Spark
         }
 
     }
-
-    // variable declaration 'constructor' (used for symbols passed into functions with no defined value)
-    template<typename TYPE>
-    void extern_constructor(TYPE* pThis)
-    {
-        pThis->_node = Internal::extern_constructor(TYPE::type);
-    }
-
-    // value constructor
-    template<typename TYPE, size_t SIZE>
-    void value_constructor(TYPE* pThis, const void* raw)
-    {
-        pThis->_node = Internal::value_constructor(TYPE::type, raw, SIZE);
-    }
-
-    // default constructor (ie 0)
-    template<typename TYPE, typename CL_TYPE>
-    void default_constructor(TYPE* pThis)
-    {
-        // init to 0
-        CL_TYPE val = {0};
-        value_constructor<TYPE, sizeof(val)>(pThis, &val);
-    }
-
-    // copy constructor
-    template<typename TYPE>
-    void copy_constructor(TYPE* pThis, const TYPE& that)
-    {
-        pThis->_node = Internal::copy_constructor(TYPE::type, that._node);
-    }
 }

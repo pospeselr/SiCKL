@@ -79,39 +79,50 @@ namespace Spark
     struct Pointer
     {
     protected:
+        // node constructor
         Pointer(spark_node_t* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
         }
     public:
+        // constructors
+        inline
+        __attribute__ ((always_inline))
         Pointer(std::nullptr_t)
         {
-            extern_constructor(this);
+            this->_node = Internal::extern_constructor(Pointer::type);
         }
 
+        inline
+        __attribute__ ((always_inline))
         Pointer(const Pointer& that)
         {
-            copy_constructor<Pointer>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            this->_node = Internal::copy_constructor(Pointer::type, that._node);
         }
 
         Pointer(Pointer&&) = default;
 
+        inline
+        __attribute__ ((always_inline))
         Pointer& operator=(const Pointer& that)
         {
-            assignment_operator<Pointer>(this, that);
-            SPARK_ASSERT(_node != nullptr);
+            Internal::assignment_operator(this->_node, Pointer::type, that._node);
             return *this;
         }
 
         // pointer dereference operator
+        inline
+        __attribute__ ((always_inline))
         TYPE operator*()
         {
             const auto dt = TYPE::type;
             const auto op = Operator::Dereference;
             return TYPE(spark_create_operator1_node(dt, op, this->_node));
         }
+
+        inline
+        __attribute__ ((always_inline))
         rvalue<TYPE> operator*() const
         {
             const auto dt = TYPE::type;
