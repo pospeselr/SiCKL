@@ -6,7 +6,7 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        void assignment_operator(Node* thisNode, datatype_t dt, Node* thatNode)
+        void assignment_operator(spark_node_t* thisNode, datatype_t dt, spark_node_t* thatNode)
         {
             const auto type= spark_node_get_type(thisNode, Spark::Internal::ThrowOnError());
             const auto operatorId = spark_node_get_operator_id(thisNode, Spark::Internal::ThrowOnError());
@@ -19,9 +19,9 @@ namespace Spark
             const auto op = Operator::Assignment;
 
             // create assignment node
-            Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
+            auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
             // add to tree
-            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
             spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
         }
     }
@@ -79,7 +79,7 @@ namespace Spark
     struct Pointer
     {
     protected:
-        Pointer(Node* node)
+        Pointer(spark_node_t* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
@@ -114,13 +114,12 @@ namespace Spark
         }
         rvalue<TYPE> operator*() const
         {
-            TRACE
             const auto dt = TYPE::type;
             const auto op = Operator::Dereference;
             return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
-        Node* _node = nullptr;
+        spark_node_t* _node = nullptr;
         friend TYPE;
 
         static const char* name;
@@ -149,7 +148,7 @@ namespace Spark
         // node constructor
         inline
         __attribute__ ((always_inline))
-        scalar(Node* node)
+        scalar(spark_node_t* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
@@ -213,7 +212,7 @@ namespace Spark
         __attribute__ ((always_inline))
         scalar& operator=(RAW_TYPE val)
         {
-            Node* constant = spark_create_constant_node(scalar::type, &val, sizeof(val), Internal::ThrowOnError());
+            auto constant = spark_create_constant_node(scalar::type, &val, sizeof(val), Internal::ThrowOnError());
             Internal::assignment_operator(this->_node, scalar::type, constant);
             return *this;
         }
@@ -230,7 +229,7 @@ namespace Spark
         }
 
         // private node ptr
-        Node* _node;
+        spark_node_t* _node;
         static const char* name;
         static const datatype_t type;
     };
@@ -251,7 +250,7 @@ namespace Spark
         // node constructor
         inline
         __attribute__ ((always_inline))
-        vector2(Node* node)
+        vector2(spark_node_t* node)
         : _node(node)
         {
             SPARK_ASSERT(_node != nullptr);
@@ -294,7 +293,7 @@ namespace Spark
         __attribute__ ((always_inline))
         vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
         {
-            Node* children[] = {x._node, y._node};
+            spark_node_t* children[] = {x._node, y._node};
             this->_node = Internal::vector_constructor(vector2::type, children, countof(children));
         }
 
@@ -325,7 +324,7 @@ namespace Spark
             property_rw<TYPE, Property::Odd> Odd;
 
             // private node ptr
-            Node* _node;
+            spark_node_t* _node;
         };
 
         // indexing operators
@@ -336,7 +335,7 @@ namespace Spark
             const auto dt = TYPE::type;
             const auto op = Operator::Index;
 
-            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
+            auto indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
             return lvalue<TYPE>(indexNode);
         }
 
@@ -347,7 +346,7 @@ namespace Spark
             const auto dt = TYPE::type;
             const auto op = Operator::Index;
 
-            Node* indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
+            auto indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
             return rvalue<TYPE>(indexNode);
         }
 

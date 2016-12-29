@@ -6,17 +6,17 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        Node* extern_constructor(datatype_t dt)
+        spark_node_t* extern_constructor(datatype_t dt)
         {
             const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
-            Node* thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
+            auto thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
 
             return thisNode;
         }
 
         inline
         __attribute__ ((noinline))
-        Node* value_constructor(datatype_t dt, const void* raw, size_t sz)
+        spark_node_t* value_constructor(datatype_t dt, const void* raw, size_t sz)
         {
             SPARK_ASSERT(dt == DataType::Char ||
                          dt == DataType::UChar ||
@@ -32,15 +32,15 @@ namespace Spark
             const auto op = Operator::Assignment;
             const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-            Node* thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
+            auto thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
 
             // init to val
-            Node* valNode = spark_create_constant_node(dt, raw, sz, Spark::Internal::ThrowOnError());
+            auto valNode = spark_create_constant_node(dt, raw, sz, Spark::Internal::ThrowOnError());
 
             // create assignment node
-            Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
+            auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
             // add to tree
-            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
             spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
 
             return thisNode;
@@ -48,18 +48,18 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        Node* copy_constructor(datatype_t dt, Node* that)
+        spark_node_t* copy_constructor(datatype_t dt, spark_node_t* that)
         {
             const auto op = Operator::Assignment;
             const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-            Node* thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
-            Node* thatNode = that;
+            auto thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
+            auto thatNode = that;
 
             // create assignment node
-            Node* assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
+            auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
             // add to tree
-            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
             spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
 
             return thisNode;
@@ -67,10 +67,10 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        Node* vector_constructor(datatype_t dt, Node** children, size_t count)
+        spark_node_t* vector_constructor(datatype_t dt, spark_node_t** children, size_t count)
         {
-            Node* listNode = spark_create_vector_node(dt, children, count, Spark::Internal::ThrowOnError());
-            Node* thisNode = copy_constructor(dt, listNode);
+            auto listNode = spark_create_vector_node(dt, children, count, Spark::Internal::ThrowOnError());
+            auto thisNode = copy_constructor(dt, listNode);
             return thisNode;
         }
 

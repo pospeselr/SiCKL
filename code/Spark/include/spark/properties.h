@@ -4,18 +4,18 @@ namespace Spark
 {
     namespace Internal
     {
-        void property_assignment_operator(property_t id, datatype_t dt, Node* thisNode, Node* thatNode)
+        void property_assignment_operator(property_t id, datatype_t dt, spark_node_t* thisNode, spark_node_t* thatNode)
         {
             // create property node
-            Node* property = spark_create_property_node(id, Spark::Internal::ThrowOnError());
-            Node* lvalue = spark_create_operator2_node(dt, Operator::Property, thisNode, property);
+            auto property = spark_create_property_node(id, Spark::Internal::ThrowOnError());
+            auto lvalue = spark_create_operator2_node(dt, Operator::Property, thisNode, property);
 
             // create assignment node
             const auto op = Operator::Assignment;
-            Node* assignmentNode = spark_create_operator2_node(dt, op, lvalue, thatNode);
+            auto assignmentNode = spark_create_operator2_node(dt, op, lvalue, thatNode);
 
             // add to tree
-            Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
             spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
         }
     }
@@ -26,7 +26,7 @@ namespace Spark
         __attribute__((always_inline))
         operator const rvalue<TYPE>() const
         {
-            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
+            auto property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -36,13 +36,13 @@ namespace Spark
         __attribute__((always_inline))
         const rvalue<TYPE> operator()() const
         {
-            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
+            auto property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
             return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, property));
         }
-        Node* _node;
+        spark_node_t* _node;
     };
 
     template<typename TYPE, property_t ID>
@@ -51,7 +51,7 @@ namespace Spark
         __attribute__((always_inline))
         operator lvalue<TYPE>() const
         {
-            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
+            auto property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -61,7 +61,7 @@ namespace Spark
         __attribute__((always_inline))
         lvalue<TYPE> operator()() const
         {
-            Node* property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
+            auto property = spark_create_property_node(ID, Spark::Internal::ThrowOnError());
             const auto dt = TYPE::type;
             const auto op = Operator::Property;
 
@@ -74,6 +74,6 @@ namespace Spark
             Internal::property_assignment_operator(ID, TYPE::type, this->_node, right._node);
             return *this;
         }
-        Node* _node;
+        spark_node_t* _node;
     };
 }

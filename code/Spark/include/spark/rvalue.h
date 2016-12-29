@@ -11,13 +11,13 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        void destruct_attach(Node* node)
+        void destruct_attach(spark_node_t* node)
         {
             bool nodeAttached = spark_node_get_attached(node, Spark::Internal::ThrowOnError());
             if(nodeAttached == false)
             {
                 // add to tree
-                Node* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+                spark_node_t* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
                 spark_add_child_node(currentScope, node, Spark::Internal::ThrowOnError());
             }
         }
@@ -33,11 +33,11 @@ namespace Spark
 
         inline
         __attribute__ ((always_inline))
-        rvalue(Node* node) : TYPE(node) {}
+        rvalue(spark_node_t* node) : TYPE(node) {}
 
         inline
         __attribute__ ((always_inline))
-        rvalue(std::nullptr_t) : rvalue((Node*)nullptr) {}
+        rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
 
         inline
         __attribute__ ((always_inline))
@@ -73,15 +73,15 @@ namespace Spark
         typedef vector2<SCALAR_TYPE> TYPE;
         typedef typename SCALAR_TYPE::raw_type RAW_TYPE;
 
-        rvalue(Node* node) : TYPE(node) {}
-        rvalue(std::nullptr_t) : rvalue((Node*)nullptr) {}
+        rvalue(spark_node_t* node) : TYPE(node) {}
+        rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
         rvalue(const TYPE& that) : rvalue(that._node) {}
         rvalue(const rvalue<SCALAR_TYPE>& x, const rvalue<SCALAR_TYPE>& y)
         : rvalue(
-            [](Node* x, Node* y) -> Node*
+            [](spark_node_t* x, spark_node_t* y) -> spark_node_t*
             {
-                Node* children[] = {x, y};
-                Node* listNode = spark_create_vector_node(TYPE::type, children, countof(children), Spark::Internal::ThrowOnError());
+                spark_node_t* children[] = {x, y};
+                auto listNode = spark_create_vector_node(TYPE::type, children, countof(children), Spark::Internal::ThrowOnError());
                 return listNode;
             }(x._node, y._node))
         {
@@ -114,8 +114,8 @@ namespace Spark
     {
         typedef Pointer<BASE_TYPE> TYPE;
 
-        rvalue(Node* node) : TYPE(node) {}
-        rvalue(std::nullptr_t) : rvalue((Node*)nullptr) {}
+        rvalue(spark_node_t* node) : TYPE(node) {}
+        rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
         rvalue(const TYPE& that) : rvalue(that._node) {}
 
         inline

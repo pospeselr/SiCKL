@@ -9,14 +9,14 @@ namespace Spark
 {
     namespace Internal
     {
-        int32_t controlNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t controlNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             return doSnprintf(buffer, buffer_size, written,
                 "%s\n",
                 spark_control_to_str(node->_control));
         }
 
-        int32_t operatorNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t operatorNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
@@ -25,7 +25,7 @@ namespace Spark
                 spark_datatype_to_str(node->_operator.type, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
-        int32_t functionNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t functionNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
@@ -35,7 +35,7 @@ namespace Spark
                 node->_function.entrypoint ? "(entrypoint)" : "");
         }
 
-        int32_t symbolNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t symbolNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
@@ -44,7 +44,7 @@ namespace Spark
                 spark_datatype_to_str(node->_symbol.type, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
-        int32_t constantNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t constantNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             const auto dt = node->_constant.type;
             const auto primitive = dt & DataType::PrimitiveMask;
@@ -155,7 +155,7 @@ namespace Spark
             return written;
         }
 
-        int32_t propertyNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t propertyNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char propertyBuffer[8];
             written = doSnprintf(buffer, buffer_size, written,
@@ -164,13 +164,13 @@ namespace Spark
             return written;
         }
 
-        int32_t commentNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t commentNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             written = doSnprintf(buffer, buffer_size, written, "NodeType::Comment : '%s'\n", node->_comment);
             return written;
         }
 
-        int32_t vectorNodeToText(Spark::Node* node, char* buffer, int32_t buffer_size, int32_t written)
+        int32_t vectorNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             char datatypeBuffer[32];
             written = doSnprintf(buffer, buffer_size, written, "NodeType::Vector : '%s'\n", spark_datatype_to_str(node->_vector.type, datatypeBuffer, sizeof(datatypeBuffer)));
@@ -178,7 +178,7 @@ namespace Spark
         }
 
         // if out_bufer is null
-        int32_t nodeToText(Spark::Node* node, char* out_buffer, int32_t buffer_size, int32_t written, uint32_t bars, int32_t indentation)
+        int32_t nodeToText(spark_node_t* node, char* out_buffer, int32_t buffer_size, int32_t written, uint32_t bars, int32_t indentation)
         {
             SPARK_ASSERT(node != nullptr);
             SPARK_ASSERT((out_buffer == nullptr && buffer_size == 0) || (out_buffer != nullptr && buffer_size > 0));
@@ -244,7 +244,7 @@ namespace Spark
             const size_t childCount = node->_children.size();
             for(size_t k = 0; k < childCount; k++)
             {
-                Node* child = node->_children[k];
+                auto child = node->_children[k];
                 const uint32_t childBars =
                     (k < childCount - 1) ?
                     bars | (1 << indentation) :
@@ -260,7 +260,7 @@ namespace Spark
     }
 }
 
-int32_t spark_node_to_text(Spark::Node* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
     return Spark::Internal::TranslateExceptions(
         error,

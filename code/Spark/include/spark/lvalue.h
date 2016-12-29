@@ -5,7 +5,7 @@ namespace Spark
     template<typename TYPE>
     struct lvalue : TYPE
     {
-        lvalue(Node* node) : TYPE(node) {}
+        lvalue(spark_node_t* node) : TYPE(node) {}
         using TYPE::operator=;
     };
 }

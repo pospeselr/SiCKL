@@ -21,8 +21,8 @@ namespace Spark
         using context = codegen_context<opencl_data>;
 
         // forward declare
-        static void generateValueNode(context& ctx, Spark::Node* value);
-        static void generateScopeBlock(context& ctx, Spark::Node* scopeBlock);
+        static void generateValueNode(context& ctx, spark_node_t* value);
+        static void generateScopeBlock(context& ctx, spark_node_t* scopeBlock);
 
         static void generateSymbolName(context& ctx, symbolid_t id, datatype_t dt)
         {
@@ -116,7 +116,7 @@ namespace Spark
             }
         }
 
-        static void generateOperatorNode(context& ctx, Spark::Node* value)
+        static void generateOperatorNode(context& ctx, spark_node_t* value)
         {
             SPARK_ASSERT(value->_type == NodeType::Operator);
 
@@ -220,7 +220,7 @@ namespace Spark
                 doSnprintf(ctx, "(");
                 for(size_t k = 1; k < value->_children.size(); k++)
                 {
-                    Node* currentChild = value->_children[k];
+                    auto* currentChild = value->_children[k];
                     if(k > 1)
                     {
                        doSnprintf(ctx, ", ");
@@ -264,12 +264,12 @@ namespace Spark
             }
         }
 
-        static void generateSymbolNode(context& ctx, Spark::Node* symbol)
+        static void generateSymbolNode(context& ctx, spark_node_t* symbol)
         {
             generateSymbolName(ctx, symbol->_symbol.id, symbol->_symbol.type);
         }
 
-        static void generateConstantNode(context& ctx, Spark::Node* constant)
+        static void generateConstantNode(context& ctx, spark_node_t* constant)
         {
             SPARK_ASSERT(constant->_type == NodeType::Constant);
             void* raw = constant->_constant.buffer;
@@ -310,7 +310,7 @@ namespace Spark
             }
         }
 
-        static void generateVectorNode(context& ctx, Spark::Node* vector)
+        static void generateVectorNode(context& ctx, spark_node_t* vector)
         {
             SPARK_ASSERT(vector->_type == NodeType::Vector);
             datatype_t type = vector->_vector.type;
@@ -332,7 +332,7 @@ namespace Spark
             }
         }
 
-        static void generateValueNode(context& ctx, Spark::Node* value)
+        static void generateValueNode(context& ctx, spark_node_t* value)
         {
             switch(value->_type)
             {
@@ -356,7 +356,7 @@ namespace Spark
             }
         }
 
-        static void generateControlNode(context& ctx, Spark::Node* control)
+        static void generateControlNode(context& ctx, spark_node_t* control)
         {
             SPARK_ASSERT(control->_type == NodeType::Control);
 
@@ -395,7 +395,7 @@ namespace Spark
             }
         }
 
-        static void generateScopeBlock(context& ctx, Spark::Node* scopeBlock)
+        static void generateScopeBlock(context& ctx, spark_node_t* scopeBlock)
         {
             SPARK_ASSERT(scopeBlock->_type == NodeType::ScopeBlock);
 
@@ -403,7 +403,7 @@ namespace Spark
             doSnprintf(ctx, "{\n");
 
             ctx.indent += 1;
-            for(Node* currentNode : scopeBlock->_children)
+            for(auto currentNode : scopeBlock->_children)
             {
                 generateIndent(ctx);
 
@@ -435,7 +435,7 @@ namespace Spark
             doSnprintf(ctx, "}\n");
         }
 
-        static void generateFunction(context& ctx, Spark::Node* node)
+        static void generateFunction(context& ctx, spark_node_t* node)
         {
             SPARK_ASSERT(node->_type == NodeType::Function);
             SPARK_ASSERT(node->_children.size() == 2);
@@ -452,7 +452,7 @@ namespace Spark
 
             // print parameter list
             doSnprintf(ctx, "(");
-            Node* parameterList = node->_children.front();
+            auto parameterList = node->_children.front();
             SPARK_ASSERT(parameterList->_type == NodeType::Control && parameterList->_control == Control::ParameterList);
 
             const auto paramCount = parameterList->_children.size();
@@ -462,7 +462,7 @@ namespace Spark
                 {
                     doSnprintf(ctx, ", ");
                 }
-                Node* currentChild = parameterList->_children[k];
+                auto currentChild = parameterList->_children[k];
                 SPARK_ASSERT(currentChild->_type == NodeType::Symbol);
                 // add to our set of init'd variables
                 ctx.inited_variables.insert(currentChild->_symbol.id);
@@ -474,14 +474,14 @@ namespace Spark
             doSnprintf(ctx, ")\n");
 
             // function contents
-            Node* functionBody = node->_children.back();
+            auto functionBody = node->_children.back();
             generateScopeBlock(ctx, functionBody);
         }
 
-        static void generateSource(context& ctx, Spark::Node* node)
+        static void generateSource(context& ctx, spark_node_t* node)
         {
             SPARK_ASSERT(node->_type == NodeType::Control && node->_control == Control::Root);
-            for(Node* func : node->_children)
+            for(auto func : node->_children)
             {
                 generateFunction(ctx, func);
             }
@@ -489,7 +489,7 @@ namespace Spark
     }
 }
 
-int32_t spark_node_to_opencl(Spark::Node* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+int32_t spark_node_to_opencl(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
     return Spark::Internal::TranslateExceptions(
         error,
