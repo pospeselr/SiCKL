@@ -463,6 +463,8 @@ namespace Spark
             Hi,
             Even,
             Odd,
+
+            Count
         };
     }
     typedef Property::Type property_t;

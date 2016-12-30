@@ -247,9 +247,9 @@ namespace Spark
             // defining the function
             bool printChildren =
                 ((nodeType == NodeType::Function) &&
-                 (indentation > 1))
-                ? false
-                : true;
+                 (indentation > 1)) ?
+                false :
+                true;
 
             if(printChildren)
             {
