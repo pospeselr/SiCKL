@@ -17,7 +17,7 @@ namespace Spark
 {
     namespace Internal
     {
-        thread_local symbolid_t g_nextSymbol;
+        thread_local spark_symbolid_t g_nextSymbol;
         thread_local std::vector<spark_node_t*> g_nodeStack;
         thread_local std::vector<spark_node_t*> g_allocatedNodes;
 
@@ -51,18 +51,6 @@ void spark_end_program(spark_error_t** error)
                 delete node;
             }
             g_allocatedNodes.clear();
-        });
-}
-
-// symbol functions
-
-Spark::symbolid_t spark_next_symbol(spark_error_t** error)
-{
-    return TranslateExceptions(
-        error,
-        [&]
-        {
-            return g_nextSymbol++;
         });
 }
 
@@ -102,7 +90,7 @@ spark_node_t* spark_create_operator_node(datatype_t dt, operator_t id, spark_err
         });
 }
 
-spark_node_t* spark_create_function_node(symbolid_t id, datatype_t returnType, spark_error_t** error)
+spark_node_t* spark_create_function_node(datatype_t returnType, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -110,7 +98,7 @@ spark_node_t* spark_create_function_node(symbolid_t id, datatype_t returnType, s
         {
             spark_node_t* node = new spark_node_t();
             node->_type = NodeType::Function;
-            node->_function.id = id;
+            node->_function.id = g_nextSymbol++;
             node->_function.returnType = returnType;
             node->_function.entrypoint = false;
 
@@ -119,7 +107,7 @@ spark_node_t* spark_create_function_node(symbolid_t id, datatype_t returnType, s
         });
 }
 
-spark_node_t* spark_create_symbol_node(datatype_t dt, symbolid_t id, spark_error_t** error)
+spark_node_t* spark_create_symbol_node(datatype_t dt, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -128,7 +116,7 @@ spark_node_t* spark_create_symbol_node(datatype_t dt, symbolid_t id, spark_error
             spark_node_t* node = new spark_node_t();
             node->_type = NodeType::Symbol;
             node->_symbol.type = dt;
-            node->_symbol.id = id;
+            node->_symbol.id = g_nextSymbol++;
 
             g_allocatedNodes.push_back(node);
             return node;
@@ -237,26 +225,6 @@ void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t*
 }
 
 // node property query
-Spark::nodetype_t spark_node_get_type(spark_node_t* node, spark_error_t** error)
-{
-    return TranslateExceptions(
-        error,
-        [&]
-        {
-            return node->_type;
-        });
-}
-
-Spark::operator_t spark_node_get_operator_id(spark_node_t* node, spark_error_t** error)
-{
-    return TranslateExceptions(
-        error,
-        [&]
-        {
-            return node->_operator.id;
-        });
-}
-
 bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
@@ -264,16 +232,6 @@ bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
         [&]
         {
             return node->_attached;
-        });
-}
-
-Spark::symbolid_t spark_node_get_function_id(spark_node_t* node, spark_error_t** error)
-{
-    return TranslateExceptions(
-        error,
-        [&]
-        {
-            return node->_function.id;
         });
 }
 

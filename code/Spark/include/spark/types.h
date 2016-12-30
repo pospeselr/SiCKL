@@ -8,14 +8,6 @@ namespace Spark
         __attribute__ ((noinline))
         void assignment_operator(spark_node_t* thisNode, datatype_t dt, spark_node_t* thatNode)
         {
-            const auto type= spark_node_get_type(thisNode, Spark::Internal::ThrowOnError());
-            const auto operatorId = spark_node_get_operator_id(thisNode, Spark::Internal::ThrowOnError());
-
-            SPARK_ASSERT((type == NodeType::Symbol) ||
-                         (type == NodeType::Operator && operatorId == Operator::Index) ||
-                         (type == NodeType::Operator && operatorId == Operator::Dereference) ||
-                         (type == NodeType::Operator && operatorId == Operator::Property));
-
             const auto op = Operator::Assignment;
 
             // create assignment node

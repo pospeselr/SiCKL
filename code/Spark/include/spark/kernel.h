@@ -6,11 +6,9 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        spark_node_t* functor_operator(datatype_t returnType, spark_node_t* thisNode)
+        spark_node_t* functor_operator(datatype_t returnType, spark_node_t* functionNode)
         {
             auto opNode = spark_create_operator_node(returnType, Operator::Call, Spark::Internal::ThrowOnError());
-            const auto id = spark_node_get_function_id(thisNode, Spark::Internal::ThrowOnError());
-            auto functionNode = spark_create_function_node(id, returnType, Spark::Internal::ThrowOnError());
             spark_add_child_node(opNode, functionNode, Spark::Internal::ThrowOnError());
 
             return opNode;
@@ -18,7 +16,7 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        auto function_create_begin(symbolid_t id, datatype_t returnType)
+        auto function_create_begin(datatype_t returnType)
         {
             // get the root kernel node
             auto kernelRoot = spark_get_root_node(Spark::Internal::ThrowOnError());
@@ -27,7 +25,7 @@ namespace Spark
             SPARK_ASSERT(spark_peek_scope_node(Spark::Internal::ThrowOnError()) == kernelRoot);
 
             // create root of function Node
-            auto functionRoot = spark_create_function_node(id, returnType, Spark::Internal::ThrowOnError());
+            auto functionRoot = spark_create_function_node(returnType, Spark::Internal::ThrowOnError());
             spark_push_scope_node(functionRoot, Spark::Internal::ThrowOnError());
 
             // create the parameter list
@@ -80,8 +78,7 @@ namespace Spark
         {
             SPARK_ASSERT(this->_node == nullptr);
 
-            const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
-            function_create(func, id, PARAMS(nullptr)...);
+            function_create(func, PARAMS(nullptr)...);
 
             return *this;
         }
@@ -104,12 +101,12 @@ namespace Spark
 
         inline
         __attribute__ ((always_inline))
-        void function_create(auto function_body, symbolid_t id, PARAMS&&... params)
+        void function_create(auto function_body, PARAMS&&... params)
         {
             spark_node_t* kernelRoot;
             spark_node_t* functionRoot;
             spark_node_t* parameterList;
-            std::tie(kernelRoot, functionRoot, parameterList) = Internal::function_create_begin(id, RETURN::type);
+            std::tie(kernelRoot, functionRoot, parameterList) = Internal::function_create_begin(RETURN::type);
 
             // fill out params
             function_header(parameterList, std::forward<PARAMS>(params)...);

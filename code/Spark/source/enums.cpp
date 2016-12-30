@@ -1,8 +1,10 @@
 #include "spark.hpp"
 
+#include "node.hpp"
+
 using namespace Spark;
 
-const char* spark_nodetype_to_str(nodetype_t val)
+const char* spark_nodetype_to_str(Spark::nodetype_t val)
 {
 	static const char* nodeNames[] =
 	{

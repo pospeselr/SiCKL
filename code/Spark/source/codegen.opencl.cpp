@@ -15,7 +15,7 @@ namespace Spark
         struct opencl_data
         {
             int32_t indent = 0;
-            unordered_set<symbolid_t> inited_variables;
+            unordered_set<spark_symbolid_t> inited_variables;
         };
 
         using context = codegen_context<opencl_data>;
@@ -24,7 +24,7 @@ namespace Spark
         static void generateValueNode(context& ctx, spark_node_t* value);
         static void generateScopeBlock(context& ctx, spark_node_t* scopeBlock);
 
-        static void generateSymbolName(context& ctx, symbolid_t id, datatype_t dt)
+        static void generateSymbolName(context& ctx, spark_symbolid_t id, datatype_t dt)
         {
             const auto primitive_component = dt & DataType::PrimitiveMask;
             const auto vector_component = dt & DataType::ComponentMask;
@@ -63,7 +63,7 @@ namespace Spark
             doSnprintf(ctx, "%s%s%s%u", pointer, vector, primitive, (uint32_t)id);
         }
 
-        static void generateFunctionName(context& ctx, symbolid_t id)
+        static void generateFunctionName(context& ctx, spark_symbolid_t id)
         {
             doSnprintf(ctx, "func_%u", (uint32_t)id);
         }

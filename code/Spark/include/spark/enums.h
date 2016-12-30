@@ -2,28 +2,6 @@
 
 namespace Spark
 {
-    typedef uint32_t symbolid_t;
-
-    namespace NodeType
-    {
-        enum Type
-        {
-            Invalid = -1,
-            Control,
-            Operator,
-            Function,
-            Symbol,
-            Constant,
-            Property,
-            Comment,
-            Vector,
-            ScopeBlock,
-
-            Count
-        };
-    }
-    typedef enum NodeType::Type nodetype_t;
-
     namespace Control
     {
         enum Type
@@ -485,14 +463,12 @@ namespace Spark
             Hi,
             Even,
             Odd,
-
-            Count
         };
     }
     typedef Property::Type property_t;
 }
 
-extern "C" const char* spark_nodetype_to_str(Spark::nodetype_t);
+//extern "C" const char* spark_nodetype_to_str(Spark::nodetype_t);
 extern "C" const char* spark_control_to_str(Spark::control_t);
 extern "C" const char* spark_datatype_to_str(Spark::datatype_t, char* buffer, int32_t sz);
 extern "C" const char* spark_operator_to_str(Spark::operator_t);

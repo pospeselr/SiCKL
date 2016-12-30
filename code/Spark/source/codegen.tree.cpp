@@ -5,6 +5,8 @@
 #include "text_utilities.hpp"
 #include "error.hpp"
 
+const char* spark_nodetype_to_str(Spark::nodetype_t val);
+
 namespace Spark
 {
     namespace Internal
@@ -209,7 +211,8 @@ namespace Spark
             }
 
             // write node info
-            switch(node->_type)
+            const auto nodeType = node->_type;
+            switch(nodeType)
             {
                 case NodeType::Control:
                     written = controlNodeToText(node, out_buffer, buffer_size, written);
@@ -240,18 +243,29 @@ namespace Spark
                     break;
             }
 
-            // depth first traversal
-            const size_t childCount = node->_children.size();
-            for(size_t k = 0; k < childCount; k++)
-            {
-                auto child = node->_children[k];
-                const uint32_t childBars =
-                    (k < childCount - 1) ?
-                    bars | (1 << indentation) :
-                    bars;
-                const int32_t childIndentation = indentation + 1;
+            // only 1 function node (no copy with just symbol id), so only print children if we're
+            // defining the function
+            bool printChildren =
+                ((nodeType == NodeType::Function) &&
+                 (indentation > 1))
+                ? false
+                : true;
 
-                written = nodeToText(child, out_buffer, buffer_size, written, childBars, childIndentation);
+            if(printChildren)
+            {
+                // depth first traversal
+                const size_t childCount = node->_children.size();
+                for(size_t k = 0; k < childCount; k++)
+                {
+                    auto child = node->_children[k];
+                    const uint32_t childBars =
+                        (k < childCount - 1) ?
+                        bars | (1 << indentation) :
+                        bars;
+                    const int32_t childIndentation = indentation + 1;
+
+                    written = nodeToText(child, out_buffer, buffer_size, written, childBars, childIndentation);
+                }
             }
 
             // return characters written

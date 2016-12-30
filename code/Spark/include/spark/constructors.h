@@ -8,9 +8,7 @@ namespace Spark
         __attribute__ ((noinline))
         spark_node_t* extern_constructor(datatype_t dt)
         {
-            const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
-            auto thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
-
+            auto thisNode = spark_create_symbol_node(dt, Spark::Internal::ThrowOnError());
             return thisNode;
         }
 
@@ -30,9 +28,8 @@ namespace Spark
                          dt == DataType::Double);
 
             const auto op = Operator::Assignment;
-            const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-            auto thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
+            auto thisNode = spark_create_symbol_node(dt, Spark::Internal::ThrowOnError());
 
             // init to val
             auto valNode = spark_create_constant_node(dt, raw, sz, Spark::Internal::ThrowOnError());
@@ -51,9 +48,8 @@ namespace Spark
         spark_node_t* copy_constructor(datatype_t dt, spark_node_t* that)
         {
             const auto op = Operator::Assignment;
-            const auto id = spark_next_symbol(Spark::Internal::ThrowOnError());
 
-            auto thisNode = spark_create_symbol_node(dt, id, Spark::Internal::ThrowOnError());
+            auto thisNode = spark_create_symbol_node(dt, Spark::Internal::ThrowOnError());
             auto thatNode = that;
 
             // create assignment node

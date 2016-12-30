@@ -1,6 +1,30 @@
 #pragma once
 
-using Spark::symbolid_t;
+namespace Spark
+{
+    namespace NodeType
+    {
+        enum Type
+        {
+            Invalid = -1,
+            Control,
+            Operator,
+            Function,
+            Symbol,
+            Constant,
+            Property,
+            Comment,
+            Vector,
+            ScopeBlock,
+
+            Count
+        };
+    }
+    typedef enum NodeType::Type nodetype_t;
+}
+
+typedef uint32_t spark_symbolid_t;
+
 using Spark::nodetype_t;
 using Spark::datatype_t;
 using Spark::property_t;
@@ -23,14 +47,14 @@ struct spark_node
         } _operator;
         struct
         {
-            symbolid_t id;
+            spark_symbolid_t id;
             datatype_t returnType;
             bool entrypoint;
         } _function;
         struct
         {
             datatype_t type;
-            symbolid_t id;
+            spark_symbolid_t id;
         } _symbol;
         struct
         {
