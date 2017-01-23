@@ -44,7 +44,7 @@ namespace Spark
         rvalue(const TYPE& that) : rvalue(that._node) {}
         inline
         __attribute__ ((always_inline))
-        rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(TYPE::type, &val, sizeof(val), Spark::Internal::ThrowOnError())) {}
+        rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), Spark::Internal::ThrowOnError())) {}
 
         inline
         __attribute__ ((always_inline))

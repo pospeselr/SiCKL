@@ -10,11 +10,11 @@ namespace Spark
 		{
 			_range->init();
 
-			auto root = spark_create_control_node(Control::For, Spark::Internal::ThrowOnError());
+			auto root = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::For), Spark::Internal::ThrowOnError());
 			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
 			spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
-			auto parameterList = spark_create_control_node(Control::ParameterList, Spark::Internal::ThrowOnError());
+			auto parameterList = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::ParameterList), Spark::Internal::ThrowOnError());
 			spark_add_child_node(root, parameterList, Spark::Internal::ThrowOnError());
 
 			spark_push_scope_node(parameterList, Spark::Internal::ThrowOnError());
@@ -62,7 +62,7 @@ namespace Spark
 			spark_pop_scope_node(Spark::Internal::ThrowOnError());
 
 			auto body = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
-			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), body,Spark::Internal::ThrowOnError());
+			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), body, Spark::Internal::ThrowOnError());
 			spark_push_scope_node(body, Spark::Internal::ThrowOnError());
 
 			return _range->get_value();

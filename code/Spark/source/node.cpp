@@ -7,7 +7,7 @@
 
 spark_node::~spark_node()
 {
-    if(this->_type == Spark::NodeType::Constant)
+    if(this->_type == spark_nodetype::constant)
     {
         delete[] this->_constant.buffer;
     }
@@ -56,48 +56,47 @@ void spark_end_program(spark_error_t** error)
 
 // node creation
 
-spark_node_t* spark_create_control_node(control_t c, spark_error_t** error)
+spark_node_t* spark_create_control_node(spark_control_t c, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
-
-            SPARK_ASSERT(c < Control::Count);
+            SPARK_ASSERT(c < static_cast<spark_control_t>(Spark::Internal::Control::Count));
 
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Control;
-            node->_control = c;
+            node->_type = spark_nodetype::control;
+            node->_control = static_cast<Spark::Internal::Control>(c);
 
             g_allocatedNodes.push_back(node);
             return node;
         });
 }
 
-spark_node_t* spark_create_operator_node(datatype_t dt, operator_t id, spark_error_t** error)
+spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_operator_t id, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Operator;
-            node->_operator.type = dt;
-            node->_operator.id = id;
+            node->_type = spark_nodetype::operation;
+            node->_operator.type = static_cast<Spark::Internal::Datatype>(dt);
+            node->_operator.id = static_cast<Spark::Internal::Operator>(id);
 
             g_allocatedNodes.push_back(node);
             return node;
         });
 }
 
-spark_node_t* spark_create_function_node(datatype_t returnType, spark_error_t** error)
+spark_node_t* spark_create_function_node(spark_datatype_t returnType, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Function;
+            node->_type = spark_nodetype::function;
             node->_function.id = g_nextSymbol++;
             node->_function.returnType = returnType;
             node->_function.entrypoint = false;
@@ -107,15 +106,15 @@ spark_node_t* spark_create_function_node(datatype_t returnType, spark_error_t** 
         });
 }
 
-spark_node_t* spark_create_symbol_node(datatype_t dt, spark_error_t** error)
+spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Symbol;
-            node->_symbol.type = dt;
+            node->_type = spark_nodetype::symbol;
+            node->_symbol.type = static_cast<Spark::Internal::Datatype>(dt);
             node->_symbol.id = g_nextSymbol++;
 
             g_allocatedNodes.push_back(node);
@@ -123,7 +122,7 @@ spark_node_t* spark_create_symbol_node(datatype_t dt, spark_error_t** error)
         });
 }
 
-spark_node_t* spark_create_constant_node(datatype_t dt, const void* raw, size_t sz, spark_error_t** error)
+spark_node_t* spark_create_constant_node(spark_datatype_t dt, const void* raw, size_t sz, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -133,8 +132,8 @@ spark_node_t* spark_create_constant_node(datatype_t dt, const void* raw, size_t 
             SPARK_ASSERT(sz > 0);
 
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Constant;
-            node->_constant.type = dt;
+            node->_type = spark_nodetype::constant;
+            node->_constant.type = static_cast<Spark::Internal::Datatype>(dt);
             node->_constant.buffer = new uint8_t[sz];
             std::memcpy(node->_constant.buffer, raw, sz);
             node->_constant.size = sz;
@@ -144,15 +143,15 @@ spark_node_t* spark_create_constant_node(datatype_t dt, const void* raw, size_t 
         });
 }
 
-spark_node_t* spark_create_property_node(property_t prop, spark_error_t** error)
+spark_node_t* spark_create_property_node(spark_property_t prop, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Property;
-            node->_property.id = prop;
+            node->_type = spark_nodetype::property;
+            node->_property.id = static_cast<Spark::Internal::Property>(prop);
 
             g_allocatedNodes.push_back(node);
             return node;
@@ -166,7 +165,7 @@ spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** err
         [&]
         {
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Comment;
+            node->_type = spark_nodetype::comment;
             node->_comment = comment;
 
             g_allocatedNodes.push_back(node);
@@ -174,15 +173,17 @@ spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** err
         });
 }
 
-spark_node_t* spark_create_vector_node(datatype_t type, spark_node_t** children, size_t count, spark_error_t** error)
+spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_node_t** children, size_t count, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
         [&]
         {
-            SPARK_ASSERT((type & DataType::ComponentMask) != 0);
+            auto dt = static_cast<Spark::Internal::Datatype>(type);
+            auto c = dt.GetComponents();
+            SPARK_ASSERT(c != Components::None && c != Components::Scalar);
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::Vector;
+            node->_type = spark_nodetype::vector;
             node->_vector.type = type;
 
             g_allocatedNodes.push_back(node);
@@ -203,7 +204,7 @@ spark_node_t* spark_create_scope_block_node(spark_error_t** error)
         [&]
         {
             spark_node_t* node = new spark_node_t();
-            node->_type = NodeType::ScopeBlock;
+            node->_type = spark_nodetype::scope_block;
             return node;
         });
 }

@@ -1,10 +1,45 @@
 #pragma once
 
+typedef uint32_t spark_control_t;
+typedef uint32_t spark_datatype_t;
+typedef uint32_t spark_operator_t;
+typedef uint32_t spark_property_t;
+
 namespace Spark
 {
-    namespace Control
+    namespace Internal
     {
-        enum Type
+        // Helper Functions
+        template<typename T>
+        constexpr size_t LogBase2(T val)
+        {
+            size_t result = 0;
+            while(val >>= 1)
+            {
+                result++;
+            }
+            return result;
+        }
+
+        template<typename T>
+        constexpr size_t EnumRequiredBits(T val)
+        {
+            return 1 + LogBase2(val);
+        }
+
+        constexpr uint32_t Mask(size_t bits)
+        {
+            uint32_t result = 0;
+            for(size_t k = 0; k < bits; k++)
+            {
+                result = (result << 1) | 1;
+            }
+            return result;
+        }
+
+        // Enums
+
+        enum class Control : uint32_t
         {
             Root,
             ParameterList,
@@ -16,53 +51,93 @@ namespace Spark
 
             Count
         };
-    }
-    typedef enum Control::Type control_t;
 
-    namespace DataType
-    {
-        enum Type
+        enum class Primitive : uint32_t
         {
-            Invalid = -1,
-            // primitive (bits 0 - 3)
-            Void              = 0 << 0,
-            Char              = 1 << 0,
-            UChar             = 2 << 0,
-            Short             = 3 << 0,
-            UShort            = 4 << 0,
-            Int               = 5 << 0,
-            UInt              = 6 << 0,
-            Long              = 7 << 0,
-            ULong             = 8 << 0,
-            Float             = 9 << 0,
-            Double            = 10 << 0,
-            PrimitiveMask     = 0xF << 0,
+            Void,
+            Char,
+            UChar,
+            Short,
+            UShort,
+            Int,
+            UInt,
+            Long,
+            ULong,
+            Float,
+            Double,
 
-            // components (bits 4 - 6)
-            Vector2           = 1 << 4,
-            Vector3           = 2 << 4,
-            Vector4           = 3 << 4,
-            Vector8           = 4 << 4,
-            Vector16          = 5 << 4,
-            ComponentMask     = 0x7 << 4,
-
-            // container (bits 7 - 8)
-            Buffer1D          = 1 << 7,
-            Buffer2D          = 2 << 7,
-            Pointer           = 3 << 7,
-            ContainerMask     = 0x3 << 7,
-            PointerMask       = Pointer,
-
-            PrimitiveShift = 0,
-            ComponentShift = 4,
-            ContainerShift = 7,
+            Count
         };
-    }
-    typedef enum DataType::Type datatype_t;
 
-    namespace Operator
-    {
-        enum Type
+        enum class Components : uint32_t
+        {
+            None,
+            Scalar,
+            Vector2,
+            Vector4,
+            Vector8,
+            Vector16,
+
+            Count
+        };
+
+        class Datatype
+        {
+        private:
+            constexpr static size_t primitive_bits = EnumRequiredBits(static_cast<spark_datatype_t>(Primitive::Count) - 1u);
+            constexpr static size_t components_bits = EnumRequiredBits(static_cast<spark_datatype_t>(Components::Count) - 1u);
+            constexpr static size_t pointer_bits = 1;
+
+            constexpr static size_t primitive_offset = 0;
+            constexpr static size_t components_offset = primitive_offset + primitive_bits;
+            constexpr static size_t pointer_offset = components_offset + components_bits;
+
+            constexpr static spark_datatype_t primitive_mask = Mask(primitive_bits);
+            constexpr static spark_datatype_t components_mask = Mask(components_bits);
+            constexpr static spark_datatype_t pointer_mask = Mask(pointer_bits);
+
+            spark_datatype_t _primitive  : primitive_bits;
+            spark_datatype_t _components : components_bits;
+            spark_datatype_t _pointer    : pointer_bits;
+        public:
+            constexpr Datatype()
+            : _primitive(0)
+            , _components(0)
+            , _pointer(0)
+            { }
+            constexpr Datatype(Primitive primitive, Components components, bool pointer)
+            : _primitive(static_cast<spark_datatype_t>(primitive))
+            , _components(static_cast<spark_datatype_t>(components))
+            , _pointer(pointer ? 1 : 0)
+            { }
+            constexpr Datatype(spark_datatype_t raw)
+            : _primitive((raw >> primitive_offset) & primitive_mask)
+            , _components((raw >> components_offset) & components_mask)
+            , _pointer((raw >> pointer_offset) & pointer_mask)
+            { }
+
+            explicit constexpr operator spark_datatype_t() const
+            {
+                return (_primitive) | (_components << components_offset) | (_pointer << pointer_offset);
+            }
+
+            constexpr Primitive GetPrimitive() const
+            {
+                return static_cast<Primitive>(_primitive);
+            }
+
+            constexpr Components GetComponents() const
+            {
+                return static_cast<Components>(_components);
+            }
+
+            constexpr bool GetPointer() const
+            {
+                return _pointer ? true : false;
+            }
+        };
+
+        enum class Operator : spark_operator_t
         {
             // nullary operators
             Break,
@@ -107,12 +182,13 @@ namespace Spark
 
             Count
         };
-    }
-    typedef enum Operator::Type operator_t;
 
-    namespace Property
-    {
-        enum Type
+        inline constexpr Operator operator-(const Operator left, const Operator right)
+        {
+            return static_cast<Operator>(static_cast<spark_operator_t>(left) - static_cast<spark_operator_t>(right));
+        }
+
+        enum class Property : spark_property_t
         {
             // swizzles values are in base 5 (x == 1, w == 4)
             X = 1,
@@ -466,12 +542,16 @@ namespace Spark
 
             Count
         };
+
+        inline constexpr Property operator-(const Property left, const Property right)
+        {
+            return static_cast<Property>(static_cast<spark_property_t>(left) - static_cast<spark_property_t>(right));
+        }
     }
-    typedef Property::Type property_t;
 }
 
 //extern "C" const char* spark_nodetype_to_str(Spark::nodetype_t);
-extern "C" const char* spark_control_to_str(Spark::control_t);
-extern "C" const char* spark_datatype_to_str(Spark::datatype_t, char* buffer, int32_t sz);
-extern "C" const char* spark_operator_to_str(Spark::operator_t);
-extern "C" const char* spark_property_to_str(Spark::property_t, char* buffer, int32_t sz);
+extern "C" const char* spark_control_to_str(spark_control_t val);
+extern "C" const char* spark_datatype_to_str(spark_datatype_t dt, char* buffer, int32_t sz);
+extern "C" const char* spark_operator_to_str(spark_operator_t op);
+extern "C" const char* spark_property_to_str(spark_property_t, char* buffer, int32_t sz);

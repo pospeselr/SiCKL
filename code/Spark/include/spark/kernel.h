@@ -6,9 +6,12 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        spark_node_t* functor_operator(datatype_t returnType, spark_node_t* functionNode)
+        spark_node_t* functor_operator(Datatype returnType, spark_node_t* functionNode)
         {
-            auto opNode = spark_create_operator_node(returnType, Operator::Call, Spark::Internal::ThrowOnError());
+            const auto dt = static_cast<spark_datatype_t>(returnType);
+            const auto op = static_cast<spark_operator_t>(Operator::Call);
+
+            auto opNode = spark_create_operator_node(dt, static_cast<spark_operator_t>(op), Spark::Internal::ThrowOnError());
             spark_add_child_node(opNode, functionNode, Spark::Internal::ThrowOnError());
 
             return opNode;
@@ -16,7 +19,7 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        auto function_create_begin(datatype_t returnType)
+        auto function_create_begin(Datatype returnType)
         {
             // get the root kernel node
             auto kernelRoot = spark_get_root_node(Spark::Internal::ThrowOnError());
@@ -25,11 +28,12 @@ namespace Spark
             SPARK_ASSERT(spark_peek_scope_node(Spark::Internal::ThrowOnError()) == kernelRoot);
 
             // create root of function Node
-            auto functionRoot = spark_create_function_node(returnType, Spark::Internal::ThrowOnError());
+            const auto dt = static_cast<spark_datatype_t>(returnType);
+            auto functionRoot = spark_create_function_node(dt, Spark::Internal::ThrowOnError());
             spark_push_scope_node(functionRoot, Spark::Internal::ThrowOnError());
 
             // create the parameter list
-            auto parameterList = spark_create_control_node(Control::ParameterList, Spark::Internal::ThrowOnError());
+            auto parameterList = spark_create_control_node(static_cast<spark_control_t>(Control::ParameterList), Spark::Internal::ThrowOnError());
             spark_add_child_node(functionRoot, parameterList, Spark::Internal::ThrowOnError());
             spark_push_scope_node(parameterList, Spark::Internal::ThrowOnError());
 
@@ -160,7 +164,7 @@ namespace Spark
             spark_begin_program(Spark::Internal::ThrowOnError());
 
             // create kernel AST
-            auto kernelRoot = spark_create_control_node(Control::Root, Spark::Internal::ThrowOnError());
+            auto kernelRoot = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::Root), Spark::Internal::ThrowOnError());
             spark_push_scope_node(kernelRoot, Spark::Internal::ThrowOnError());
 
             // build the function body
@@ -200,7 +204,10 @@ namespace Spark
     template<typename RETURN>
     void Return(const RETURN& value)
     {
-        auto returnNode = spark_create_operator1_node(value.type, Operator::Return, value._node);
+        const auto dt = static_cast<spark_datatype_t>(value.type);
+        const auto op = static_cast<spark_operator_t>(Operator::Return);
+
+        auto returnNode = spark_create_operator1_node(dt, op, value._node);
 
         auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
         spark_add_child_node(currentScope, returnNode, Spark::Internal::ThrowOnError());
@@ -208,7 +215,10 @@ namespace Spark
 
     void Return()
     {
-        auto returnNode = spark_create_operator_node(DataType::Void, Operator::Return, Spark::Internal::ThrowOnError());
+        const auto dt = static_cast<spark_datatype_t>(Datatype(Primitive::Void, Components::None, false));
+        const auto op = static_cast<spark_operator_t>(Operator::Return);
+
+        auto returnNode = spark_create_operator_node(dt, op, Spark::Internal::ThrowOnError());
 
         auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
         spark_add_child_node(currentScope, returnNode, Spark::Internal::ThrowOnError());

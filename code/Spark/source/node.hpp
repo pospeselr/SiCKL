@@ -1,74 +1,63 @@
 #pragma once
 
-namespace Spark
+enum class spark_nodetype : uint32_t
 {
-    namespace NodeType
-    {
-        enum Type
-        {
-            Invalid = -1,
-            Control,
-            Operator,
-            Function,
-            Symbol,
-            Constant,
-            Property,
-            Comment,
-            Vector,
-            ScopeBlock,
+    invalid = ~uint32_t(0u),
+    control = 0,
+    operation,
+    function,
+    symbol,
+    constant,
+    property,
+    comment,
+    vector,
+    scope_block,
 
-            Count
-        };
-    }
-    typedef enum NodeType::Type nodetype_t;
-}
+    count
+};
+typedef spark_nodetype spark_nodetype_t;
 
 typedef uint32_t spark_symbolid_t;
 
-using Spark::nodetype_t;
-using Spark::datatype_t;
-using Spark::property_t;
-using Spark::control_t;
-using Spark::operator_t;
-
 struct spark_node
 {
+    spark_node() {};
     ~spark_node();
     std::vector<spark_node*> _children;
-    nodetype_t _type = Spark::NodeType::Invalid;
+    spark_nodetype_t _type;
     bool _attached = false;
     union
     {
-        control_t _control;
+        Spark::Internal::Control _control;
         struct
         {
-            datatype_t type;
-            operator_t id;
+            Spark::Internal::Datatype type;
+            Spark::Internal::Operator id;
         } _operator;
         struct
         {
             spark_symbolid_t id;
-            datatype_t returnType;
+            Spark::Internal::Datatype returnType;
             bool entrypoint;
         } _function;
         struct
         {
-            datatype_t type;
+            Spark::Internal::Datatype type;
             spark_symbolid_t id;
         } _symbol;
         struct
         {
-            datatype_t type;
+            Spark::Internal::Datatype type;
             uint8_t* buffer;
             uint32_t size;
         } _constant;
         struct
         {
-            property_t id;
+            Spark::Internal::Property id;
         } _property;
         struct
         {
-            datatype_t type;
+            Spark::Internal::Datatype type;
         } _vector;
         const char* _comment;
     };

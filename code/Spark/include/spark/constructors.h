@@ -6,28 +6,32 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        spark_node_t* extern_constructor(datatype_t dt)
+        spark_node_t* extern_constructor(Datatype datatype)
         {
+            const auto dt = static_cast<spark_datatype_t>(datatype);
             auto thisNode = spark_create_symbol_node(dt, Spark::Internal::ThrowOnError());
             return thisNode;
         }
 
         inline
         __attribute__ ((noinline))
-        spark_node_t* value_constructor(datatype_t dt, const void* raw, size_t sz)
+        spark_node_t* value_constructor(Datatype datatype, const void* raw, size_t sz)
         {
-            SPARK_ASSERT(dt == DataType::Char ||
-                         dt == DataType::UChar ||
-                         dt == DataType::Short ||
-                         dt == DataType::UShort ||
-                         dt == DataType::Int ||
-                         dt == DataType::UInt ||
-                         dt == DataType::Long ||
-                         dt == DataType::ULong ||
-                         dt == DataType::Float ||
-                         dt == DataType::Double);
+            auto primitive = datatype.GetPrimitive();
 
-            const auto op = Operator::Assignment;
+            SPARK_ASSERT(primitive == Primitive::Char ||
+                         primitive == Primitive::UChar ||
+                         primitive == Primitive::Short ||
+                         primitive == Primitive::UShort ||
+                         primitive == Primitive::Int ||
+                         primitive == Primitive::UInt ||
+                         primitive == Primitive::Long ||
+                         primitive == Primitive::ULong ||
+                         primitive == Primitive::Float ||
+                         primitive == Primitive::Double);
+
+            const auto dt = static_cast<spark_datatype_t>(datatype);
+            const auto op = static_cast<spark_operator_t>(Operator::Assignment);
 
             auto thisNode = spark_create_symbol_node(dt, Spark::Internal::ThrowOnError());
 
@@ -45,9 +49,10 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        spark_node_t* copy_constructor(datatype_t dt, spark_node_t* that)
+        spark_node_t* copy_constructor(Datatype datatype, spark_node_t* that)
         {
-            const auto op = Operator::Assignment;
+            const auto dt = static_cast<spark_datatype_t>(datatype);
+            const auto op = static_cast<spark_operator_t>(Operator::Assignment);
 
             auto thisNode = spark_create_symbol_node(dt, Spark::Internal::ThrowOnError());
             auto thatNode = that;
@@ -63,8 +68,10 @@ namespace Spark
 
         inline
         __attribute__ ((noinline))
-        spark_node_t* vector_constructor(datatype_t dt, spark_node_t** children, size_t count)
+        spark_node_t* vector_constructor(Datatype datatype, spark_node_t** children, size_t count)
         {
+            const auto dt = static_cast<spark_datatype_t>(datatype);
+
             auto listNode = spark_create_vector_node(dt, children, count, Spark::Internal::ThrowOnError());
             auto thisNode = copy_constructor(dt, listNode);
             return thisNode;

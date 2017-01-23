@@ -24,43 +24,39 @@ namespace Spark
         static void generateValueNode(context& ctx, spark_node_t* value);
         static void generateScopeBlock(context& ctx, spark_node_t* scopeBlock);
 
-        static void generateSymbolName(context& ctx, spark_symbolid_t id, datatype_t dt)
+        static void generateSymbolName(context& ctx, spark_symbolid_t id, Datatype dt)
         {
-            const auto primitive_component = dt & DataType::PrimitiveMask;
-            const auto vector_component = dt & DataType::ComponentMask;
-            const auto pointer_component = dt & DataType::PointerMask;
+            const auto primitive = dt.GetPrimitive();
+            const auto components = dt.GetComponents();
+            const auto pointer = dt.GetPointer();
 
-            const char* primitive = nullptr;
-            switch(primitive_component)
+            const char* primitive_str = nullptr;
+            switch(primitive)
             {
-                case DataType::Char:    primitive = "s8_"; break;
-                case DataType::UChar:   primitive = "u8_"; break;
-                case DataType::Short:   primitive = "s16_"; break;
-                case DataType::UShort:  primitive = "u16_"; break;
-                case DataType::Int:     primitive = "s32_"; break;
-                case DataType::UInt:    primitive = "u32_"; break;
-                case DataType::Long:    primitive = "s64_"; break;
-                case DataType::ULong:   primitive = "u64_"; break;
-                case DataType::Float:   primitive = "flt_"; break;
-                case DataType::Double:  primitive = "dbl_"; break;
-            }
-            SPARK_ASSERT(primitive != nullptr);
-
-            const char* vector = nullptr;
-            switch(vector_component)
-            {
-                case DataType::Vector2: vector = "vec2_"; break;
-                default:                vector = ""; break;
+                case Primitive::Char:    primitive_str = "s8_"; break;
+                case Primitive::UChar:   primitive_str = "u8_"; break;
+                case Primitive::Short:   primitive_str = "s16_"; break;
+                case Primitive::UShort:  primitive_str = "u16_"; break;
+                case Primitive::Int:     primitive_str = "s32_"; break;
+                case Primitive::UInt:    primitive_str = "u32_"; break;
+                case Primitive::Long:    primitive_str = "s64_"; break;
+                case Primitive::ULong:   primitive_str = "u64_"; break;
+                case Primitive::Float:   primitive_str = "flt_"; break;
+                case Primitive::Double:  primitive_str = "dbl_"; break;
+                default:
+                    SPARK_ASSERT(false);
             }
 
-            const char* pointer = nullptr;
-            switch(pointer_component)
+            const char* components_str = nullptr;
+            switch(components)
             {
-                case DataType::Pointer: pointer = "p_"; break;
-                default:                pointer = ""; break;
+                case Components::Vector2: components_str = "vec2_"; break;
+                default:                  components_str = ""; break;
             }
 
-            doSnprintf(ctx, "%s%s%s%u", pointer, vector, primitive, (uint32_t)id);
+            const char* pointer_str = pointer ? "p_" : "";
+
+            doSnprintf(ctx, "%s%s%s%u", pointer_str, components_str, primitive_str, (uint32_t)id);
         }
 
         static void generateFunctionName(context& ctx, spark_symbolid_t id)
@@ -68,44 +64,40 @@ namespace Spark
             doSnprintf(ctx, "func_%u", (uint32_t)id);
         }
 
-        static void generateOpenCLType(context& ctx, datatype_t dt)
+        static void generateOpenCLType(context& ctx, Datatype dt)
         {
-            const auto primitive_component = dt & DataType::PrimitiveMask;
-            const auto vector_component = dt & DataType::ComponentMask;
-            const auto pointer_component = dt & DataType::PointerMask;
+            const auto primitive = dt.GetPrimitive();
+            const auto components = dt.GetComponents();
+            const auto pointer = dt.GetPointer();
 
-            const char* primitive = nullptr;
-            switch(primitive_component)
+            const char* primitive_str = nullptr;
+            switch(primitive)
             {
-                case DataType::Void:    primitive = "void"; break;
-                case DataType::Char:    primitive = "char"; break;
-                case DataType::UChar:   primitive = "uchar"; break;
-                case DataType::Short:   primitive = "short"; break;
-                case DataType::UShort:  primitive = "ushort"; break;
-                case DataType::Int:     primitive = "int"; break;
-                case DataType::UInt:    primitive = "uint"; break;
-                case DataType::Long:    primitive = "long"; break;
-                case DataType::ULong:   primitive = "ulong"; break;
-                case DataType::Float:   primitive = "float"; break;
-                case DataType::Double:  primitive = "double"; break;
-            }
-            SPARK_ASSERT(primitive != nullptr);
-
-            const char* vector = nullptr;
-            switch(vector_component)
-            {
-                case DataType::Vector2: vector = "2"; break;
-                default:                vector = ""; break;
+                case Primitive::Void:    primitive_str = "void"; break;
+                case Primitive::Char:    primitive_str = "char"; break;
+                case Primitive::UChar:   primitive_str = "uchar"; break;
+                case Primitive::Short:   primitive_str = "short"; break;
+                case Primitive::UShort:  primitive_str = "ushort"; break;
+                case Primitive::Int:     primitive_str = "int"; break;
+                case Primitive::UInt:    primitive_str = "uint"; break;
+                case Primitive::Long:    primitive_str = "long"; break;
+                case Primitive::ULong:   primitive_str = "ulong"; break;
+                case Primitive::Float:   primitive_str = "float"; break;
+                case Primitive::Double:  primitive_str = "double"; break;
+                default:
+                    SPARK_ASSERT(false);
             }
 
-            const char* pointer = nullptr;
-            switch(pointer_component)
+            const char* components_str = nullptr;
+            switch(components)
             {
-                case DataType::Pointer: pointer = "*"; break;
-                default:                pointer = ""; break;
+                case Components::Vector2: components_str = "2"; break;
+                default:                components_str = ""; break;
             }
 
-            doSnprintf(ctx, "%s%s%s", primitive, vector, pointer);
+            const char* pointer_str = pointer ? "*" : "";
+
+            doSnprintf(ctx, "%s%s%s", primitive_str, components_str, pointer_str);
         }
 
         static void generateIndent(context& ctx)
@@ -118,7 +110,7 @@ namespace Spark
 
         static void generateOperatorNode(context& ctx, spark_node_t* value)
         {
-            SPARK_ASSERT(value->_type == NodeType::Operator);
+            SPARK_ASSERT(value->_type == spark_nodetype::operation);
 
             auto op = value->_operator.id;
             if(op == Operator::Break)
@@ -139,7 +131,7 @@ namespace Spark
                     "~",
                     "*",
                 };
-                doSnprintf(ctx, "(%s", unary[op - Operator::Negate]);
+                doSnprintf(ctx, "(%s", unary[static_cast<spark_operator_t>(op - Operator::Negate)]);
                 generateValueNode(ctx, value->_children.front());
                 doSnprintf(ctx, ")");
             }
@@ -153,7 +145,7 @@ namespace Spark
                 };
                 doSnprintf(ctx, "(");
                 generateValueNode(ctx, value->_children.front());
-                doSnprintf(ctx, "%s)", unary[op - Operator::PostfixIncrement]);
+                doSnprintf(ctx, "%s)", unary[static_cast<spark_operator_t>(op - Operator::PostfixIncrement)]);
             }
             else if(op == Operator::Index)
             {
@@ -189,14 +181,14 @@ namespace Spark
                 };
                 doSnprintf(ctx, "(");
                 generateValueNode(ctx, value->_children.front());
-                doSnprintf(ctx, " %s ", binary[op - Operator::Add]);
+                doSnprintf(ctx, " %s ", binary[static_cast<spark_operator_t>(op - Operator::Add)]);
                 generateValueNode(ctx, value->_children.back());
                 doSnprintf(ctx, ")");
             }
             else if(op == Operator::Assignment)
             {
                 SPARK_ASSERT(value->_children.size() == 2);
-                if(value->_children.front()->_type == NodeType::Symbol)
+                if(value->_children.front()->_type == spark_nodetype::symbol)
                 {
                     const auto id = value->_children.front()->_symbol.id;
                     if(ctx.inited_variables.find(id) == ctx.inited_variables.end())
@@ -215,7 +207,7 @@ namespace Spark
             else if(op == Operator::Call)
             {
                 SPARK_ASSERT(value->_children.size() >= 1);
-                SPARK_ASSERT(value->_children.front()->_type == NodeType::Function);
+                SPARK_ASSERT(value->_children.front()->_type == spark_nodetype::function);
                 generateFunctionName(ctx, value->_children.front()->_function.id);
                 doSnprintf(ctx, "(");
                 for(size_t k = 1; k < value->_children.size(); k++)
@@ -234,16 +226,16 @@ namespace Spark
                 SPARK_ASSERT(value->_children.size() == 2);
                 generateValueNode(ctx, value->_children.front());
 
-                SPARK_ASSERT(value->_children.back()->_type == NodeType::Property);
+                SPARK_ASSERT(value->_children.back()->_type == spark_nodetype::property);
                 char property[5];
-                spark_property_to_str(value->_children.back()->_property.id, property, countof(property));
+                spark_property_to_str(static_cast<spark_property_t>(value->_children.back()->_property.id), property, countof(property));
                 doSnprintf(ctx, ".%s", property);
             }
             else if(op == Operator::Return)
             {
                 if(value->_children.size() == 0)
                 {
-                    SPARK_ASSERT(value->_operator.type == DataType::Void);
+                    SPARK_ASSERT(value->_operator.type.GetPrimitive() == Primitive::Void);
                     doSnprintf(ctx, "return");
                 }
                 else
@@ -271,38 +263,41 @@ namespace Spark
 
         static void generateConstantNode(context& ctx, spark_node_t* constant)
         {
-            SPARK_ASSERT(constant->_type == NodeType::Constant);
+            SPARK_ASSERT(constant->_type == spark_nodetype::constant);
+            auto dt = constant->_constant.type;
+            SPARK_ASSERT(dt.GetComponents() == Components::Scalar);
+
             void* raw = constant->_constant.buffer;
-            switch(constant->_constant.type)
+            switch(constant->_constant.type.GetPrimitive())
             {
-                case DataType::Char:
+                case Primitive::Char:
                     doSnprintf(ctx, "%lli", *reinterpret_cast<int8_t*>(raw));
                     break;
-                case DataType::UChar:
+                case Primitive::UChar:
                     doSnprintf(ctx, "%lluu", *reinterpret_cast<uint8_t*>(raw));
                     break;
-                case DataType::Short:
+                case Primitive::Short:
                     doSnprintf(ctx, "%lli", *reinterpret_cast<int16_t*>(raw));
                     break;
-                case DataType::UShort:
+                case Primitive::UShort:
                     doSnprintf(ctx, "%lluu", *reinterpret_cast<uint16_t*>(raw));
                     break;
-                case DataType::Int:
+                case Primitive::Int:
                     doSnprintf(ctx, "%lli", *reinterpret_cast<int32_t*>(raw));
                     break;
-                case DataType::UInt:
+                case Primitive::UInt:
                     doSnprintf(ctx, "%lluu", *reinterpret_cast<uint32_t*>(raw));
                     break;
-                case DataType::Long:
+                case Primitive::Long:
                     doSnprintf(ctx, "%lli", *reinterpret_cast<int64_t*>(raw));
                     break;
-                case DataType::ULong:
+                case Primitive::ULong:
                     doSnprintf(ctx, "%lluu", *reinterpret_cast<uint64_t*>(raw));
                     break;
-                case DataType::Float:
+                case Primitive::Float:
                     doSnprintf(ctx, "%.9ef", *reinterpret_cast<float*>(raw));
                     break;
-                case DataType::Double:
+                case Primitive::Double:
                     doSnprintf(ctx, "%.17e", *reinterpret_cast<double*>(raw));
                     break;
                 default:
@@ -312,9 +307,10 @@ namespace Spark
 
         static void generateVectorNode(context& ctx, spark_node_t* vector)
         {
-            SPARK_ASSERT(vector->_type == NodeType::Vector);
-            datatype_t type = vector->_vector.type;
-            if(type & DataType::Vector2)
+            SPARK_ASSERT(vector->_type == spark_nodetype::vector);
+            auto type = vector->_vector.type;
+            auto components = type.GetComponents();
+            if(components == Components::Vector2)
             {
                 SPARK_ASSERT(vector->_children.size() == 2);
                 doSnprintf(ctx, "(");
@@ -336,29 +332,29 @@ namespace Spark
         {
             switch(value->_type)
             {
-                case NodeType::Operator:
+                case spark_nodetype::operation:
                     generateOperatorNode(ctx, value);
                     break;
-                case NodeType::Symbol:
+                case spark_nodetype::symbol:
                     generateSymbolNode(ctx, value);
                     break;
-                case NodeType::Constant:
+                case spark_nodetype::constant:
                     generateConstantNode(ctx, value);
                     break;
-                case NodeType::Vector:
+                case spark_nodetype::vector:
                     generateVectorNode(ctx, value);
                     break;
                 default:
-                    SPARK_ASSERT(value->_type == NodeType::Operator ||
-                                 value->_type == NodeType::Symbol ||
-                                 value->_type == NodeType::Constant ||
-                                 value->_type == NodeType::Vector);
+                    SPARK_ASSERT(value->_type == spark_nodetype::operation ||
+                                 value->_type == spark_nodetype::symbol ||
+                                 value->_type == spark_nodetype::constant ||
+                                 value->_type == spark_nodetype::vector);
             }
         }
 
         static void generateControlNode(context& ctx, spark_node_t* control)
         {
-            SPARK_ASSERT(control->_type == NodeType::Control);
+            SPARK_ASSERT(control->_type == spark_nodetype::control);
 
             switch(control->_control)
             {
@@ -397,7 +393,7 @@ namespace Spark
 
         static void generateScopeBlock(context& ctx, spark_node_t* scopeBlock)
         {
-            SPARK_ASSERT(scopeBlock->_type == NodeType::ScopeBlock);
+            SPARK_ASSERT(scopeBlock->_type == spark_nodetype::scope_block);
 
             generateIndent(ctx);
             doSnprintf(ctx, "{\n");
@@ -409,19 +405,19 @@ namespace Spark
 
                 switch(currentNode->_type)
                 {
-                    case NodeType::Control:
+                    case spark_nodetype::control:
                     {
                         generateControlNode(ctx, currentNode);
                         break;
                     }
-                    case NodeType::Operator:
-                    case NodeType::Symbol:
-                    case NodeType::Constant:
-                    case NodeType::Vector:
+                    case spark_nodetype::operation:
+                    case spark_nodetype::symbol:
+                    case spark_nodetype::constant:
+                    case spark_nodetype::vector:
                         generateValueNode(ctx, currentNode);
                         doSnprintf(ctx, ";\n");
                         break;
-                    case NodeType::Comment:
+                    case spark_nodetype::comment:
                         doSnprintf(ctx, "// %s\n", currentNode->_comment);
                         break;
                     default:
@@ -437,7 +433,7 @@ namespace Spark
 
         static void generateFunction(context& ctx, spark_node_t* node)
         {
-            SPARK_ASSERT(node->_type == NodeType::Function);
+            SPARK_ASSERT(node->_type == spark_nodetype::function);
             SPARK_ASSERT(node->_children.size() == 2);
 
             if(node->_function.entrypoint)
@@ -453,7 +449,7 @@ namespace Spark
             // print parameter list
             doSnprintf(ctx, "(");
             auto parameterList = node->_children.front();
-            SPARK_ASSERT(parameterList->_type == NodeType::Control && parameterList->_control == Control::ParameterList);
+            SPARK_ASSERT(parameterList->_type == spark_nodetype::control && parameterList->_control == Control::ParameterList);
 
             const auto paramCount = parameterList->_children.size();
             for(size_t k = 0; k < paramCount; k++)
@@ -463,7 +459,7 @@ namespace Spark
                     doSnprintf(ctx, ", ");
                 }
                 auto currentChild = parameterList->_children[k];
-                SPARK_ASSERT(currentChild->_type == NodeType::Symbol);
+                SPARK_ASSERT(currentChild->_type == spark_nodetype::symbol);
                 // add to our set of init'd variables
                 ctx.inited_variables.insert(currentChild->_symbol.id);
 
@@ -480,7 +476,7 @@ namespace Spark
 
         static void generateSource(context& ctx, spark_node_t* node)
         {
-            SPARK_ASSERT(node->_type == NodeType::Control && node->_control == Control::Root);
+            SPARK_ASSERT(node->_type == spark_nodetype::control && node->_control == Control::Root);
             for(auto func : node->_children)
             {
                 generateFunction(ctx, func);

@@ -3,8 +3,9 @@
 #include "node.hpp"
 
 using namespace Spark;
+using namespace Internal;
 
-const char* spark_nodetype_to_str(Spark::nodetype_t val)
+const char* spark_nodetype_to_str(spark_nodetype_t val)
 {
 	static const char* nodeNames[] =
 	{
@@ -18,13 +19,13 @@ const char* spark_nodetype_to_str(Spark::nodetype_t val)
 		"NodeType::Vector",
 		"NodeType::ScopeBlock",
 	};
-	static_assert(countof(nodeNames) == NodeType::Count, "size mismatch between nodeNames and NodeType::Count");
-	SPARK_ASSERT(val < NodeType::Count);
+	static_assert(countof(nodeNames) == (size_t)spark_nodetype::count, "size mismatch between nodeNames and spark_nodetype::count");
+	SPARK_ASSERT(val < spark_nodetype::count);
 
-	return nodeNames[val];
+	return nodeNames[static_cast<size_t>(val)];
 }
 
-const char* spark_control_to_str(control_t val)
+const char* spark_control_to_str(spark_control_t val)
 {
 	static const char* controlNames[] =
 	{
@@ -36,12 +37,12 @@ const char* spark_control_to_str(control_t val)
 		"Control::While",
 		"Control::For",
 	};
-	static_assert(countof(controlNames) == Control::Count, "size mismatch between contorlNames and Control::Count");
-	SPARK_ASSERT(val < Control::Count);
-	return controlNames[val];
+	static_assert(countof(controlNames) == static_cast<size_t>(Control::Count), "size mismatch between contorlNames and spark_control::count");
+	SPARK_ASSERT(val < static_cast<size_t>(Control::Count));
+	return controlNames[static_cast<size_t>(val)];
 }
 
-const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
+const char* spark_datatype_to_str(spark_datatype_t val, char* buffer, int32_t sz)
 {
 	static const char* primitiveNames[] =
 	{
@@ -60,7 +61,8 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 
 	static const char* componentNames[] =
 	{
-		nullptr,
+		"",
+		"",
 		"2",
 		"3",
 		"4",
@@ -68,25 +70,24 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 		"16",
 	};
 
-	static const char* containerNames[] =
-	{
-		nullptr,
-		"buffer1d ",
-		"buffer2d ",
-		"pointer ",
-	};
 
-	auto primitive = val & DataType::PrimitiveMask;
-	auto component = val & DataType::ComponentMask;
-	auto container = val & DataType::ContainerMask;
+	auto dt = static_cast<Spark::Internal::Datatype>(val);
+
+	auto primitive = dt.GetPrimitive();
+	auto components = dt.GetComponents();
+	auto pointer = dt.GetPointer();
+
+	using Spark::Internal::Components;
 
 	// temporary asserts until other vectors and containers are implemented
-	SPARK_ASSERT(component == 0 || component == DataType::Vector2);
-	SPARK_ASSERT(container == 0 || container == DataType::Pointer);
+	SPARK_ASSERT(
+		components == Components::Scalar ||
+		components == Components::Vector2 ||
+		components == Components::None);
 
-	const char* primitiveName = primitiveNames[primitive >> DataType::PrimitiveShift];
-	const char* componentName = component ? componentNames[component >> DataType::ComponentShift] : "";
-	const char* containerName = container ? containerNames[container >> DataType::ContainerShift ] : "";
+	const char* primitiveName = primitiveNames[static_cast<uint32_t>(primitive)];
+	const char* componentName = componentNames[static_cast<uint32_t>(components)];
+	const char* containerName = pointer ? "pointer " : "";
 
 	int32_t len = 1 + snprintf(nullptr, 0, "%s%s%s", containerName, primitiveName, componentName);
 	if(len > sz)
@@ -99,7 +100,7 @@ const char* spark_datatype_to_str(datatype_t val, char* buffer, int32_t sz)
 	return buffer;
 }
 
-const char* spark_operator_to_str(operator_t val)
+const char* spark_operator_to_str(spark_operator_t val)
 {
 	static const char* operatorNames[] =
 	{
@@ -138,15 +139,16 @@ const char* spark_operator_to_str(operator_t val)
 		"Operator::Return",
 		"Operator::Cast",
 	};
-	static_assert(countof(operatorNames) == Operator::Count, "size mismatch between operatorNames and Operator::Count");
-	SPARK_ASSERT(val < Operator::Count);
+	static_assert(countof(operatorNames) == static_cast<size_t>(Operator::Count), "size mismatch between operatorNames and Operator::Count");
+	SPARK_ASSERT(val < static_cast<spark_operator_t>(Operator::Count));
 
 	return operatorNames[val];
 }
 
-const char* spark_property_to_str(property_t val, char* buffer, int32_t sz)
+const char* spark_property_to_str(spark_property_t val, char* buffer, int32_t sz)
 {
-	if(val >= Property::FirstProperty)
+	const auto property = static_cast<Spark::Internal::Property>(val);
+	if(property >= Property::FirstProperty)
 	{
 		const static char* propertyNames[] =
 		{
@@ -155,10 +157,11 @@ const char* spark_property_to_str(property_t val, char* buffer, int32_t sz)
 			"even",
 			"odd",
 		};
-		static_assert(countof(propertyNames) == Property::Count - Property::FirstProperty, "size mismatch between propertyNames and Property::Count");
-		SPARK_ASSERT(val < Property::Count);
 
-		snprintf(buffer, sz, "%s", propertyNames[val - Property::FirstProperty]);
+		static_assert(countof(propertyNames) == static_cast<size_t>(Property::Count - Property::FirstProperty), "size mismatch between propertyNames and Property::Count");
+		SPARK_ASSERT(val < static_cast<spark_property_t>(Property::Count));
+
+		snprintf(buffer, sz, "%s", propertyNames[static_cast<spark_property_t>(property - Property::FirstProperty)]);
 	}
 	else
 	{

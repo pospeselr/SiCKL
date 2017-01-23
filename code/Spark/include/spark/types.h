@@ -6,9 +6,10 @@ namespace Spark
     {
         inline
         __attribute__ ((noinline))
-        void assignment_operator(spark_node_t* thisNode, datatype_t dt, spark_node_t* thatNode)
+        void assignment_operator(spark_node_t* thisNode, Datatype datatype, spark_node_t* thatNode)
         {
-            const auto op = Operator::Assignment;
+            const auto dt = static_cast<spark_datatype_t>(datatype);
+            const auto op = static_cast<spark_operator_t>(Operator::Assignment);
 
             // create assignment node
             auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
@@ -17,6 +18,7 @@ namespace Spark
             spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
         }
     }
+    using namespace Internal;
 
     /// Type properties
 
@@ -42,6 +44,22 @@ namespace Spark
     MAKE_TYPE_TO_INT(float, int32_t);
     MAKE_TYPE_TO_INT(double, int64_t);
 
+    template<typename T> struct type_to_primitive {};
+
+#define MAKE_TYPE_TO_PRIMITIVE(TYPE, PRIMITIVE)\
+    template<> struct type_to_primitive<TYPE> {static constexpr Primitive value = Internal::Primitive::PRIMITIVE;};
+
+    MAKE_TYPE_TO_PRIMITIVE(int8_t, Char);
+    MAKE_TYPE_TO_PRIMITIVE(uint8_t, UChar);
+    MAKE_TYPE_TO_PRIMITIVE(int16_t, Short);
+    MAKE_TYPE_TO_PRIMITIVE(uint16_t, UShort);
+    MAKE_TYPE_TO_PRIMITIVE(int32_t, Int);
+    MAKE_TYPE_TO_PRIMITIVE(uint32_t, UInt);
+    MAKE_TYPE_TO_PRIMITIVE(int64_t, Long);
+    MAKE_TYPE_TO_PRIMITIVE(uint64_t, ULong);
+    MAKE_TYPE_TO_PRIMITIVE(float, Float);
+    MAKE_TYPE_TO_PRIMITIVE(double, Double);
+
     // assignment operator for types
     template<typename TYPE>
     void assignment_operator(TYPE* pThis, const TYPE& that)
@@ -59,8 +77,9 @@ namespace Spark
     // void type
     struct Void
     {
-        static const datatype_t type = DataType::Void;
+        static constexpr Datatype type = Datatype(Primitive::Void, Components::None, false);
     };
+    constexpr Datatype Void::type;
 
     // forward declare tyeps
     template<typename RAW_TYPE> struct scalar;
@@ -106,7 +125,8 @@ namespace Spark
         __attribute__ ((always_inline))
         Pointer& operator=(const Pointer& that)
         {
-            Internal::assignment_operator(this->_node, Pointer::type, that._node);
+            const auto dt = static_cast<spark_datatype_t>(Pointer::type);
+            Internal::assignment_operator(this->_node, dt, that._node);
             return *this;
         }
 
@@ -115,8 +135,8 @@ namespace Spark
         __attribute__ ((always_inline))
         TYPE operator*()
         {
-            const auto dt = TYPE::type;
-            const auto op = Operator::Dereference;
+            const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+            const auto op = static_cast<spark_operator_t>(Operator::Dereference);
             return TYPE(spark_create_operator1_node(dt, op, this->_node));
         }
 
@@ -124,8 +144,8 @@ namespace Spark
         __attribute__ ((always_inline))
         rvalue<TYPE> operator*() const
         {
-            const auto dt = TYPE::type;
-            const auto op = Operator::Dereference;
+            const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+            const auto op = static_cast<spark_operator_t>(Operator::Dereference);
             return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
@@ -133,8 +153,10 @@ namespace Spark
         friend TYPE;
 
         static const char* name;
-        static const datatype_t type;
+        static constexpr Datatype type = Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true);
     };
+    template<typename TYPE>
+    constexpr Datatype Pointer<TYPE>::type;
 
     // scalar type wrapper
     template<typename RAW_TYPE>
@@ -150,7 +172,7 @@ namespace Spark
         friend struct scalar;
         template<typename S>
         friend struct vector2;
-        template<typename S, property_t id>
+        template<typename S, Spark::Internal::Property id>
         friend struct property_rw;
         template<typename S>
         friend struct Pointer;
@@ -222,7 +244,8 @@ namespace Spark
         __attribute__ ((always_inline))
         scalar& operator=(RAW_TYPE val)
         {
-            auto constant = spark_create_constant_node(scalar::type, &val, sizeof(val), Internal::ThrowOnError());
+            const auto dt = static_cast<spark_datatype_t>(scalar::type);
+            auto constant = spark_create_constant_node(dt, &val, sizeof(val), Internal::ThrowOnError());
             Internal::assignment_operator(this->_node, scalar::type, constant);
             return *this;
         }
@@ -233,16 +256,17 @@ namespace Spark
         {
             static_assert(is_scalar_type<CAST_TYPE>::value, "scalar types can only be cast to other scalar types");
 
-            const auto dt = CAST_TYPE::type;
-            const auto op = Operator::Cast;
+            const auto dt = static_cast<spark_datatype_t>(CAST_TYPE::type);
+            const auto op = static_cast<spark_operator_t>(Operator::Cast);
             return rvalue<CAST_TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
         // private node ptr
         spark_node_t* _node;
-        static const char* name;
-        static const datatype_t type;
+        static constexpr Datatype type = Datatype(type_to_primitive<RAW_TYPE>::value, Components::Scalar, false);
     };
+    template<typename T>
+    constexpr Datatype scalar<T>::type;
     template<typename T> struct is_scalar_type<scalar<T>> {const static bool value = true;};
 
     // wrapper for all vector2 types
@@ -254,7 +278,7 @@ namespace Spark
         typedef vector2<scalar<typename type_to_signed_int<typename TYPE::raw_type>::type>> int_type;
 
         // friends
-        template<typename S, property_t id>
+        template<typename S, Spark::Internal::Property id>
         friend struct property_rw;
     protected:
         // node constructor
@@ -342,8 +366,8 @@ namespace Spark
         __attribute__ ((always_inline))
         lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
         {
-            const auto dt = TYPE::type;
-            const auto op = Operator::Index;
+            const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+            const auto op = static_cast<spark_operator_t>(Operator::Index);
 
             auto indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
             return lvalue<TYPE>(indexNode);
@@ -353,8 +377,8 @@ namespace Spark
         __attribute__ ((always_inline))
         const rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
         {
-            const auto dt = TYPE::type;
-            const auto op = Operator::Index;
+            const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+            const auto op = static_cast<spark_operator_t>(Operator::Index);
 
             auto indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
             return rvalue<TYPE>(indexNode);
@@ -366,15 +390,16 @@ namespace Spark
         {
             static_assert(is_vector2_type<CAST_TYPE>::value, "vector2 types can only be cast to other vector2 types");
 
-            const auto dt = CAST_TYPE::type;
-            const auto op = Operator::Cast;
+            const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+            const auto op = static_cast<spark_operator_t>(Operator::Cast);
 
             return rvalue<CAST_TYPE>(spark_create_operator1_node(dt, op, this->_node));
         }
 
-        static const char* name;
-        static const datatype_t type;
+        static constexpr Datatype type = Datatype(TYPE::type.GetPrimitive(), Components::Vector2, false);
     };
+    template<typename T>
+    constexpr Datatype vector2<T>::type;
     template<typename T>
     struct is_vector2_type<vector2<T>> {const static bool value = true;};
 
@@ -391,8 +416,8 @@ namespace Spark
     __attribute__((always_inline))\
     const rvalue<RETURN_TYPE> operator OP(const rvalue<TYPE>& right)\
     {\
-        const auto dt = RETURN_TYPE::type;\
-        const auto op = Operator::ENUM;\
+        const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
+        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
         return rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
     }
 
@@ -401,8 +426,8 @@ namespace Spark
     __attribute__((always_inline))\
     const rvalue<RETURN_TYPE> operator OP (const rvalue<TYPE>& left, const rvalue<TYPE>& right)\
     {\
-        const auto dt = RETURN_TYPE::type;\
-        const auto op = Operator::ENUM;\
+        const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
+        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
         return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
 
@@ -411,8 +436,8 @@ namespace Spark
     __attribute__((always_inline))\
     const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
-        const auto dt = RETURN_TYPE::type;\
-        const auto op = Operator::ENUM;\
+        const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
+        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
         return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
     }
 
@@ -421,8 +446,8 @@ namespace Spark
     __attribute__((always_inline))\
     const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
-        const auto dt = RETURN_TYPE::type;\
-        const auto op = Operator::ENUM;\
+        const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
+        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
         return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
     }
 
@@ -477,25 +502,13 @@ namespace Spark
     typedef Pointer<TYPE> P##TYPE;\
     typedef Pointer<TYPE##2> P##TYPE##2;\
 
-    #define MAKE_STATICS(TYPE)\
-    template<> const char* TYPE::name = #TYPE;\
-    template<> const char* TYPE##2::name = #TYPE "2";\
-    template<> const char* P##TYPE::name = "Pointer<" #TYPE ">";\
-    template<> const char* P##TYPE##2::name = "Pointer<" #TYPE "2>";\
-    template<> const datatype_t TYPE::type = DataType::TYPE;\
-    template<> const datatype_t TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2);\
-    template<> const datatype_t P##TYPE::type = (datatype_t)(DataType::TYPE | DataType::Pointer);\
-    template<> const datatype_t P##TYPE##2::type = (datatype_t)(DataType::TYPE | DataType::Vector2 | DataType::Pointer);\
-
     #define MAKE_INT_TYPES(TYPE, CL_TYPE)\
     MAKE_TYPEDEFS(TYPE, CL_TYPE)\
-    MAKE_STATICS(TYPE)\
     MAKE_INT_OPERATORS(TYPE)\
     MAKE_INT_OPERATORS(TYPE##2)\
 
     #define MAKE_FLOAT_TYPES(TYPE, CL_TYPE)\
     MAKE_TYPEDEFS(TYPE, CL_TYPE)\
-    MAKE_STATICS(TYPE)\
     MAKE_FLOAT_OPERATORS(TYPE)\
     MAKE_FLOAT_OPERATORS(TYPE##2)\
 
@@ -519,8 +532,8 @@ namespace Spark
     __attribute__((always_inline))
     const rvalue<Pointer<TYPE>> operator+(const Pointer<TYPE>& pointer, const rvalue<UInt>& offset)
     {
-        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
-        const auto op = Operator::Add;
+        const auto dt = static_cast<spark_datatype_t>(Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
+        const auto op = static_cast<spark_operator_t>(Operator::Add);
         return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, pointer._node, offset._node));
     }
 
@@ -529,8 +542,8 @@ namespace Spark
     __attribute__((always_inline))
     const rvalue<Pointer<TYPE>> operator+(const rvalue<UInt>& offset, const Pointer<TYPE>& pointer)
     {
-        const auto dt = (datatype_t)(TYPE::type | DataType::Pointer);
-        const auto op = Operator::Add;
+        const auto dt = static_cast<spark_datatype_t>(Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
+        const auto op = static_cast<spark_operator_t>(Operator::Add);
         return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, pointer._node));
     }
 

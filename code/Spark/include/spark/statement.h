@@ -14,7 +14,7 @@ namespace Spark
     {
         if_statement(const rvalue<Int>& val)
         {
-            auto root = spark_create_control_node(Control::If, Spark::Internal::ThrowOnError());
+            auto root = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::If), Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
             spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
@@ -36,7 +36,7 @@ namespace Spark
     {
         elseif_statement(const rvalue<Int>& val)
         {
-            auto root = spark_create_control_node(Control::ElseIf, Spark::Internal::ThrowOnError());
+            auto root = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::ElseIf), Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
             spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
@@ -58,7 +58,7 @@ namespace Spark
     {
         else_statement()
         {
-            auto root = spark_create_control_node(Control::Else, Spark::Internal::ThrowOnError());
+            auto root = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::Else), Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
             spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
@@ -78,7 +78,7 @@ namespace Spark
     {
         while_statement(const rvalue<Int>& val)
         {
-            auto root = spark_create_control_node(Control::While, Spark::Internal::ThrowOnError());
+            auto root = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::While), Spark::Internal::ThrowOnError());
             spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
             spark_push_scope_node(root, Spark::Internal::ThrowOnError());
 
@@ -104,7 +104,10 @@ namespace Spark
 
     void Break()
     {
-        auto breakNode = spark_create_operator_node(DataType::Void, Operator::Break, Spark::Internal::ThrowOnError());
+        const auto dt = static_cast<spark_datatype_t>(Datatype(Primitive::Void, Components::None, false));
+        const auto op = static_cast<spark_operator_t>(Operator::Break);
+
+        auto breakNode = spark_create_operator_node(dt, op, Spark::Internal::ThrowOnError());
         spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), breakNode, Spark::Internal::ThrowOnError());
     }
 

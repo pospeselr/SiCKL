@@ -5,7 +5,7 @@
 #include "text_utilities.hpp"
 #include "error.hpp"
 
-const char* spark_nodetype_to_str(Spark::nodetype_t val);
+const char* spark_nodetype_to_str(spark_nodetype_t val);
 
 namespace Spark
 {
@@ -15,66 +15,78 @@ namespace Spark
         {
             return doSnprintf(buffer, buffer_size, written,
                 "%s\n",
-                spark_control_to_str(node->_control));
+                spark_control_to_str(static_cast<spark_control_t>(node->_control)));
         }
 
         int32_t operatorNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
+            const auto dt = static_cast<spark_datatype_t>(node->_operator.type);
+            const auto op = static_cast<spark_operator_t>(node->_operator.id);
+
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "%s : %s\n",
-                spark_operator_to_str((operator_t)node->_operator.id),
-                spark_datatype_to_str(node->_operator.type, datatypeBuffer, sizeof(datatypeBuffer)));
+                spark_operator_to_str(op),
+                spark_datatype_to_str(dt, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
         int32_t functionNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
+            const auto dt = static_cast<spark_datatype_t>(node->_function.returnType);
+
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "0x%x : function -> %s %s\n",
                 (uint32_t)node->_function.id,
-                spark_datatype_to_str(node->_function.returnType, datatypeBuffer, sizeof(datatypeBuffer)),
+                spark_datatype_to_str(dt, datatypeBuffer, sizeof(datatypeBuffer)),
                 node->_function.entrypoint ? "(entrypoint)" : "");
         }
 
         int32_t symbolNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
+            const auto dt = static_cast<spark_datatype_t>(node->_symbol.type);
+
             char datatypeBuffer[32];
             return doSnprintf(buffer, buffer_size, written,
                 "0x%x : %s\n",
                 (uint32_t)node->_symbol.id,
-                spark_datatype_to_str(node->_symbol.type, datatypeBuffer, sizeof(datatypeBuffer)));
+                spark_datatype_to_str(dt, datatypeBuffer, sizeof(datatypeBuffer)));
         }
 
         int32_t constantNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
             const auto dt = node->_constant.type;
-            const auto primitive = dt & DataType::PrimitiveMask;
+            const auto primitive = dt.GetPrimitive();
             // primitive cannot be void
-            SPARK_ASSERT(primitive != DataType::Void);
-            const auto component = dt & DataType::ComponentMask;
-            const auto container = dt & DataType::ContainerMask;
-            // container cannot be init'd with a constant
-            SPARK_ASSERT(container == 0);
+            SPARK_ASSERT(primitive != Primitive::Void);
+            const auto components = dt.GetComponents();;
+            const auto pointer = dt.GetPointer();
+            SPARK_ASSERT(pointer == false);
+
 
             int32_t componentCount = 1;
-            switch(component)
+            switch(components)
             {
-                case DataType::Vector2:
+                case Components::None:
+                    componentCount = 0;
+                    break;
+                case Components::Scalar:
+                    componentCount = 1;
+                    break;
+                case Components::Vector2:
                     componentCount = 2;
                     break;
-                case DataType::Vector3:
-                    componentCount = 3;
-                    break;
-                case DataType::Vector4:
+                case Components::Vector4:
                     componentCount = 4;
                     break;
-                case DataType::Vector8:
+                case Components::Vector8:
                     componentCount = 8;
                     break;
-                case DataType::Vector16:
+                case Components::Vector16:
                     componentCount = 16;
                     break;
+                default:
+                    SPARK_ASSERT(false);
             }
 
             auto raw = node->_constant.buffer;
@@ -96,73 +108,79 @@ namespace Spark
 
                 switch(primitive)
                 {
-                    case DataType::Char:
+                    case Primitive::Char:
                         signed_integer = *((int8_t*)raw + k);
                         break;
-                    case DataType::UChar:
+                    case Primitive::UChar:
                         unsigned_integer = *((uint8_t*)raw + k);
                         break;
-                    case DataType::Short:
+                    case Primitive::Short:
                         signed_integer = *((int16_t*)raw + k);
                         break;
-                    case DataType::UShort:
+                    case Primitive::UShort:
                         unsigned_integer = *((uint16_t*)raw + k);
                         break;
-                    case DataType::Int:
+                    case Primitive::Int:
                         signed_integer = *((int32_t*)raw + k);
                         break;
-                    case DataType::UInt:
+                    case Primitive::UInt:
                         unsigned_integer = *((uint32_t*)raw + k);
                         break;
-                    case DataType::Long:
+                    case Primitive::Long:
                         signed_integer = *((int64_t*)raw + k);
                         break;
-                    case DataType::ULong:
+                    case Primitive::ULong:
                         unsigned_integer = *((uint64_t*)raw + k);
                         break;
-                    case DataType::Float:
+                    case Primitive::Float:
                         floating_point = *((float*)raw + k);
                         break;
-                    case DataType::Double:
+                    case Primitive::Double:
                         floating_point = *((double*)raw + k);
                         break;
+                    default:
+                        SPARK_ASSERT(false);
                 }
 
                 switch(primitive)
                 {
-                    case DataType::Char:
-                    case DataType::Short:
-                    case DataType::Int:
-                    case DataType::Long:
+                    case Primitive::Char:
+                    case Primitive::Short:
+                    case Primitive::Int:
+                    case Primitive::Long:
                         written = doSnprintf(buffer, buffer_size, written, "%lli", signed_integer);
                         break;
-                    case DataType::UChar:
-                    case DataType::UShort:
-                    case DataType::UInt:
-                    case DataType::ULong:
+                    case Primitive::UChar:
+                    case Primitive::UShort:
+                    case Primitive::UInt:
+                    case Primitive::ULong:
                         written = doSnprintf(buffer, buffer_size, written, "%llu", unsigned_integer);
                         break;
-                    case DataType::Float:
-                    case DataType::Double:
+                    case Primitive::Float:
+                    case Primitive::Double:
                         written = doSnprintf(buffer, buffer_size, written, "%f", floating_point);
                         break;
+                    default:
+                        SPARK_ASSERT(false);
                 }
             }
 
             char datatypeBuffer[32];
             written = doSnprintf(buffer, buffer_size, written,
                 " : %s\n",
-                spark_datatype_to_str(node->_symbol.type, datatypeBuffer, sizeof(datatypeBuffer)));
+                spark_datatype_to_str(static_cast<spark_datatype_t>(dt), datatypeBuffer, sizeof(datatypeBuffer)));
 
             return written;
         }
 
         int32_t propertyNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
+            const auto prop = static_cast<spark_property_t>(node->_property.id);
+
             char propertyBuffer[8];
             written = doSnprintf(buffer, buffer_size, written,
                 "Property::%s\n",
-                spark_property_to_str(node->_property.id, propertyBuffer, countof(propertyBuffer)));
+                spark_property_to_str(prop, propertyBuffer, countof(propertyBuffer)));
             return written;
         }
 
@@ -174,8 +192,10 @@ namespace Spark
 
         int32_t vectorNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
+            const auto dt = static_cast<spark_datatype_t>(node->_vector.type);
+
             char datatypeBuffer[32];
-            written = doSnprintf(buffer, buffer_size, written, "NodeType::Vector : '%s'\n", spark_datatype_to_str(node->_vector.type, datatypeBuffer, sizeof(datatypeBuffer)));
+            written = doSnprintf(buffer, buffer_size, written, "NodeType::Vector : '%s'\n", spark_datatype_to_str(dt, datatypeBuffer, sizeof(datatypeBuffer)));
             return written;
         }
 
@@ -214,28 +234,28 @@ namespace Spark
             const auto nodeType = node->_type;
             switch(nodeType)
             {
-                case NodeType::Control:
+                case spark_nodetype::control:
                     written = controlNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Operator:
+                case spark_nodetype::operation:
                     written = operatorNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Function:
+                case spark_nodetype::function:
                     written = functionNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Symbol:
+                case spark_nodetype::symbol:
                     written = symbolNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Constant:
+                case spark_nodetype::constant:
                     written = constantNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Property:
+                case spark_nodetype::property:
                     written = propertyNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Comment:
+                case spark_nodetype::comment:
                     written = commentNodeToText(node, out_buffer, buffer_size, written);
                     break;
-                case NodeType::Vector:
+                case spark_nodetype::vector:
                     written = vectorNodeToText(node, out_buffer, buffer_size, written);
                     break;
                 default:
@@ -246,7 +266,7 @@ namespace Spark
             // only 1 function node (no copy with just symbol id), so only print children if we're
             // defining the function
             bool printChildren =
-                ((nodeType == NodeType::Function) &&
+                ((nodeType == spark_nodetype::function) &&
                  (indentation > 1)) ?
                 false :
                 true;

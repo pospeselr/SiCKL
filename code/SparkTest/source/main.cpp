@@ -73,8 +73,20 @@ int main()
 {
     try
     {
+#if 0
+        Kernel<Void(Int)> kernel = []()
+        {
+            Function<Void(Int)> main = [](Int val)
+            {
+
+            };
+            main.SetEntryPoint();
+        };
+#endif
+
         Kernel<Void(PInt, PFloat)> kernel = []()
         {
+
             Function<Int(Int,Int)> sum =
             [](Int a, Int b)
             {
@@ -82,7 +94,6 @@ int main()
                 a = 12;
                 Return(a + b);
             };
-
             Function<Float(Float)> square =
             [](Float val)
             {
@@ -280,14 +291,6 @@ int main()
 
 
     #define PRINT_OFFSETOF(TYPE, MEMBER) printf("offsetof(" #TYPE ", " #MEMBER ") : %lu\n", __builtin_offsetof(TYPE, MEMBER))
-
-    char prop[16] = {0};
-    cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;
-    cout << spark_property_to_str(Property::XX, prop, countof(prop)) << endl;
-    cout << spark_property_to_str(Property::WX, prop, countof(prop)) << endl;
-    cout << spark_property_to_str(Property::YXWX, prop, countof(prop)) << endl;
-    cout << spark_property_to_str(Property::X, prop, countof(prop)) << endl;
-    cout << spark_property_to_str(Property::Lo, prop, countof(prop)) << endl;
 
     return 0;
 }
