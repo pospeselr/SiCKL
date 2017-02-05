@@ -2,10 +2,13 @@
 
 namespace Spark
 {
-    template<typename TYPE>
-    struct lvalue : TYPE
+    namespace Internal
     {
-        lvalue(spark_node_t* node) : TYPE(node) {}
-        using TYPE::operator=;
-    };
+        template<typename TYPE>
+        struct lvalue : TYPE
+        {
+            lvalue(spark_node_t* node) : TYPE(node) {}
+            using TYPE::operator=;
+        };
+    }
 }
