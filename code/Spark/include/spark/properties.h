@@ -23,6 +23,8 @@ namespace Spark
         }
     }
 
+    using namespace Internal;
+
     template<typename TYPE, Spark::Internal::Property ID>
     struct property_r
     {
