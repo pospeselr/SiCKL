@@ -77,5 +77,18 @@ namespace Spark
             return thisNode;
         }
 
+        inline
+        __attribute__ ((noinline))
+        void assignment_operator(spark_node_t* thisNode, Datatype datatype, spark_node_t* thatNode)
+        {
+            const auto dt = static_cast<spark_datatype_t>(datatype);
+            const auto op = static_cast<spark_operator_t>(Operator::Assignment);
+
+            // create assignment node
+            auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
+            // add to tree
+            auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
+            spark_add_child_node(currentScope, assignmentNode, Spark::Internal::ThrowOnError());
+        }
     }
 }
