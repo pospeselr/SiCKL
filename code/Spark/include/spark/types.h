@@ -4,12 +4,6 @@ namespace Spark
 {
     using namespace Internal;
 
-    // forward declare tyeps
-    struct Void;
-    template<typename TYPE> struct Pointer;
-    template<typename RAW_TYPE> struct scalar;
-    template<typename TYPE> struct vector2;
-
     /// int_type used to determine what boolean operators should return
 
     template<typename T>

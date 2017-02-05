@@ -65,6 +65,7 @@ namespace Spark
             spark_pop_scope_node(Spark::Internal::ThrowOnError());
         }
     }
+    using namespace Internal;
 
     template<typename> struct Function;
 
