@@ -3,12 +3,13 @@
 namespace Spark
 {
     // forward declare tyeps
-    template<typename RAW_TYPE> struct scalar;
-    template<typename TYPE> struct vector2;
-    template<typename TYPE> struct Pointer;
 
     namespace Internal
     {
+        template<typename RAW_TYPE> struct scalar;
+        template<typename TYPE> struct vector2;
+        template<typename TYPE> struct pointer;
+
         inline
         __attribute__ ((noinline))
         void destruct_attach(spark_node_t* node)
@@ -109,9 +110,9 @@ namespace Spark
 
         // pointer rvalue
         template<typename BASE_TYPE, bool DESTRUCT_ATTACH>
-        struct rvalue<Pointer<BASE_TYPE>,DESTRUCT_ATTACH> : Pointer<BASE_TYPE>
+        struct rvalue<pointer<BASE_TYPE>,DESTRUCT_ATTACH> : pointer<BASE_TYPE>
         {
-            typedef Pointer<BASE_TYPE> TYPE;
+            typedef pointer<BASE_TYPE> TYPE;
 
             rvalue(spark_node_t* node) : TYPE(node) {}
             rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}

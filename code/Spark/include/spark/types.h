@@ -2,8 +2,6 @@
 
 namespace Spark
 {
-    using namespace Internal;
-
     /// int_type used to determine what boolean operators should return
 
     template<typename T>
@@ -14,7 +12,7 @@ namespace Spark
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     inline\
     __attribute__((always_inline))\
-    const rvalue<RETURN_TYPE> operator OP(const rvalue<TYPE>& right)\
+    const Internal::rvalue<RETURN_TYPE> operator OP(const Internal::rvalue<TYPE>& right)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
         const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
@@ -97,8 +95,8 @@ namespace Spark
     MAKE_UNARY_OPERATOR(Pointer<TYPE>, TYPE, &, AddressOf)\
 
     #define MAKE_TYPEDEFS(TYPE, RAW_TYPE)\
-    typedef scalar<RAW_TYPE> TYPE;\
-    typedef vector2<scalar<RAW_TYPE>> TYPE##2;\
+    typedef Internal::scalar<RAW_TYPE> TYPE;\
+    typedef Internal::vector2<Internal::scalar<RAW_TYPE>> TYPE##2;\
     typedef Pointer<TYPE> P##TYPE;\
     typedef Pointer<TYPE##2> P##TYPE##2;\
 
@@ -130,21 +128,21 @@ namespace Spark
     template<typename TYPE>
     inline
     __attribute__((always_inline))
-    const rvalue<Pointer<TYPE>> operator+(const Pointer<TYPE>& pointer, const rvalue<UInt>& offset)
+    const rvalue<Internal::pointer<TYPE>> operator+(const Internal::pointer<TYPE>& ptr, const rvalue<UInt>& offset)
     {
         const auto dt = static_cast<spark_datatype_t>(Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
         const auto op = static_cast<spark_operator_t>(Operator::Add);
-        return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, pointer._node, offset._node));
+        return rvalue<Internal::pointer<TYPE>>(spark_create_operator2_node(dt, op, ptr._node, offset._node));
     }
 
     template<typename TYPE>
     inline
     __attribute__((always_inline))
-    const rvalue<Pointer<TYPE>> operator+(const rvalue<UInt>& offset, const Pointer<TYPE>& pointer)
+    const rvalue<Internal::pointer<TYPE>> operator+(const rvalue<UInt>& offset, const Internal::pointer<TYPE>& ptr)
     {
         const auto dt = static_cast<spark_datatype_t>(Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
         const auto op = static_cast<spark_operator_t>(Operator::Add);
-        return rvalue<Pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, pointer._node));
+        return rvalue<Internal::pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, ptr._node));
     }
 
 }

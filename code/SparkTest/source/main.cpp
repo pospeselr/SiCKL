@@ -84,6 +84,7 @@ int main()
         };
 #endif
 
+#if 1
         Kernel<Void(PInt, PFloat)> kernel = []()
         {
 
@@ -170,6 +171,7 @@ int main()
             };
             main.SetEntryPoint();
         };
+#endif
     }
     catch(std::exception& ex)
     {
