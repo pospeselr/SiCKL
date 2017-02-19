@@ -12,7 +12,7 @@
 #endif
 
 #ifdef SPARK_DEBUG
-	#define SPARK_ASSERT(X) do { if(!(X)) { spark_print_assert(#X, __FILE__, (uint32_t)__LINE__); } } while(0)
+	#define SPARK_ASSERT(X) do { if(!(X)) { spark::client::print_assert(#X, __FILE__, (uint32_t)__LINE__); } } while(0)
 	#define SPARK_VERIFY(X) SPARK_ASSERT(X)
 #else
 	#define SPARK_ASSERT(X) (void)0
@@ -71,8 +71,13 @@ namespace Spark
     }
 }
 
-// error handling
-extern "C" void spark_print_assert(const char* msg, const char* file, uint32_t line);
-extern "C" void spark_print_exception(const std::exception& ex);
-
-extern "C" void spark_test_error(spark_error_t** error);
+namespace spark
+{
+    namespace client
+    {
+        inline void print_assert(const char* msg, const char* source, uint32_t line)
+        {
+            printf("%s(%u) : %s\n", source, line, msg);
+        }
+    }
+}

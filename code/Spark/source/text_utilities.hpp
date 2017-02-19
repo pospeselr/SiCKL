@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
-    namespace Internal
+    namespace lib
     {
         template<typename T>
         struct codegen_context : public T
@@ -56,13 +56,7 @@ namespace Spark
                 format,
                 args...);
         }
-    }
-}
 
-namespace spark
-{
-    namespace lib
-    {
         std::string string_format(const char* format, ...);
     }
 }

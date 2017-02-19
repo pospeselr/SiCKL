@@ -1,5 +1,6 @@
 #include "spark.hpp"
 
+#include "error.hpp"
 #include "text_utilities.hpp"
 
 namespace spark

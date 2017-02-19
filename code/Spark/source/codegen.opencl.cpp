@@ -2,15 +2,21 @@
 
 // spark internal
 #include "node.hpp"
-#include "text_utilities.hpp"
 #include "error.hpp"
+#include "text_utilities.hpp"
 
 using std::string;
 using std::unordered_set;
 
-namespace Spark
+using namespace spark;
+using namespace spark::lib;
+
+using namespace Spark;
+using namespace Internal;
+
+namespace spark
 {
-    namespace Internal
+    namespace lib
     {
         struct opencl_data
         {
@@ -485,19 +491,19 @@ namespace Spark
     }
 }
 
-int32_t spark_node_to_opencl(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+DLL_PUBLIC int32_t spark_node_to_opencl(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
-    return Spark::Internal::TranslateExceptions(
+    return TranslateExceptions(
         error,
         [&]
         {
-            Spark::Internal::context ctx;
+            context ctx;
             {
                 ctx.buffer = out_buffer;
                 ctx.capacity = buffer_size;
             }
 
-            Spark::Internal::generateSource(ctx, node);
+            generateSource(ctx, node);
 
             // +1 for null terminator
             return ctx.written + 1;

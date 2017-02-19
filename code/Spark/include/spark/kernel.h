@@ -1,7 +1,5 @@
 #pragma once
 
-typedef struct spark_kernel spark_kernel_t;
-
 namespace Spark
 {
     namespace Internal
@@ -200,8 +198,6 @@ namespace Spark
         {
 
         };
-    private:
-        spark_kernel_t* _kernel = nullptr;
     };
 
     /// Return Operators

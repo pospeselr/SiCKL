@@ -1,9 +1,13 @@
 #include "spark.hpp"
 
+#include "error.hpp"
 #include "node.hpp"
 
 using namespace Spark;
 using namespace Internal;
+
+using namespace spark;
+using namespace spark::lib;
 
 const char* spark_nodetype_to_str(spark_nodetype_t val)
 {

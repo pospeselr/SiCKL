@@ -2,34 +2,34 @@
 
 // spark internal
 #include "node.hpp"
-#include "text_utilities.hpp"
 #include "error.hpp"
+#include "text_utilities.hpp"
 
-spark_node::~spark_node()
+namespace spark
 {
-    if(this->_type == spark_nodetype::constant)
-    {
-        delete[] this->_constant.buffer;
-    }
-}
-
-namespace Spark
-{
-    namespace Internal
+    namespace lib
     {
         thread_local spark_symbolid_t g_nextSymbol;
         thread_local std::vector<spark_node_t*> g_nodeStack;
         thread_local std::vector<spark_node_t*> g_allocatedNodes;
 
-        // node text functions
-        int32_t nodeToText(spark_node_t* node, char* out_buffer, int32_t buffer_size, int32_t written, uint32_t bars, int32_t indentation);
+        spark_node::~spark_node()
+        {
+            if(this->_type == spark_nodetype::constant)
+            {
+                delete[] this->_constant.buffer;
+            }
+        }
     }
 }
 
 using namespace Spark;
 using namespace Spark::Internal;
 
-void spark_begin_program(spark_error_t** error)
+using namespace spark;
+using namespace spark::lib;
+
+DLL_PUBLIC void spark_begin_program(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -39,7 +39,7 @@ void spark_begin_program(spark_error_t** error)
         });
 }
 
-void spark_end_program(spark_error_t** error)
+DLL_PUBLIC void spark_end_program(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -56,7 +56,7 @@ void spark_end_program(spark_error_t** error)
 
 // node creation
 
-spark_node_t* spark_create_control_node(spark_control_t c, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_control_node(spark_control_t c, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -73,7 +73,7 @@ spark_node_t* spark_create_control_node(spark_control_t c, spark_error_t** error
         });
 }
 
-spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_operator_t id, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_operator_t id, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -89,7 +89,7 @@ spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_operator_t i
         });
 }
 
-spark_node_t* spark_create_function_node(spark_datatype_t returnType, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_function_node(spark_datatype_t returnType, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -106,7 +106,7 @@ spark_node_t* spark_create_function_node(spark_datatype_t returnType, spark_erro
         });
 }
 
-spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -122,7 +122,7 @@ spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_error_t** erro
         });
 }
 
-spark_node_t* spark_create_constant_node(spark_datatype_t dt, const void* raw, size_t sz, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_constant_node(spark_datatype_t dt, const void* raw, size_t sz, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -143,7 +143,7 @@ spark_node_t* spark_create_constant_node(spark_datatype_t dt, const void* raw, s
         });
 }
 
-spark_node_t* spark_create_property_node(spark_property_t prop, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_property_node(spark_property_t prop, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -158,7 +158,7 @@ spark_node_t* spark_create_property_node(spark_property_t prop, spark_error_t** 
         });
 }
 
-spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -173,7 +173,7 @@ spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** err
         });
 }
 
-spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_node_t** children, size_t count, spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_node_t** children, size_t count, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -197,7 +197,7 @@ spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_node_t** chi
         });
 }
 
-spark_node_t* spark_create_scope_block_node(spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_create_scope_block_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -210,7 +210,7 @@ spark_node_t* spark_create_scope_block_node(spark_error_t** error)
 }
 
 // tree modification
-void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t** error)
+DLL_PUBLIC void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -226,7 +226,7 @@ void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t*
 }
 
 // node property query
-bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
+DLL_PUBLIC bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -236,7 +236,7 @@ bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
         });
 }
 
-void spark_node_make_entrypoint(spark_node_t* node, spark_error_t** error)
+DLL_PUBLIC void spark_node_make_entrypoint(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -247,7 +247,7 @@ void spark_node_make_entrypoint(spark_node_t* node, spark_error_t** error)
 }
 
 // source scope
-void spark_push_scope_node(spark_node_t* node, spark_error_t** error)
+DLL_PUBLIC void spark_push_scope_node(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -257,7 +257,7 @@ void spark_push_scope_node(spark_node_t* node, spark_error_t** error)
         });
 }
 
-void spark_pop_scope_node(spark_error_t** error)
+DLL_PUBLIC void spark_pop_scope_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -267,7 +267,7 @@ void spark_pop_scope_node(spark_error_t** error)
         });
 }
 
-spark_node_t* spark_peek_scope_node(spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_peek_scope_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -277,7 +277,7 @@ spark_node_t* spark_peek_scope_node(spark_error_t** error)
         });
 }
 
-spark_node_t* spark_get_root_node(spark_error_t** error)
+DLL_PUBLIC spark_node_t* spark_get_root_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,

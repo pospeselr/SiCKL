@@ -2,14 +2,17 @@
 
 // spark internal
 #include "node.hpp"
-#include "text_utilities.hpp"
 #include "error.hpp"
+#include "text_utilities.hpp"
 
 const char* spark_nodetype_to_str(spark_nodetype_t val);
 
-namespace Spark
+using namespace Spark;
+using namespace Internal;
+
+namespace spark
 {
-    namespace Internal
+    namespace lib
     {
         int32_t controlNodeToText(spark_node_t* node, char* buffer, int32_t buffer_size, int32_t written)
         {
@@ -294,12 +297,12 @@ namespace Spark
     }
 }
 
-int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+DLL_PUBLIC int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
-    return Spark::Internal::TranslateExceptions(
+    return TranslateExceptions(
         error,
         [&]
         {
-            return Spark::Internal::nodeToText(node, out_buffer, buffer_size, 0, 0, 0) + 1;
+            return nodeToText(node, out_buffer, buffer_size, 0, 0, 0) + 1;
         });
 }
