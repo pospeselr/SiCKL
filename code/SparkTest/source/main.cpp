@@ -71,6 +71,10 @@ namespace Spark
 
 int main()
 {
+    auto context = spark_create_context(ThrowOnError());
+    spark_set_current_context(context, nullptr);
+    spark_destroy_context(context, nullptr);
+
     try
     {
 #if 0

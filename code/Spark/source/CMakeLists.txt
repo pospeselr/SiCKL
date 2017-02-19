@@ -1,3 +1,5 @@
+find_package(OpenCL REQUIRED)
+
 add_compile_options(-std=c++1z)
 add_compile_options(-Wall)
 add_compile_options(-Werror)
@@ -10,6 +12,10 @@ add_library(spark SHARED
     error.cpp
     node.cpp
     codegen.tree.cpp
-    codegen.opencl.cpp)
+    codegen.opencl.cpp
+    runtime.cpp
+    text_utilities.cpp)
+
+target_link_libraries(spark OpenCL)
 
 include_directories(../include)

@@ -58,3 +58,11 @@ namespace Spark
         }
     }
 }
+
+namespace spark
+{
+    namespace lib
+    {
+        std::string string_format(const char* format, ...);
+    }
+}
