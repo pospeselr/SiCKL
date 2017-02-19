@@ -7,9 +7,6 @@
 using std::unique_ptr;
 using std::make_unique;
 
-using namespace Spark;
-using namespace Spark::Internal;
-
 // lets us use OpenCL release functions with unique_any type
 #pragma GCC diagnostic ignored "-Wignored-attributes"
 

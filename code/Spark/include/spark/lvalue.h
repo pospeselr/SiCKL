@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
-    namespace Internal
+    namespace client
     {
         template<typename TYPE>
         struct lvalue : TYPE

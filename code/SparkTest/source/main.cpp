@@ -9,10 +9,12 @@ using std::endl;
 using std::unique_ptr;
 
 // spark
+#define SPARK_DEBUGU
 #include <spark.h>
-using namespace Spark;
+using namespace spark;
+using namespace spark::client;
 
-namespace Spark
+namespace spark
 {
     typedef uint8_t true_t;
     typedef uint16_t false_t;
@@ -289,11 +291,11 @@ int main()
 #endif
     #define PRINT_SIZEOF(TYPE) printf("sizeof(" #TYPE "): %lu\n", sizeof(TYPE))
 
-    PRINT_SIZEOF(Spark::Int);
-    PRINT_SIZEOF(Spark::UInt);
-    PRINT_SIZEOF(Spark::Int2);
+    PRINT_SIZEOF(spark::Int);
+    PRINT_SIZEOF(spark::UInt);
+    PRINT_SIZEOF(spark::Int2);
 
-    PRINT_SIZEOF(Spark::rvalue<Spark::Int>);
+    PRINT_SIZEOF(spark::client::rvalue<spark::Int>);
 
 
     #define PRINT_OFFSETOF(TYPE, MEMBER) printf("offsetof(" #TYPE ", " #MEMBER ") : %lu\n", __builtin_offsetof(TYPE, MEMBER))

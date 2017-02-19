@@ -1,15 +1,15 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
-    namespace Internal
+    namespace client
     {
         // void type
         struct void_type
         {
-            static constexpr Datatype type = Datatype(Primitive::Void, Components::None, false);
+            static constexpr spark::shared::Datatype type = spark::shared::Datatype(spark::shared::Primitive::Void, spark::shared::Components::None, false);
         };
-        constexpr Datatype void_type::type;
+        constexpr spark::shared::Datatype void_type::type;
     }
-    typedef Internal::void_type Void;
+    typedef client::void_type Void;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
     /// int_type used to determine what boolean operators should return
 
@@ -12,41 +12,41 @@ namespace Spark
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     inline\
     __attribute__((always_inline))\
-    const Internal::rvalue<RETURN_TYPE> operator OP(const Internal::rvalue<TYPE>& right)\
+    const client::rvalue<RETURN_TYPE> operator OP(const client::rvalue<TYPE>& right)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
-        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
-        return rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
+        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::ENUM);\
+        return client::rvalue<RETURN_TYPE>(spark_create_operator1_node(dt, op, right._node));\
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     inline\
     __attribute__((always_inline))\
-    const rvalue<RETURN_TYPE> operator OP (const rvalue<TYPE>& left, const rvalue<TYPE>& right)\
+    const client::rvalue<RETURN_TYPE> operator OP (const client::rvalue<TYPE>& left, const client::rvalue<TYPE>& right)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
-        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
-        return rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
+        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::ENUM);\
+        return client::rvalue<RETURN_TYPE>(spark_create_operator2_node(dt, op, left._node, right._node));\
     }
 
     #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     inline\
     __attribute__((always_inline))\
-    const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
+    const client::rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
-        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
-        return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
+        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::ENUM);\
+        return client::rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
     }
 
     #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
     inline\
     __attribute__((always_inline))\
-    const rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
+    const client::rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
-        const auto op = static_cast<spark_operator_t>(Operator::ENUM);\
-        return rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
+        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::ENUM);\
+        return client::rvalue<RETURN_TYPE, true>(spark_create_operator1_node(dt, op, value._node));\
     }
 
     #define MAKE_INT_OPERATORS(TYPE)\
@@ -95,8 +95,8 @@ namespace Spark
     MAKE_UNARY_OPERATOR(Pointer<TYPE>, TYPE, &, AddressOf)\
 
     #define MAKE_TYPEDEFS(TYPE, RAW_TYPE)\
-    typedef Internal::scalar<RAW_TYPE> TYPE;\
-    typedef Internal::vector2<Internal::scalar<RAW_TYPE>> TYPE##2;\
+    typedef client::scalar<RAW_TYPE> TYPE;\
+    typedef client::vector2<client::scalar<RAW_TYPE>> TYPE##2;\
     typedef Pointer<TYPE> P##TYPE;\
     typedef Pointer<TYPE##2> P##TYPE##2;\
 
@@ -128,21 +128,20 @@ namespace Spark
     template<typename TYPE>
     inline
     __attribute__((always_inline))
-    const rvalue<Internal::pointer<TYPE>> operator+(const Internal::pointer<TYPE>& ptr, const rvalue<UInt>& offset)
+    const client::rvalue<client::pointer<TYPE>> operator+(const client::pointer<TYPE>& ptr, const client::rvalue<UInt>& offset)
     {
-        const auto dt = static_cast<spark_datatype_t>(Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
-        const auto op = static_cast<spark_operator_t>(Operator::Add);
-        return rvalue<Internal::pointer<TYPE>>(spark_create_operator2_node(dt, op, ptr._node, offset._node));
+        const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
+        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Add);
+        return client::rvalue<client::pointer<TYPE>>(spark_create_operator2_node(dt, op, ptr._node, offset._node));
     }
 
     template<typename TYPE>
     inline
     __attribute__((always_inline))
-    const rvalue<Internal::pointer<TYPE>> operator+(const rvalue<UInt>& offset, const Internal::pointer<TYPE>& ptr)
+    const client::rvalue<client::pointer<TYPE>> operator+(const client::rvalue<UInt>& offset, const client::pointer<TYPE>& ptr)
     {
-        const auto dt = static_cast<spark_datatype_t>(Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
-        const auto op = static_cast<spark_operator_t>(Operator::Add);
-        return rvalue<Internal::pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, ptr._node));
+        const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
+        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Add);
+        return client::rvalue<client::pointer<TYPE>>(spark_create_operator2_node(dt, op, offset._node, ptr._node));
     }
-
 }

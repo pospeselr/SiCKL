@@ -10,9 +10,7 @@ using std::unordered_set;
 
 using namespace spark;
 using namespace spark::lib;
-
-using namespace Spark;
-using namespace Internal;
+using namespace spark::shared;
 
 namespace spark
 {

@@ -1,10 +1,15 @@
 // spark
-#include "spark/common.h"
+
+// misc
+#include "spark/platform.h"
+#include "spark/utilities.h"
 #include "spark/error.h"
+// api
 #include "spark/enums.h"
 #include "spark/node.h"
 #include "spark/runtime.h"
 #include "spark/codegen.h"
+// kernel authoring
 #include "spark/functions.h"
 #include "spark/rvalue.h"
 #include "spark/lvalue.h"

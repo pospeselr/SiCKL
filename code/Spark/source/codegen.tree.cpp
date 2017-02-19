@@ -7,8 +7,9 @@
 
 const char* spark_nodetype_to_str(spark_nodetype_t val);
 
-using namespace Spark;
-using namespace Internal;
+using namespace spark;
+using namespace spark::lib;
+using namespace spark::shared;
 
 namespace spark
 {

@@ -1,10 +1,8 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
-    using namespace Internal;
-
-    namespace Internal
+    namespace client
     {
         template<typename T> struct is_scalar_type {const static bool value = false;};
         template<typename T> struct is_vector2_type {const static bool value = false;};
@@ -31,7 +29,7 @@ namespace Spark
         template<typename T> struct type_to_primitive {};
 
     #define MAKE_TYPE_TO_PRIMITIVE(TYPE, PRIMITIVE)\
-        template<> struct type_to_primitive<TYPE> {static constexpr Primitive value = Internal::Primitive::PRIMITIVE;};
+        template<> struct type_to_primitive<TYPE> {static constexpr spark::shared::Primitive value = spark::shared::Primitive::PRIMITIVE;};
 
         MAKE_TYPE_TO_PRIMITIVE(int8_t, Char);
         MAKE_TYPE_TO_PRIMITIVE(uint8_t, UChar);

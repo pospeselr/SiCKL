@@ -23,11 +23,9 @@ namespace spark
     }
 }
 
-using namespace Spark;
-using namespace Spark::Internal;
-
 using namespace spark;
 using namespace spark::lib;
+using namespace spark::shared;
 
 DLL_PUBLIC void spark_begin_program(spark_error_t** error)
 {
@@ -62,11 +60,11 @@ DLL_PUBLIC spark_node_t* spark_create_control_node(spark_control_t c, spark_erro
         error,
         [&]
         {
-            SPARK_ASSERT(c < static_cast<spark_control_t>(Spark::Internal::Control::Count));
+            SPARK_ASSERT(c < static_cast<spark_control_t>(Control::Count));
 
             spark_node_t* node = new spark_node_t();
             node->_type = spark_nodetype::control;
-            node->_control = static_cast<Spark::Internal::Control>(c);
+            node->_control = static_cast<Control>(c);
 
             g_allocatedNodes.push_back(node);
             return node;
@@ -81,8 +79,8 @@ DLL_PUBLIC spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_o
         {
             spark_node_t* node = new spark_node_t();
             node->_type = spark_nodetype::operation;
-            node->_operator.type = static_cast<Spark::Internal::Datatype>(dt);
-            node->_operator.id = static_cast<Spark::Internal::Operator>(id);
+            node->_operator.type = static_cast<Datatype>(dt);
+            node->_operator.id = static_cast<Operator>(id);
 
             g_allocatedNodes.push_back(node);
             return node;
@@ -114,7 +112,7 @@ DLL_PUBLIC spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_err
         {
             spark_node_t* node = new spark_node_t();
             node->_type = spark_nodetype::symbol;
-            node->_symbol.type = static_cast<Spark::Internal::Datatype>(dt);
+            node->_symbol.type = static_cast<Datatype>(dt);
             node->_symbol.id = g_nextSymbol++;
 
             g_allocatedNodes.push_back(node);
@@ -133,7 +131,7 @@ DLL_PUBLIC spark_node_t* spark_create_constant_node(spark_datatype_t dt, const v
 
             spark_node_t* node = new spark_node_t();
             node->_type = spark_nodetype::constant;
-            node->_constant.type = static_cast<Spark::Internal::Datatype>(dt);
+            node->_constant.type = static_cast<Datatype>(dt);
             node->_constant.buffer = new uint8_t[sz];
             std::memcpy(node->_constant.buffer, raw, sz);
             node->_constant.size = sz;
@@ -151,7 +149,7 @@ DLL_PUBLIC spark_node_t* spark_create_property_node(spark_property_t prop, spark
         {
             spark_node_t* node = new spark_node_t();
             node->_type = spark_nodetype::property;
-            node->_property.id = static_cast<Spark::Internal::Property>(prop);
+            node->_property.id = static_cast<Property>(prop);
 
             g_allocatedNodes.push_back(node);
             return node;
@@ -179,7 +177,7 @@ DLL_PUBLIC spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_n
         error,
         [&]
         {
-            auto dt = static_cast<Spark::Internal::Datatype>(type);
+            auto dt = static_cast<Datatype>(type);
             auto c = dt.GetComponents();
             SPARK_ASSERT(c != Components::None && c != Components::Scalar);
             spark_node_t* node = new spark_node_t();

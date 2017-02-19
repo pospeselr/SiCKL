@@ -3,11 +3,9 @@
 #include "error.hpp"
 #include "node.hpp"
 
-using namespace Spark;
-using namespace Internal;
-
 using namespace spark;
 using namespace spark::lib;
+using namespace spark::shared;
 
 const char* spark_nodetype_to_str(spark_nodetype_t val)
 {
@@ -75,13 +73,11 @@ const char* spark_datatype_to_str(spark_datatype_t val, char* buffer, int32_t sz
 	};
 
 
-	auto dt = static_cast<Spark::Internal::Datatype>(val);
+	auto dt = static_cast<Datatype>(val);
 
 	auto primitive = dt.GetPrimitive();
 	auto components = dt.GetComponents();
 	auto pointer = dt.GetPointer();
-
-	using Spark::Internal::Components;
 
 	// temporary asserts until other vectors and containers are implemented
 	SPARK_ASSERT(
@@ -151,7 +147,7 @@ const char* spark_operator_to_str(spark_operator_t val)
 
 const char* spark_property_to_str(spark_property_t val, char* buffer, int32_t sz)
 {
-	const auto property = static_cast<Spark::Internal::Property>(val);
+	const auto property = static_cast<Property>(val);
 	if(property >= Property::FirstProperty)
 	{
 		const static char* propertyNames[] =

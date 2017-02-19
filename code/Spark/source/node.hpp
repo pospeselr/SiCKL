@@ -31,36 +31,36 @@ namespace spark
             bool _attached = false;
             union
             {
-                Spark::Internal::Control _control;
+                spark::shared::Control _control;
                 struct
                 {
-                    Spark::Internal::Datatype type;
-                    Spark::Internal::Operator id;
+                    spark::shared::Datatype type;
+                    spark::shared::Operator id;
                 } _operator;
                 struct
                 {
                     spark_symbolid_t id;
-                    Spark::Internal::Datatype returnType;
+                    spark::shared::Datatype returnType;
                     bool entrypoint;
                 } _function;
                 struct
                 {
-                    Spark::Internal::Datatype type;
+                    spark::shared::Datatype type;
                     spark_symbolid_t id;
                 } _symbol;
                 struct
                 {
-                    Spark::Internal::Datatype type;
+                    spark::shared::Datatype type;
                     uint8_t* buffer;
                     uint32_t size;
                 } _constant;
                 struct
                 {
-                    Spark::Internal::Property id;
+                    spark::shared::Property id;
                 } _property;
                 struct
                 {
-                    Spark::Internal::Datatype type;
+                    spark::shared::Datatype type;
                 } _vector;
                 const char* _comment;
             };

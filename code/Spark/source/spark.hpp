@@ -13,7 +13,8 @@
 #include <unordered_set>
 
 // spark
-#include "spark/common.h"
+#include "spark/platform.h"
+#include "spark/utilities.h"
 #include "spark/enums.h"
 
 // opencl

@@ -1,11 +1,12 @@
 #pragma once
-namespace Spark
+
+namespace spark
 {
 	void Comment(const char* comment)
 	{
 		// create comment node
-		auto commentNode = spark_create_comment_node(comment, Spark::Internal::ThrowOnError());
-		auto currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
-		spark_add_child_node(currentScope, commentNode,Spark::Internal::ThrowOnError());
+		auto commentNode = spark_create_comment_node(comment, THROW_ON_ERROR());
+		auto currentScope = spark_peek_scope_node(THROW_ON_ERROR());
+		spark_add_child_node(currentScope, commentNode,THROW_ON_ERROR());
 	}
 }

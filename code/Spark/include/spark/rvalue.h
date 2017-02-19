@@ -1,10 +1,10 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
     // forward declare tyeps
 
-    namespace Internal
+    namespace client
     {
         template<typename RAW_TYPE> struct scalar;
         template<typename TYPE> struct vector2;
@@ -14,12 +14,12 @@ namespace Spark
         __attribute__ ((noinline))
         void destruct_attach(spark_node_t* node)
         {
-            bool nodeAttached = spark_node_get_attached(node, Spark::Internal::ThrowOnError());
+            bool nodeAttached = spark_node_get_attached(node, THROW_ON_ERROR());
             if(nodeAttached == false)
             {
                 // add to tree
-                spark_node_t* currentScope = spark_peek_scope_node(Spark::Internal::ThrowOnError());
-                spark_add_child_node(currentScope, node, Spark::Internal::ThrowOnError());
+                spark_node_t* currentScope = spark_peek_scope_node(THROW_ON_ERROR());
+                spark_add_child_node(currentScope, node, THROW_ON_ERROR());
             }
         }
 
@@ -44,7 +44,7 @@ namespace Spark
             rvalue(const TYPE& that) : rvalue(that._node) {}
             inline
             __attribute__ ((always_inline))
-            rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), Spark::Internal::ThrowOnError())) {}
+            rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), THROW_ON_ERROR())) {}
 
             inline
             __attribute__ ((always_inline))
@@ -60,7 +60,7 @@ namespace Spark
 
                 if(DESTRUCT_ATTACH)
                 {
-                    Spark::Internal::destruct_attach(this->_node);
+                    destruct_attach(this->_node);
                 }
             }
             rvalue& operator=(const rvalue&) = delete;
@@ -81,7 +81,7 @@ namespace Spark
                 [](spark_node_t* x, spark_node_t* y) -> spark_node_t*
                 {
                     spark_node_t* children[] = {x, y};
-                    auto listNode = spark_create_vector_node(TYPE::type, children, countof(children), Spark::Internal::ThrowOnError());
+                    auto listNode = spark_create_vector_node(TYPE::type, children, countof(children), THROW_ON_ERROR());
                     return listNode;
                 }(x._node, y._node))
             {
@@ -102,7 +102,7 @@ namespace Spark
 
                 if(DESTRUCT_ATTACH)
                 {
-                    Spark::Internal::destruct_attach(this->_node);
+                    destruct_attach(this->_node);
                 }
             }
             rvalue& operator=(const rvalue&) = delete;
@@ -132,7 +132,7 @@ namespace Spark
 
                 if(DESTRUCT_ATTACH)
                 {
-                    Spark::Internal::destruct_attach(this->_node);
+                    destruct_attach(this->_node);
                 }
             }
             rvalue& operator=(const rvalue&) = delete;

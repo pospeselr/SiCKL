@@ -5,9 +5,9 @@ typedef uint32_t spark_datatype_t;
 typedef uint32_t spark_operator_t;
 typedef uint32_t spark_property_t;
 
-namespace Spark
+namespace spark
 {
-    namespace Internal
+    namespace shared
     {
         // Helper Functions
         template<typename T>

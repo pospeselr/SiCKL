@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Spark
+namespace spark
 {
 	template<typename RANGE>
 	struct iterator
@@ -10,22 +10,22 @@ namespace Spark
 		{
 			_range->init();
 
-			auto root = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::For), Spark::Internal::ThrowOnError());
-			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), root, Spark::Internal::ThrowOnError());
-			spark_push_scope_node(root, Spark::Internal::ThrowOnError());
+			auto root = spark_create_control_node(static_cast<spark_control_t>(spark::shared::Control::For), THROW_ON_ERROR());
+			spark_add_child_node(spark_peek_scope_node(THROW_ON_ERROR()), root, THROW_ON_ERROR());
+			spark_push_scope_node(root, THROW_ON_ERROR());
 
-			auto parameterList = spark_create_control_node(static_cast<spark_control_t>(Internal::Control::ParameterList), Spark::Internal::ThrowOnError());
-			spark_add_child_node(root, parameterList, Spark::Internal::ThrowOnError());
+			auto parameterList = spark_create_control_node(static_cast<spark_control_t>(spark::shared::Control::ParameterList), THROW_ON_ERROR());
+			spark_add_child_node(root, parameterList, THROW_ON_ERROR());
 
-			spark_push_scope_node(parameterList, Spark::Internal::ThrowOnError());
+			spark_push_scope_node(parameterList, THROW_ON_ERROR());
 		}
 
 		~iterator()
 		{
 			if(_range)
 			{
-				spark_pop_scope_node(Spark::Internal::ThrowOnError());
-				spark_pop_scope_node(Spark::Internal::ThrowOnError());
+				spark_pop_scope_node(THROW_ON_ERROR());
+				spark_pop_scope_node(THROW_ON_ERROR());
 			}
 		}
 
@@ -33,13 +33,13 @@ namespace Spark
 		{
 			if(_result)
 			{
-				auto compare = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
-				spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), compare, Spark::Internal::ThrowOnError());
-				spark_push_scope_node(compare, Spark::Internal::ThrowOnError());
+				auto compare = spark_create_scope_block_node(THROW_ON_ERROR());
+				spark_add_child_node(spark_peek_scope_node(THROW_ON_ERROR()), compare, THROW_ON_ERROR());
+				spark_push_scope_node(compare, THROW_ON_ERROR());
 
 				_range->compare();
 
-				spark_pop_scope_node(Spark::Internal::ThrowOnError());
+				spark_pop_scope_node(THROW_ON_ERROR());
 			}
 			return _result;
 		}
@@ -52,18 +52,18 @@ namespace Spark
 
 		auto& operator*()
 		{
-			auto update = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
-			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), update, Spark::Internal::ThrowOnError());
-			spark_push_scope_node(update, Spark::Internal::ThrowOnError());
+			auto update = spark_create_scope_block_node(THROW_ON_ERROR());
+			spark_add_child_node(spark_peek_scope_node(THROW_ON_ERROR()), update, THROW_ON_ERROR());
+			spark_push_scope_node(update, THROW_ON_ERROR());
 
 			_range->update_value();
 
-			spark_pop_scope_node(Spark::Internal::ThrowOnError());
-			spark_pop_scope_node(Spark::Internal::ThrowOnError());
+			spark_pop_scope_node(THROW_ON_ERROR());
+			spark_pop_scope_node(THROW_ON_ERROR());
 
-			auto body = spark_create_scope_block_node(Spark::Internal::ThrowOnError());
-			spark_add_child_node(spark_peek_scope_node(Spark::Internal::ThrowOnError()), body, Spark::Internal::ThrowOnError());
-			spark_push_scope_node(body, Spark::Internal::ThrowOnError());
+			auto body = spark_create_scope_block_node(THROW_ON_ERROR());
+			spark_add_child_node(spark_peek_scope_node(THROW_ON_ERROR()), body, THROW_ON_ERROR());
+			spark_push_scope_node(body, THROW_ON_ERROR());
 
 			return _range->get_value();
 		}
@@ -76,9 +76,9 @@ namespace Spark
 	template<typename TYPE>
 	struct Range
 	{
-		Range(const rvalue<TYPE>& start, const rvalue<TYPE>& stop) : Range(start, stop, 1) {}
+		Range(const spark::client::rvalue<TYPE>& start, const spark::client::rvalue<TYPE>& stop) : Range(start, stop, 1) {}
 
-		Range(const rvalue<TYPE>& start, const rvalue<TYPE>& stop, const rvalue<TYPE>& step)
+		Range(const spark::client::rvalue<TYPE>& start, const spark::client::rvalue<TYPE>& stop, const spark::client::rvalue<TYPE>& step)
 		: _start(start)
 		, _stop(stop)
 		, _step(step)
