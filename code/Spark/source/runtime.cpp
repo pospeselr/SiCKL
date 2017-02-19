@@ -53,7 +53,7 @@ namespace spark
     }
 }
 
-DLL_PUBLIC spark_context_t* spark_create_context(spark_error_t** error)
+SPARK_EXPORT spark_context_t* spark_create_context(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -74,7 +74,7 @@ DLL_PUBLIC spark_context_t* spark_create_context(spark_error_t** error)
         });
 }
 
-DLL_PUBLIC void spark_set_current_context(spark_context_t* context, spark_error_t** error)
+SPARK_EXPORT void spark_set_current_context(spark_context_t* context, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -85,7 +85,7 @@ DLL_PUBLIC void spark_set_current_context(spark_context_t* context, spark_error_
         });
 }
 
-DLL_PUBLIC void spark_destroy_context(spark_context_t* context, spark_error_t** error)
+SPARK_EXPORT void spark_destroy_context(spark_context_t* context, spark_error_t** error)
 {
     return TranslateExceptions(
         error,

@@ -18,21 +18,21 @@ namespace spark
         public:
             // constructors
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             pointer(std::nullptr_t)
             {
                 this->_node = extern_constructor(pointer::type);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             pointer(const pointer& that)
             {
                 this->_node = copy_constructor(pointer::type, that._node);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             pointer(const rvalue<pointer>& that)
             {
                 this->_node = copy_constructor(pointer::type, that._node);
@@ -41,7 +41,7 @@ namespace spark
             pointer(pointer&&) = default;
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             pointer& operator=(const pointer& that)
             {
                 const auto dt = static_cast<spark_datatype_t>(pointer::type);
@@ -51,7 +51,7 @@ namespace spark
 
             // pointer dereference operator
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             TYPE operator*()
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
@@ -60,7 +60,7 @@ namespace spark
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             rvalue<TYPE> operator*() const
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);

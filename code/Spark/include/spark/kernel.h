@@ -5,7 +5,7 @@ namespace spark
     namespace client
     {
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         spark_node_t* functor_operator(spark::shared::Datatype returnType, spark_node_t* functionNode)
         {
             const auto dt = static_cast<spark_datatype_t>(returnType);
@@ -18,7 +18,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         auto function_create_begin(spark::shared::Datatype returnType)
         {
             // get the root kernel node
@@ -41,7 +41,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         void function_create_middle(spark_node_t* functionRoot)
         {
             spark_pop_scope_node( THROW_ON_ERROR());
@@ -53,7 +53,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         void function_create_end(spark_node_t* kernelRoot, spark_node_t* functionRoot)
         {
             spark_pop_scope_node( THROW_ON_ERROR());
@@ -71,13 +71,13 @@ namespace spark
     template<typename RETURN, typename... PARAMS>
     struct Function<RETURN(PARAMS...)>
     {
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         Function(auto func)
         {
             *this = func;
         }
 
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         Function& operator=(auto func)
         {
             SPARK_ASSERT(this->_node == nullptr);
@@ -87,13 +87,13 @@ namespace spark
             return *this;
         }
 
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         void SetEntryPoint()
         {
             spark_node_make_entrypoint(this->_node,  THROW_ON_ERROR());
         }
 
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         const client::rvalue<RETURN, true> operator()(const PARAMS&... params) const
         {
             auto opNode = client::functor_operator(RETURN::type, this->_node);
@@ -104,7 +104,7 @@ namespace spark
     private:
 
         inline
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         void function_create(auto function_body, PARAMS&&... params)
         {
             spark_node_t* kernelRoot;
@@ -126,18 +126,18 @@ namespace spark
 
         // build function AST
         template<typename PARAM, typename... TAIL_PARAMS>
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         void function_header(spark_node_t* parameterList, PARAM param0, TAIL_PARAMS... tailParams)
         {
             spark_add_child_node(parameterList, param0._node,  THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         void function_header(spark_node_t*) {};
 
         // used for invoking function
         template<typename PARAM0, typename... TAIL_PARAMS>
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         void function_push_param(spark_node_t* opNode, const PARAM0& param0, const TAIL_PARAMS&... tailParams) const
         {
             SPARK_ASSERT(opNode != nullptr);
@@ -147,7 +147,7 @@ namespace spark
 
             function_push_param(opNode, tailParams...);
         }
-        __attribute__ ((always_inline))
+        SPARK_FORCE_INLINE
         void function_push_param(spark_node_t*) const {};
 
         spark_node_t* _node = nullptr;

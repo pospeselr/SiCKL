@@ -18,7 +18,7 @@ namespace spark
         protected:
             // node constructor
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2(spark_node_t* node)
             : _node(node)
             {
@@ -27,39 +27,39 @@ namespace spark
         public:
             // constructors
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2() : vector2(0.0f, 0.0f) {}
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2(std::nullptr_t)
             {
                 this->_node = extern_constructor(vector2::type);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2(const rvalue<vector2>& that)
             {
                 this->_node = copy_constructor(vector2::type, that._node);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2(const lvalue<vector2>& that)
             {
                 this->_node = copy_constructor(vector2::type, that._node);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2(const vector2& that)
             {
                 this->_node = copy_constructor(vector2::type, that._node);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
             {
                 spark_node_t* children[] = {x._node, y._node};
@@ -69,7 +69,7 @@ namespace spark
             vector2(vector2&&) = default;
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             vector2& operator=(const vector2& that)
             {
                 assignment_operator(this->_node, vector2::type, that._node);
@@ -98,7 +98,7 @@ namespace spark
 
             // indexing operators
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
@@ -109,7 +109,7 @@ namespace spark
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             const rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);

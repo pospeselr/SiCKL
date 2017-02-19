@@ -5,7 +5,7 @@ namespace spark
     namespace client
     {
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         spark_node_t* extern_constructor(spark::shared::Datatype datatype)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);
@@ -14,7 +14,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         spark_node_t* value_constructor(spark::shared::Datatype datatype, const void* raw, size_t sz)
         {
             auto primitive = datatype.GetPrimitive();
@@ -48,7 +48,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         spark_node_t* copy_constructor(spark::shared::Datatype datatype, spark_node_t* that)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);
@@ -67,7 +67,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         spark_node_t* vector_constructor(spark::shared::Datatype datatype, spark_node_t** children, size_t count)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);
@@ -78,7 +78,7 @@ namespace spark
         }
 
         inline
-        __attribute__ ((noinline))
+        SPARK_NEVER_INLINE
         void assignment_operator(spark_node_t* thisNode, spark::shared::Datatype datatype, spark_node_t* thatNode)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);

@@ -298,7 +298,7 @@ namespace spark
     }
 }
 
-DLL_PUBLIC int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+SPARK_EXPORT int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
     return TranslateExceptions(
         error,

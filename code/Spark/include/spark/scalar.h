@@ -25,7 +25,7 @@ namespace spark
         protected:
             // node constructor
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar(spark_node_t* node)
             : _node(node)
             {
@@ -34,7 +34,7 @@ namespace spark
         public:
             // constructors
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar()
             {
                 RAW_TYPE val = {};
@@ -42,35 +42,35 @@ namespace spark
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar(std::nullptr_t)
             {
                 this->_node = extern_constructor(scalar::type);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar(RAW_TYPE val)
             {
                 this->_node = value_constructor(scalar::type, &val, sizeof(val));
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar(const scalar& that)
             {
                 this->_node = copy_constructor(scalar::type, that._node);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar(const lvalue<scalar>& that)
             {
                 this->_node = copy_constructor(scalar::type, that._node);
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar(const rvalue<scalar>& that)
             {
                 this->_node = copy_constructor(scalar::type, that._node);
@@ -79,7 +79,7 @@ namespace spark
             scalar(scalar&&) = default;
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar& operator=(const scalar& that)
             {
                 assignment_operator(this->_node, scalar::type, that._node);
@@ -87,7 +87,7 @@ namespace spark
             }
 
             inline
-            __attribute__ ((always_inline))
+            SPARK_FORCE_INLINE
             scalar& operator=(RAW_TYPE val)
             {
                 const auto dt = static_cast<spark_datatype_t>(scalar::type);

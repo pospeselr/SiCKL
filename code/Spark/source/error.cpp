@@ -169,12 +169,12 @@ namespace spark
     }
 }
 
-DLL_PUBLIC void spark_free_error(spark_error_t* error)
+SPARK_EXPORT void spark_free_error(spark_error_t* error)
 {
     delete error;
 }
 
-DLL_PUBLIC const char* spark_get_error_message(spark_error_t* error)
+SPARK_EXPORT const char* spark_get_error_message(spark_error_t* error)
 {
     return error->_error_message;
 }

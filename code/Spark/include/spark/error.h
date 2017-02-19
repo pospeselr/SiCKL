@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef SPARK_DEBUG
-	#define SPARK_ASSERT(X) do { if(!(X)) { spark::client::print_assert(#X, __FILE__, (uint32_t)__LINE__); DEBUGBREAK(); } } while(0)
+	#define SPARK_ASSERT(X) do { if(!(X)) { spark::client::print_assert(#X, __FILE__, (uint32_t)__LINE__); SPARK_DEBUGBREAK(); } } while(0)
 	#define SPARK_VERIFY(X) SPARK_ASSERT(X)
 #else
 	#define SPARK_ASSERT(X) (void)0
@@ -38,8 +38,8 @@ namespace spark
             }
 
             static
-             __attribute__ ((noinline))
-             void handle_error()
+            SPARK_NEVER_INLINE
+            void handle_error()
             {
                 spark_error_t** pError = get_error_addr();
                 spark_error_t* error = *pError;

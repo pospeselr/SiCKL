@@ -27,7 +27,7 @@ namespace spark
         template<typename TYPE, spark::shared::Property ID>
         struct property_r
         {
-            __attribute__((always_inline))
+            SPARK_FORCE_INLINE
             operator const rvalue<TYPE>() const
             {
                 const auto prop = static_cast<spark_property_t>(ID);
@@ -39,7 +39,7 @@ namespace spark
                 return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, propertyNode));
             };
 
-            __attribute__((always_inline))
+            SPARK_FORCE_INLINE
             const rvalue<TYPE> operator()() const
             {
                 const auto prop = static_cast<spark_property_t>(ID);
@@ -56,7 +56,7 @@ namespace spark
         template<typename TYPE, spark::shared::Property ID>
         struct property_rw : public property_r<TYPE, ID>
         {
-            __attribute__((always_inline))
+            SPARK_FORCE_INLINE
             operator lvalue<TYPE>()
             {
                 const auto prop = static_cast<spark_property_t>(ID);
@@ -68,7 +68,7 @@ namespace spark
                 return lvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, propertyNode));
             };
 
-            __attribute__((always_inline))
+            SPARK_FORCE_INLINE
             lvalue<TYPE> operator()()
             {
                 const auto prop = static_cast<spark_property_t>(ID);
@@ -80,7 +80,7 @@ namespace spark
                 return lvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, propertyNode));
             }
 
-            __attribute__((always_inline))
+            SPARK_FORCE_INLINE
             property_rw& operator=(const rvalue<TYPE>& right)
             {
                 property_assignment_operator(ID, TYPE::type, this->_node, right._node);
