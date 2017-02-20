@@ -177,23 +177,7 @@ namespace spark
 
             printf("%s\n", spark_get_kernel_source(this->_kernel, THROW_ON_ERROR()));
 
-/*
-            {
-                const auto len = spark_node_to_text(kernelRoot, nullptr, 0,  THROW_ON_ERROR());
-                unique_ptr<char[]> buff(new char[len]);
-                spark_node_to_text(kernelRoot, buff.get(), len,  THROW_ON_ERROR());
 
-                printf("%s\n", buff.get());
-            }
-
-            {
-                const auto len = spark_node_to_opencl(kernelRoot, nullptr, 0,  THROW_ON_ERROR());
-                unique_ptr<char[]> buff(new char[len]);
-                spark_node_to_opencl(kernelRoot, buff.get(), len,  THROW_ON_ERROR());
-
-                printf("%s\n", buff.get());
-            }
-*/
             spark_end_program(THROW_ON_ERROR());
         };
 

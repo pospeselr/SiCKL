@@ -17,8 +17,8 @@ namespace spark
 {
     namespace lib
     {
-        using unique_cl_context = unique_any<cl_context, decltype(&clReleaseContext), &clReleaseContext>;
-        using unique_command_queue = unique_any<cl_command_queue, decltype(&clReleaseCommandQueue), clReleaseCommandQueue>;
+        using unique_cl_context = unique_any<cl_context, decltype(&::clReleaseContext), &::clReleaseContext>;
+        using unique_command_queue = unique_any<cl_command_queue, decltype(&::clReleaseCommandQueue), &::clReleaseCommandQueue>;
 
         struct spark_context
         {
@@ -45,13 +45,13 @@ namespace spark
             cl_int createContextError = CL_SUCCESS;
             cl_context clContext = ::clCreateContext(nullptr, 1, &this->device_id, nullptr, nullptr, &createContextError);
             THROW_IF_OPENCL_FAILED(createContextError);
-            this->context = unique_cl_context(clContext);
+            this->context.reset(clContext);
 
             // create command queue
             cl_int createCommandQueueError = CL_SUCCESS;
             cl_command_queue clCommandQueue = ::clCreateCommandQueue(this->context.get(), this->device_id, 0, &createCommandQueueError);
             THROW_IF_OPENCL_FAILED(createCommandQueueError);
-            this->command_queue = unique_command_queue(clCommandQueue);
+            this->command_queue.reset(clCommandQueue);
         }
 
         struct spark_kernel

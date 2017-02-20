@@ -49,7 +49,7 @@ namespace spark
                 }
                 else
                 {
-                    _empty = true;
+                    _empty = false;
                 }
                 _val = val;
             }
@@ -64,11 +64,10 @@ namespace spark
                 }
             }
 
-            void swap(unique_any& other)
+            void swap(unique_any& that)
             {
-                element_type temp = this->_val;
-                this->_val = other._val;
-                other._val = temp;
+                std::swap(this->_val, that._val);
+                std::swap(this->_empty, that._empty);
             }
 
             element_type get()
