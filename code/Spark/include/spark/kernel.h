@@ -127,6 +127,17 @@ namespace spark
             spark_add_child_node(parameterList, param0._node,  THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
+
+        // overload for buffer1d
+        template<typename TYPE, typename... TAIL_PARAMS>
+        void function_header(spark_node_t* parameterList, client::buffer1d<TYPE> param0, TAIL_PARAMS... tailParams)
+        {
+            spark_add_child_node(parameterList, param0.Data()._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Size._node, THROW_ON_ERROR());
+            return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
+        }
+
+
         SPARK_FORCE_INLINE
         void function_header(spark_node_t*) {};
 

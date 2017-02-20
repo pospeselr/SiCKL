@@ -72,18 +72,23 @@ int main()
     {
         auto context = spark_create_context(ThrowOnError());
         spark_set_current_context(context, ThrowOnError());
-#if 0
-        Kernel<Void(Int)> kernel = []()
+#if 1
+        Kernel<Void(Int, Buffer1D<Int>)> kernel = []()
         {
-            Function<Void(Int)> main = [](Int val)
+            Function<Void(Int, Buffer1D<Int>)> main = [](Int val, Buffer1D<Int> buff)
             {
+                Int what = 100;
+                what = what + buff.Size;
 
+                buff.Data()[0] = 12;
+
+                buff[1] = 16;
             };
             main.SetEntryPoint();
         };
 #endif
 
-#if 1
+#if 0
         Kernel<Void(PInt, PFloat)> kernel = []()
         {
 

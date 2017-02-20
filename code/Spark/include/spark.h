@@ -21,6 +21,7 @@
 #include "spark/vector2.h"
 #include "spark/pointer.h"
 #include "spark/types.h"
+#include "spark/buffer.h"
 #include "spark/kernel.h"
 #include "spark/comment.h"
 #include "spark/statement.h"
