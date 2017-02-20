@@ -184,13 +184,12 @@ SPARK_EXPORT spark_node_t* spark_create_vector_node(spark_datatype_t type, spark
             node->_type = spark_nodetype::vector;
             node->_vector.type = type;
 
-            g_allocatedNodes.push_back(node);
-
             for(size_t k = 0; k < count; k++)
             {
                 node->_children.push_back(children[k]);
             }
 
+            g_allocatedNodes.push_back(node);
             return node;
         });
 }
@@ -203,6 +202,8 @@ SPARK_EXPORT spark_node_t* spark_create_scope_block_node(spark_error_t** error)
         {
             spark_node_t* node = new spark_node_t();
             node->_type = spark_nodetype::scope_block;
+
+            g_allocatedNodes.push_back(node);
             return node;
         });
 }
