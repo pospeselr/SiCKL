@@ -31,22 +31,18 @@ namespace spark
         {
             typedef scalar<RAW_TYPE> TYPE;
 
-            inline
             SPARK_FORCE_INLINE
             rvalue(spark_node_t* node) : TYPE(node) {}
 
-            inline
             SPARK_FORCE_INLINE
             rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
 
-            inline
             SPARK_FORCE_INLINE
             rvalue(const TYPE& that) : rvalue(that._node) {}
-            inline
+
             SPARK_FORCE_INLINE
             rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), THROW_ON_ERROR())) {}
 
-            inline
             SPARK_FORCE_INLINE
             ~rvalue()
             {
@@ -88,7 +84,6 @@ namespace spark
 
             }
 
-            inline
             SPARK_FORCE_INLINE
             ~rvalue()
             {
@@ -118,7 +113,6 @@ namespace spark
             rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
             rvalue(const TYPE& that) : rvalue(that._node) {}
 
-            inline
             SPARK_FORCE_INLINE
             ~rvalue()
             {

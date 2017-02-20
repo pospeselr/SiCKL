@@ -35,9 +35,9 @@
 #if defined(SPARK_COMPILER_MSVC)
     #define SPARK_FORCE_INLINE __declspec(__forceinline)
 #elif defined(SPARK_COMPILER_CLANG)
-    #define SPARK_FORCE_INLINE __attribute__ ((always_inline))
+    #define SPARK_FORCE_INLINE __attribute__ ((always_inline)) inline
 #elif defined(SPARK_COMPILER_GCC)
-    #define SPARK_FORCE_INLINE __attribute__ ((always_inline))
+    #define SPARK_FORCE_INLINE __attribute__ ((always_inline)) inline
 #endif
 
 // force never inline of function

@@ -4,6 +4,9 @@ namespace spark
 {
     namespace client
     {
+        template<typename RAW_TYPE>
+        struct scalar;
+
         // pointer type
         template<typename TYPE>
         struct pointer
@@ -17,21 +20,18 @@ namespace spark
             }
         public:
             // constructors
-            inline
             SPARK_FORCE_INLINE
             pointer(std::nullptr_t)
             {
                 this->_node = extern_constructor(pointer::type);
             }
 
-            inline
             SPARK_FORCE_INLINE
             pointer(const pointer& that)
             {
                 this->_node = copy_constructor(pointer::type, that._node);
             }
 
-            inline
             SPARK_FORCE_INLINE
             pointer(const rvalue<pointer>& that)
             {
@@ -40,7 +40,6 @@ namespace spark
 
             pointer(pointer&&) = default;
 
-            inline
             SPARK_FORCE_INLINE
             pointer& operator=(const pointer& that)
             {
@@ -50,22 +49,36 @@ namespace spark
             }
 
             // pointer dereference operator
-            inline
             SPARK_FORCE_INLINE
-            TYPE operator*()
+            lvalue<TYPE> operator*()
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Dereference);
-                return TYPE(spark_create_operator1_node(dt, op, this->_node));
+                return lvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
             }
 
-            inline
             SPARK_FORCE_INLINE
             rvalue<TYPE> operator*() const
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Dereference);
                 return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
+            }
+
+            SPARK_FORCE_INLINE
+            lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
+            {
+                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
+                return lvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, index._node));
+            }
+
+            SPARK_FORCE_INLINE
+            rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
+            {
+                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
+                return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, index._node));
             }
 
             spark_node_t* _node = nullptr;

@@ -17,7 +17,6 @@ namespace spark
             friend struct property_rw;
         protected:
             // node constructor
-            inline
             SPARK_FORCE_INLINE
             vector2(spark_node_t* node)
             : _node(node)
@@ -26,39 +25,33 @@ namespace spark
             }
         public:
             // constructors
-            inline
             SPARK_FORCE_INLINE
             vector2() : vector2(0.0f, 0.0f) {}
 
-            inline
             SPARK_FORCE_INLINE
             vector2(std::nullptr_t)
             {
                 this->_node = extern_constructor(vector2::type);
             }
 
-            inline
             SPARK_FORCE_INLINE
             vector2(const rvalue<vector2>& that)
             {
                 this->_node = copy_constructor(vector2::type, that._node);
             }
 
-            inline
             SPARK_FORCE_INLINE
             vector2(const lvalue<vector2>& that)
             {
                 this->_node = copy_constructor(vector2::type, that._node);
             }
 
-            inline
             SPARK_FORCE_INLINE
             vector2(const vector2& that)
             {
                 this->_node = copy_constructor(vector2::type, that._node);
             }
 
-            inline
             SPARK_FORCE_INLINE
             vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
             {
@@ -68,7 +61,6 @@ namespace spark
 
             vector2(vector2&&) = default;
 
-            inline
             SPARK_FORCE_INLINE
             vector2& operator=(const vector2& that)
             {

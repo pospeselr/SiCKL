@@ -109,6 +109,9 @@ int main()
                 Float b = 666.0f;
                 Pointer<Int> pA = &a;
                 *pA = 14;
+                pA[a] = 42;
+
+                Pointer<Int> pAOffset = pA + 14;
 
                 sum(a, b.As<Int>());
 

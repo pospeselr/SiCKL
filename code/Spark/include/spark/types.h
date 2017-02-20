@@ -10,7 +10,6 @@ namespace spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    inline\
     SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> operator OP(const client::rvalue<TYPE>& right)\
     {\
@@ -20,7 +19,6 @@ namespace spark
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    inline\
     SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> operator OP (const client::rvalue<TYPE>& left, const client::rvalue<TYPE>& right)\
     {\
@@ -30,7 +28,6 @@ namespace spark
     }
 
     #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    inline\
     SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
@@ -40,7 +37,6 @@ namespace spark
     }
 
     #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    inline\
     SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
@@ -126,9 +122,8 @@ namespace spark
     MAKE_FLOAT_TYPES(Double, double);
 
     template<typename TYPE>
-    inline
     SPARK_FORCE_INLINE
-    const client::rvalue<client::pointer<TYPE>> operator+(const client::pointer<TYPE>& ptr, const client::rvalue<UInt>& offset)
+    const client::rvalue<client::pointer<TYPE>> operator+(const client::pointer<TYPE>& ptr, const client::rvalue<Int>& offset)
     {
         const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
         const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Add);
@@ -136,9 +131,8 @@ namespace spark
     }
 
     template<typename TYPE>
-    inline
     SPARK_FORCE_INLINE
-    const client::rvalue<client::pointer<TYPE>> operator+(const client::rvalue<UInt>& offset, const client::pointer<TYPE>& ptr)
+    const client::rvalue<client::pointer<TYPE>> operator+(const client::rvalue<Int>& offset, const client::pointer<TYPE>& ptr)
     {
         const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
         const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Add);

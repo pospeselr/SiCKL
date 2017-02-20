@@ -295,6 +295,11 @@ namespace spark
             // return characters written
             return written;
         }
+
+        int32_t generateSourceTree(spark_node_t* node, char* out_buffer, int32_t buffer_size)
+        {
+            return nodeToText(node, out_buffer, buffer_size, 0, 0, 0) + 1;
+        }
     }
 }
 
@@ -304,6 +309,6 @@ SPARK_EXPORT int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, in
         error,
         [&]
         {
-            return nodeToText(node, out_buffer, buffer_size, 0, 0, 0) + 1;
+            return generateSourceTree(node, out_buffer, buffer_size);
         });
 }

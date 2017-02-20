@@ -161,11 +161,17 @@ SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spar
         {
             // generates opencl source from AST
             auto len = generateOpenCLSource(kernel_root, nullptr, 0);
-            string buffer(len - 1, 0);
-            generateOpenCLSource(kernel_root, const_cast<char*>(buffer.data()), len);
+            string openclSource(len - 1, 0);
+            generateOpenCLSource(kernel_root, const_cast<char*>(openclSource.data()), len);
+
+            len = generateSourceTree(kernel_root, nullptr, 0);
+            string sourceTree(len - 1, 0);
+            generateSourceTree(kernel_root, const_cast<char*>(sourceTree.data()), len);
+
+            printf("%s\n", sourceTree.c_str());
 
             // build/link kernel
-            auto kernel = new spark::lib::spark_kernel(std::move(buffer));
+            auto kernel = new spark::lib::spark_kernel(std::move(openclSource));
             return kernel;
         });
 }

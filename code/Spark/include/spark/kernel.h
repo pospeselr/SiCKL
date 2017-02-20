@@ -4,7 +4,6 @@ namespace spark
 {
     namespace client
     {
-        inline
         SPARK_NEVER_INLINE
         spark_node_t* functor_operator(spark::shared::Datatype returnType, spark_node_t* functionNode)
         {
@@ -17,7 +16,6 @@ namespace spark
             return opNode;
         }
 
-        inline
         SPARK_NEVER_INLINE
         auto function_create_begin(spark::shared::Datatype returnType)
         {
@@ -40,7 +38,6 @@ namespace spark
             return std::make_tuple(kernelRoot, functionRoot, parameterList);
         }
 
-        inline
         SPARK_NEVER_INLINE
         void function_create_middle(spark_node_t* functionRoot)
         {
@@ -52,7 +49,6 @@ namespace spark
             spark_push_scope_node(body,  THROW_ON_ERROR());
         }
 
-        inline
         SPARK_NEVER_INLINE
         void function_create_end(spark_node_t* kernelRoot, spark_node_t* functionRoot)
         {
@@ -103,7 +99,6 @@ namespace spark
         }
     private:
 
-        inline
         SPARK_FORCE_INLINE
         void function_create(auto function_body, PARAMS&&... params)
         {

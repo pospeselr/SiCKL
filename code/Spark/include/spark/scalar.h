@@ -24,7 +24,6 @@ namespace spark
             friend struct pointer;
         protected:
             // node constructor
-            inline
             SPARK_FORCE_INLINE
             scalar(spark_node_t* node)
             : _node(node)
@@ -33,7 +32,6 @@ namespace spark
             }
         public:
             // constructors
-            inline
             SPARK_FORCE_INLINE
             scalar()
             {
@@ -41,35 +39,30 @@ namespace spark
                 this->_node = value_constructor(scalar::type, &val, sizeof(val));
             }
 
-            inline
             SPARK_FORCE_INLINE
             scalar(std::nullptr_t)
             {
                 this->_node = extern_constructor(scalar::type);
             }
 
-            inline
             SPARK_FORCE_INLINE
             scalar(RAW_TYPE val)
             {
                 this->_node = value_constructor(scalar::type, &val, sizeof(val));
             }
 
-            inline
             SPARK_FORCE_INLINE
             scalar(const scalar& that)
             {
                 this->_node = copy_constructor(scalar::type, that._node);
             }
 
-            inline
             SPARK_FORCE_INLINE
             scalar(const lvalue<scalar>& that)
             {
                 this->_node = copy_constructor(scalar::type, that._node);
             }
 
-            inline
             SPARK_FORCE_INLINE
             scalar(const rvalue<scalar>& that)
             {
@@ -78,7 +71,6 @@ namespace spark
 
             scalar(scalar&&) = default;
 
-            inline
             SPARK_FORCE_INLINE
             scalar& operator=(const scalar& that)
             {
@@ -86,7 +78,6 @@ namespace spark
                 return *this;
             }
 
-            inline
             SPARK_FORCE_INLINE
             scalar& operator=(RAW_TYPE val)
             {
