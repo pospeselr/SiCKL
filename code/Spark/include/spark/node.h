@@ -17,8 +17,6 @@ extern "C" spark_node_t* spark_create_comment_node(const char* comment, spark_er
 extern "C" spark_node_t* spark_create_vector_node(spark_datatype_t dt, spark_node_t** children, size_t count, spark_error_t** error);
 extern "C" spark_node_t* spark_create_scope_block_node(spark_error_t** error);
 
-// node deletion
-extern "C" void spark_free_node(spark_node_t* node, spark_error_t** error);
 // tree modification
 extern "C" void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t** error);
 

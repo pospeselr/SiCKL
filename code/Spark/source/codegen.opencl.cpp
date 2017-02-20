@@ -478,13 +478,24 @@ namespace spark
             generateScopeBlock(ctx, functionBody);
         }
 
-        static void generateSource(context& ctx, spark_node_t* node)
+        int32_t generateOpenCLSource(spark_node_t* node, char* out_buffer, int32_t buffer_size)
         {
             SPARK_ASSERT(node->_type == spark_nodetype::control && node->_control == Control::Root);
+
+            context ctx;
+            {
+                ctx.buffer = out_buffer;
+                ctx.capacity = buffer_size;
+            }
+
+            // generate all the functions
             for(auto func : node->_children)
             {
                 generateFunction(ctx, func);
             }
+
+            // +1 for null terminator
+            return ctx.written + 1;
         }
     }
 }
@@ -495,15 +506,6 @@ SPARK_EXPORT int32_t spark_node_to_opencl(spark_node_t* node, char* out_buffer, 
         error,
         [&]
         {
-            context ctx;
-            {
-                ctx.buffer = out_buffer;
-                ctx.capacity = buffer_size;
-            }
-
-            generateSource(ctx, node);
-
-            // +1 for null terminator
-            return ctx.written + 1;
+            return generateOpenCLSource(node, out_buffer, buffer_size);
         });
 }

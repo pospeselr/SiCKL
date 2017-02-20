@@ -3,7 +3,10 @@
 #include "runtime.hpp"
 #include "error.hpp"
 #include "resource.hpp"
+#include "node.hpp"
+#include "codegen.hpp"
 
+using std::string;
 using std::unique_ptr;
 using std::make_unique;
 
@@ -50,6 +53,11 @@ namespace spark
             THROW_IF_OPENCL_FAILED(createCommandQueueError);
             this->command_queue = unique_command_queue(clCommandQueue);
         }
+
+        struct spark_kernel
+        {
+            std::string kernel_source;
+        };
     }
 }
 
@@ -96,6 +104,44 @@ SPARK_EXPORT void spark_destroy_context(spark_context_t* context, spark_error_t*
                 spark::lib::spark_context::current = nullptr;
             }
             delete context;
+            return;
+        });
+}
+
+SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            auto len = generateOpenCLSource(kernel_root, nullptr, 0);
+            string buffer(len - 1, 0);
+            generateOpenCLSource(kernel_root, const_cast<char*>(buffer.data()), len);
+
+            unique_ptr<spark_kernel_t> result(new spark::lib::spark_kernel());
+            result->kernel_source = std::move(buffer);
+
+            return result.release();
+        });
+}
+
+SPARK_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            return kernel->kernel_source.c_str();
+        });
+}
+
+SPARK_EXPORT void spark_destroy_kernel(spark_kernel_t* kernel, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            delete kernel;
             return;
         });
 }

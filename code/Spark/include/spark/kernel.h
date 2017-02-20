@@ -170,10 +170,14 @@ namespace spark
             // build the function body
             func();
 
-            spark_pop_scope_node( THROW_ON_ERROR());
+            spark_pop_scope_node(THROW_ON_ERROR());
 
             // compile and cache program
+            this->_kernel = spark_create_kernel(kernelRoot, THROW_ON_ERROR());
 
+            printf("%s\n", spark_get_kernel_source(this->_kernel, THROW_ON_ERROR()));
+
+/*
             {
                 const auto len = spark_node_to_text(kernelRoot, nullptr, 0,  THROW_ON_ERROR());
                 unique_ptr<char[]> buff(new char[len]);
@@ -189,14 +193,21 @@ namespace spark
 
                 printf("%s\n", buff.get());
             }
-
-            spark_end_program( THROW_ON_ERROR());
+*/
+            spark_end_program(THROW_ON_ERROR());
         };
+
+        ~Kernel()
+        {
+            spark_destroy_kernel(this->_kernel, THROW_ON_ERROR());
+        }
 
         void operator()(PARAMS...) const
         {
 
         };
+    private:
+        spark_kernel_t* _kernel = nullptr;
     };
 
     /// Return Operators
