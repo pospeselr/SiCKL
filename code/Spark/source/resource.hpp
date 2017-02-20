@@ -12,7 +12,7 @@ namespace spark
             unique_any(element_type val) : _val(val), _empty(false) {}
             unique_any(unique_any&& that) : _val(that.val), _empty(that.empty)
             {
-                that.val = {};
+                that._val = {};
                 that._empty = true;
             }
             unique_any(unique_any&) = delete;
