@@ -14,7 +14,7 @@
 
 typedef struct spark_error spark_error_t;
 
-extern "C" void spark_free_error(spark_error_t* error);
+extern "C" void spark_destroy_error(spark_error_t* error);
 extern "C" const char* spark_get_error_message(spark_error_t* error);
 
 namespace spark
@@ -33,7 +33,7 @@ namespace spark
             static void throw_error(spark_error_t* error)
             {
                 std::runtime_error ex(spark_get_error_message(error));
-                spark_free_error(error);
+                spark_destroy_error(error);
                 throw ex;
             }
 

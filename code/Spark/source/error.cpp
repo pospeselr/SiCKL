@@ -153,29 +153,26 @@ namespace spark
         struct spark_error
         {
             spark_error(const char* msg) : _error_message(msg) {}
-            const char* _error_message;
+            std::string _error_message;
         };
-
-        char g_errorMessage[1024] = {};
 
         void HandleException(spark_error_t** error, const std::exception& ex)
         {
             if(error)
             {
-                snprintf(g_errorMessage, countof(g_errorMessage), "%s", ex.what());
-                *error = new spark_error(g_errorMessage);
+                *error = new spark_error(ex.what());
             }
         }
     }
 }
 
-SPARK_EXPORT void spark_free_error(spark_error_t* error)
+SPARK_EXPORT void spark_destroy_error(spark_error_t* error)
 {
     delete error;
 }
 
 SPARK_EXPORT const char* spark_get_error_message(spark_error_t* error)
 {
-    return error->_error_message;
+    return error->_error_message.c_str();
 }
 
