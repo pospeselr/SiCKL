@@ -19,6 +19,8 @@ namespace spark
     {
         using unique_cl_context = unique_any<cl_context, decltype(&::clReleaseContext), &::clReleaseContext>;
         using unique_command_queue = unique_any<cl_command_queue, decltype(&::clReleaseCommandQueue), &::clReleaseCommandQueue>;
+        using unique_cl_program = unique_any<cl_program, decltype(&::clReleaseProgram), &::clReleaseProgram>;
+        using unique_cl_kernel = unique_any<cl_kernel, decltype(&::clReleaseKernel), &::clReleaseKernel>;
 
         struct spark_context
         {
@@ -56,8 +58,48 @@ namespace spark
 
         struct spark_kernel
         {
-            std::string kernel_source;
+            spark_kernel(string&& source);
+
+            string _source;
+            unique_cl_program _program;
+            unique_cl_kernel _kernel;
         };
+
+        spark_kernel::spark_kernel(string&& source)
+        : _source(source)
+        {
+            auto currentContext = spark_context::current;
+            THROW_IF_FALSE(currentContext != nullptr);
+
+            // create program source
+            const char* sourceBuffer = this->_source.data();
+            const size_t sourceLength = this->_source.size();
+            cl_int createProgramWithSourceError = CL_SUCCESS;
+            cl_program clProgram = ::clCreateProgramWithSource(currentContext->context.get(), 1, &sourceBuffer, &sourceLength, &createProgramWithSourceError);
+            THROW_IF_OPENCL_FAILED(createProgramWithSourceError);
+            this->_program.reset(clProgram);
+
+            // build program
+            cl_int buildProgramError = ::clBuildProgram(this->_program.get(), 1, &currentContext->device_id, nullptr, nullptr, nullptr);
+            if(buildProgramError == CL_BUILD_PROGRAM_FAILURE)
+            {
+                // get error log message
+                size_t logSize;
+                THROW_IF_OPENCL_FAILED(::clGetProgramBuildInfo(this->_program.get(), currentContext->device_id, CL_PROGRAM_BUILD_LOG, 0, nullptr, &logSize));
+
+                string logMessage(logSize - 1, 0);
+                THROW_IF_OPENCL_FAILED(::clGetProgramBuildInfo(this->_program.get(), currentContext->device_id, CL_PROGRAM_BUILD_LOG, logSize, const_cast<char*>(logMessage.data()), nullptr));
+
+                throw_error(logMessage.c_str(), __FILE__, __LINE__);
+            }
+            THROW_IF_OPENCL_FAILED(buildProgramError);
+
+            // create kernel with 'main' entrypoint
+            cl_int createKernelError = CL_SUCCESS;
+            cl_kernel clKernel = ::clCreateKernel(this->_program.get(), "main", &createKernelError);
+            THROW_IF_OPENCL_FAILED(createKernelError);
+            this->_kernel.reset(clKernel);
+        }
     }
 }
 
@@ -77,6 +119,9 @@ SPARK_EXPORT spark_context_t* spark_create_context(spark_error_t** error)
 
             THROW_IF_OPENCL_FAILED(clGetDeviceInfo(context->device_id, CL_DEVICE_VENDOR, sizeof(buffer), buffer, nullptr));
             printf("DeviceVendor: %s\n", buffer);
+
+            THROW_IF_OPENCL_FAILED(clGetDeviceInfo(context->device_id, CL_DEVICE_VERSION, sizeof(buffer), buffer, nullptr));
+            printf("OpenCL Version: %s\n", buffer);
 
             return spark::lib::spark_context::current;
         });
@@ -114,14 +159,14 @@ SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spar
         error,
         [&]
         {
+            // generates opencl source from AST
             auto len = generateOpenCLSource(kernel_root, nullptr, 0);
             string buffer(len - 1, 0);
             generateOpenCLSource(kernel_root, const_cast<char*>(buffer.data()), len);
 
-            unique_ptr<spark_kernel_t> result(new spark::lib::spark_kernel());
-            result->kernel_source = std::move(buffer);
-
-            return result.release();
+            // build/link kernel
+            auto kernel = new spark::lib::spark_kernel(std::move(buffer));
+            return kernel;
         });
 }
 
@@ -131,7 +176,7 @@ SPARK_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_e
         error,
         [&]
         {
-            return kernel->kernel_source.c_str();
+            return kernel->_source.c_str();
         });
 }
 

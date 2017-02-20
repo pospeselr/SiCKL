@@ -61,11 +61,6 @@ namespace spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(Int()--), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(--Int()), Int>() == false);
-    // vector index
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), Int>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2()[0]), UInt>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(get<const Int2>()[0]), Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype((Int2() + Int2())[0]), Int>() == false);
     // pointer dereference
     SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), Int>() == true);
     SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), UInt>() == false);
@@ -73,12 +68,10 @@ namespace spark
 
 int main()
 {
-    auto context = spark_create_context(ThrowOnError());
-    spark_set_current_context(context, ThrowOnError());
-    spark_destroy_context(context, ThrowOnError());
-
     try
     {
+        auto context = spark_create_context(ThrowOnError());
+        spark_set_current_context(context, ThrowOnError());
 #if 0
         Kernel<Void(Int)> kernel = []()
         {
@@ -149,8 +142,8 @@ int main()
                 b = vec2.X;
                 Int2 equals = vec2 == vec2;
 
-                Float first = vec2[0];
-                vec2[0] = 13.6f;
+                Float first = vec2.X;
+                vec2.X = 13.6f;
                 //first = first * first;
 
                 Float second = vec2.Y;
@@ -167,17 +160,19 @@ int main()
                 {
                     Comment("What");
                     Break();
-                    what = equals[1];
+                    what = equals.Y;
                     ++what;
                 }
 
                 vec3.X = 13.2f;
                 Int2 swiz = equals.XX;
+                swiz.XY = equals.YX;
                 Return();
             };
             main.SetEntryPoint();
         };
 #endif
+        spark_destroy_context(context, ThrowOnError());
     }
     catch(std::exception& ex)
     {

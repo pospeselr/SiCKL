@@ -33,8 +33,7 @@ namespace spark
         void throw_opencl_error(const char* action, cl_int err, const char* source, uint32_t line);
         void throw_error(const char* error, const char* source, uint32_t line);
 
-        extern char g_errorMessage[1024];
-        extern void HandleException(spark_error** error, const std::exception& ex);
+        void handle_exception(spark_error** error, const std::exception& ex);
 
         template<typename FUNC>
         auto TranslateExceptions(spark_error** error, FUNC&& func) noexcept
@@ -45,7 +44,7 @@ namespace spark
             }
             catch(const std::exception& ex)
             {
-                HandleException(error, ex);
+                handle_exception(error, ex);
             }
             return decltype(func())();
         }

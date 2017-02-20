@@ -156,7 +156,7 @@ namespace spark
             std::string _error_message;
         };
 
-        void HandleException(spark_error_t** error, const std::exception& ex)
+        void handle_exception(spark_error_t** error, const std::exception& ex)
         {
             if(error)
             {

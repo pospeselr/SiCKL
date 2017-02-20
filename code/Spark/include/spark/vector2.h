@@ -96,29 +96,6 @@ namespace spark
                 spark_node_t* _node;
             };
 
-            // indexing operators
-            inline
-            SPARK_FORCE_INLINE
-            lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
-            {
-                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
-                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
-
-                auto indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
-                return lvalue<TYPE>(indexNode);
-            }
-
-            inline
-            SPARK_FORCE_INLINE
-            const rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
-            {
-                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
-                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
-
-                auto indexNode = spark_create_operator2_node(dt, op, this->_node, index._node);
-                return rvalue<TYPE>(indexNode);
-            }
-
             // cast operator
             template<typename CAST_TYPE>
             const rvalue<CAST_TYPE> As() const

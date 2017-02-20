@@ -422,7 +422,7 @@ namespace spark
                         doSnprintf(ctx, ";\n");
                         break;
                     case spark_nodetype::comment:
-                        doSnprintf(ctx, "// %s\n", currentNode->_comment);
+                        doSnprintf(ctx, "/* %s */\n", currentNode->_comment);
                         break;
                     default:
                         doSnprintf(ctx, "#unimplemented\n");
@@ -440,15 +440,23 @@ namespace spark
             SPARK_ASSERT(node->_type == spark_nodetype::function);
             SPARK_ASSERT(node->_children.size() == 2);
 
+            // leave empty line between functions
+            doSnprintf(ctx, "\n");
+
+            // name and return type
             if(node->_function.entrypoint)
             {
                 doSnprintf(ctx, "__kernel ");
+                generateOpenCLType(ctx, node->_function.returnType);
+                // entry point always called main
+                doSnprintf(ctx, " main");
             }
-
-            // name and return type
-            generateOpenCLType(ctx, node->_function.returnType);
-            doSnprintf(ctx, " ");
-            generateFunctionName(ctx, node->_function.id);
+            else
+            {
+                generateOpenCLType(ctx, node->_function.returnType);
+                doSnprintf(ctx, " ");
+                generateFunctionName(ctx, node->_function.id);
+            }
 
             // print parameter list
             doSnprintf(ctx, "(");
@@ -466,6 +474,11 @@ namespace spark
                 SPARK_ASSERT(currentChild->_type == spark_nodetype::symbol);
                 // add to our set of init'd variables
                 ctx.inited_variables.insert(currentChild->_symbol.id);
+
+                if(currentChild->_symbol.type.GetPointer())
+                {
+                    doSnprintf(ctx, "__global ");
+                }
 
                 generateOpenCLType(ctx, currentChild->_symbol.type);
                 doSnprintf(ctx, " ");
