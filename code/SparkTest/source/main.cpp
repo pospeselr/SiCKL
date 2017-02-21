@@ -91,8 +91,8 @@ int main()
         Kernel<Void(PInt, PFloat)> kernel = []()
         {
 
-            Function<Long(Long,Long)> sum =
-            [](Long a, Long b)
+            Function<Int(Int,Int)> sum =
+            [](Int a, Int b)
             {
                 Comment("Sum");
                 a = 12;
@@ -109,15 +109,15 @@ int main()
             {
                 Comment("Kernel Main");
 
-                Long a = 123;
+                Int a = 123;
                 Float b = 666.0f;
-                Pointer<Long> pA = &a;
+                Pointer<Int> pA = &a;
                 *pA = 14;
                 pA[a] = 42;
 
-                Pointer<Long> pAOffset = pA + 14;
+                Pointer<Int> pAOffset = pA + 14;
 
-                sum(a, b.As<Long>());
+                sum(a, b.As<Int>());
 
                 If(b == 123.0f)
                 {
