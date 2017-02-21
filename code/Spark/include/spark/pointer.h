@@ -21,7 +21,7 @@ namespace spark
         public:
             // constructors
             SPARK_FORCE_INLINE
-            pointer(std::nullptr_t)
+            pointer(extern_construct_t)
             {
                 this->_node = extern_constructor(pointer::type);
             }
@@ -66,7 +66,7 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
-            lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
+            lvalue<TYPE> operator[](const rvalue<scalar<int64_t>>& index)
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
@@ -74,7 +74,7 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
-            rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
+            rvalue<TYPE> operator[](const rvalue<scalar<int64_t>>& index) const
             {
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);

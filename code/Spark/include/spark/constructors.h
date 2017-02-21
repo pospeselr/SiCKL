@@ -4,6 +4,10 @@ namespace spark
 {
     namespace client
     {
+        // special type used to specify extern construtor in kernel types
+        enum class extern_construct_t { value };
+        constexpr auto extern_construct = extern_construct_t::value;
+
         inline
         SPARK_NEVER_INLINE
         spark_node_t* extern_constructor(spark::shared::Datatype datatype)

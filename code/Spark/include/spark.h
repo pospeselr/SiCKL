@@ -11,11 +11,11 @@
 #include "spark/codegen.h"
 // kernel authoring
 #include "spark/functions.h"
+#include "spark/meta.h"
 #include "spark/rvalue.h"
 #include "spark/lvalue.h"
 #include "spark/properties.h"
 #include "spark/constructors.h"
-#include "spark/meta.h"
 #include "spark/void.h"
 #include "spark/scalar.h"
 #include "spark/vector2.h"

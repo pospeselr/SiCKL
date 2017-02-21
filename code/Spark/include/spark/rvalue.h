@@ -35,13 +35,15 @@ namespace spark
             rvalue(spark_node_t* node) : TYPE(node) {}
 
             SPARK_FORCE_INLINE
-            rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
-
-            SPARK_FORCE_INLINE
             rvalue(const TYPE& that) : rvalue(that._node) {}
 
             SPARK_FORCE_INLINE
             rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), THROW_ON_ERROR())) {}
+
+            // constructor explicitly takes an int, and converts to RAW_TYPE
+            // reolves abiguity with other types
+            template<typename PRIMITIVE = RAW_TYPE>
+            rvalue(typename is_int<PRIMITIVE>::type val) : rvalue(static_cast<RAW_TYPE>(val)) {}
 
             SPARK_FORCE_INLINE
             ~rvalue()
@@ -70,7 +72,6 @@ namespace spark
             typedef typename SCALAR_TYPE::raw_type RAW_TYPE;
 
             rvalue(spark_node_t* node) : TYPE(node) {}
-            rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
             rvalue(const TYPE& that) : rvalue(that._node) {}
             rvalue(const rvalue<SCALAR_TYPE>& x, const rvalue<SCALAR_TYPE>& y)
             : rvalue(
@@ -110,7 +111,6 @@ namespace spark
             typedef pointer<BASE_TYPE> TYPE;
 
             rvalue(spark_node_t* node) : TYPE(node) {}
-            rvalue(std::nullptr_t) : rvalue((spark_node_t*)nullptr) {}
             rvalue(const TYPE& that) : rvalue(that._node) {}
 
             SPARK_FORCE_INLINE

@@ -78,7 +78,7 @@ namespace spark
         {
             SPARK_ASSERT(this->_node == nullptr);
 
-            function_create(func, PARAMS(nullptr)...);
+            function_create(func, PARAMS(spark::client::extern_construct)...);
 
             return *this;
         }

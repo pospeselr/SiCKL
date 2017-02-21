@@ -41,5 +41,15 @@ namespace spark
         MAKE_TYPE_TO_PRIMITIVE(uint64_t, ULong);
         MAKE_TYPE_TO_PRIMITIVE(float, Float);
         MAKE_TYPE_TO_PRIMITIVE(double, Double);
+
+        // Use not_int to disable scalar<int>(int) constructor
+        template<typename TYPE>
+        struct is_int
+        {
+            typedef int type;
+        };
+
+        template<>
+        struct is_int<int> {};
     }
 }

@@ -62,8 +62,8 @@ namespace spark
     SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
     SPARK_STATIC_ASSERT(is_assignable<decltype(--Int()), Int>() == false);
     // pointer dereference
-    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), Int>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(nullptr))), UInt>() == false);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(extern_construct))), Int>() == true);
+    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(extern_construct))), UInt>() == false);
 }
 
 int main()
@@ -72,28 +72,27 @@ int main()
     {
         auto context = spark_create_context(ThrowOnError());
         spark_set_current_context(context, ThrowOnError());
-#if 1
+#if 0
         Kernel<Void(Int, Buffer1D<Int>)> kernel = []()
         {
             Function<Void(Int, Buffer1D<Int>)> main = [](Int val, Buffer1D<Int> buff)
             {
-                Int what = 100;
+                Long what = 0;
                 what = what + buff.Size;
 
                 buff.Data()[0] = 12;
 
-                buff[1] = 16;
+                buff[42] = 16;
             };
             main.SetEntryPoint();
         };
 #endif
-
-#if 0
+#if 1
         Kernel<Void(PInt, PFloat)> kernel = []()
         {
 
-            Function<Int(Int,Int)> sum =
-            [](Int a, Int b)
+            Function<Long(Long,Long)> sum =
+            [](Long a, Long b)
             {
                 Comment("Sum");
                 a = 12;
@@ -110,15 +109,15 @@ int main()
             {
                 Comment("Kernel Main");
 
-                Int a = 123;
+                Long a = 123;
                 Float b = 666.0f;
-                Pointer<Int> pA = &a;
+                Pointer<Long> pA = &a;
                 *pA = 14;
                 pA[a] = 42;
 
-                Pointer<Int> pAOffset = pA + 14;
+                Pointer<Long> pAOffset = pA + 14;
 
-                sum(a, b.As<Int>());
+                sum(a, b.As<Long>());
 
                 If(b == 123.0f)
                 {

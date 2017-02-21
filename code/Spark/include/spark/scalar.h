@@ -40,7 +40,7 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
-            scalar(std::nullptr_t)
+            scalar(extern_construct_t)
             {
                 this->_node = extern_constructor(scalar::type);
             }
@@ -50,6 +50,11 @@ namespace spark
             {
                 this->_node = value_constructor(scalar::type, &val, sizeof(val));
             }
+
+            // constructor explicitly takes an int, and converts to RAW_TYPE
+            // reolves abiguity with other types
+            template<typename PRIMITIVE = RAW_TYPE>
+            scalar(typename is_int<PRIMITIVE>::type val) : scalar(static_cast<RAW_TYPE>(val)) {}
 
             SPARK_FORCE_INLINE
             scalar(const scalar& that)

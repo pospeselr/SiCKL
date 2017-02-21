@@ -11,9 +11,9 @@ namespace spark
         struct buffer1d
         {
             // extern constructor
-            buffer1d(std::nullptr_t)
-            : _data(nullptr)
-            , Size(nullptr)
+            buffer1d(extern_construct_t)
+            : _data(extern_construct)
+            , Size(extern_construct)
             {
 
             }
@@ -21,17 +21,17 @@ namespace spark
             // move constructor
             buffer1d(buffer1d&& other)
             : _data(std::move(other._data))
-            , Size(std::move(const_cast<Int&>(other.Size)))
+            , Size(std::move(const_cast<Long&>(other.Size)))
             {
 
             }
 
-            lvalue<T> operator[](const rvalue<Int>& index)
+            lvalue<T> operator[](const rvalue<Long>& index)
             {
                 return _data[index];
             }
 
-            rvalue<T> operator[](const rvalue<Int>& index) const
+            rvalue<T> operator[](const rvalue<Long>& index) const
             {
                 return _data[index];
             }
@@ -41,7 +41,7 @@ namespace spark
                 return rvalue<Pointer<T>>(_data._node);
             }
 
-            const Int Size;
+            const Long Size;
         private:
             Pointer<T> _data;
         };

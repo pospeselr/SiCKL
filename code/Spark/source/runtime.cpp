@@ -87,6 +87,7 @@ namespace spark
                 size_t logSize;
                 THROW_IF_OPENCL_FAILED(::clGetProgramBuildInfo(this->_program.get(), currentContext->device_id, CL_PROGRAM_BUILD_LOG, 0, nullptr, &logSize));
 
+                // logSize includes null terminator
                 string logMessage(logSize - 1, 0);
                 THROW_IF_OPENCL_FAILED(::clGetProgramBuildInfo(this->_program.get(), currentContext->device_id, CL_PROGRAM_BUILD_LOG, logSize, const_cast<char*>(logMessage.data()), nullptr));
 
