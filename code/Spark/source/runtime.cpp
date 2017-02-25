@@ -21,6 +21,7 @@ namespace spark
         using unique_command_queue = unique_any<cl_command_queue, decltype(&::clReleaseCommandQueue), &::clReleaseCommandQueue>;
         using unique_cl_program = unique_any<cl_program, decltype(&::clReleaseProgram), &::clReleaseProgram>;
         using unique_cl_kernel = unique_any<cl_kernel, decltype(&::clReleaseKernel), &::clReleaseKernel>;
+        using unique_cl_mem = unique_any<cl_mem, decltype(&::clReleaseMemObject), &::clReleaseMemObject>;
 
         struct spark_context
         {
@@ -59,6 +60,8 @@ namespace spark
         struct spark_kernel
         {
             spark_kernel(string&& source);
+            void write(size_t offset, size_t bytes, const void* data);
+            void read(size_t offset, size_t bytes, void* dest);
 
             string _source;
             unique_cl_program _program;
@@ -69,7 +72,7 @@ namespace spark
         : _source(source)
         {
             auto currentContext = spark_context::current;
-            THROW_IF_FALSE(currentContext != nullptr);
+            THROW_IF_NULL(currentContext);
 
             // create program source
             const char* sourceBuffer = this->_source.data();
@@ -100,6 +103,55 @@ namespace spark
             cl_kernel clKernel = ::clCreateKernel(this->_program.get(), "main", &createKernelError);
             THROW_IF_OPENCL_FAILED(createKernelError);
             this->_kernel.reset(clKernel);
+        }
+
+        struct spark_buffer
+        {
+            spark_buffer(size_t size, const void* data);
+            void write(size_t offset, size_t bytes, const void* data);
+            void read(size_t offset, size_t bytes, void* dest) const;
+
+            unique_cl_mem _mem;
+        };
+
+        spark_buffer::spark_buffer(size_t size, const void* data)
+        {
+            auto currentContext = spark_context::current;
+            THROW_IF_NULL(currentContext);
+
+            cl_int createBufferError = CL_SUCCESS;
+            cl_mem_flags memFlags = (data == nullptr) ? CL_MEM_READ_WRITE : (CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR);
+            cl_mem clMem = ::clCreateBuffer(currentContext->context.get(), memFlags, size, const_cast<void*>(data), &createBufferError);
+            THROW_IF_OPENCL_FAILED(createBufferError);
+            this->_mem.reset(clMem);
+        }
+
+        void spark_buffer::write(size_t offset, size_t bytes, const void* data)
+        {
+            auto currentContext = spark_context::current;
+            THROW_IF_NULL(currentContext);
+
+            // copy data
+            if(data != nullptr)
+            {
+                THROW_IF_OPENCL_FAILED(::clEnqueueWriteBuffer(currentContext->command_queue.get(), this->_mem.get(), CL_TRUE, offset, bytes, data, 0, nullptr, nullptr));
+            }
+            // zero out buffer
+            else
+            {
+                uint8_t zero = 0;
+                cl_event event;
+                THROW_IF_OPENCL_FAILED(::clEnqueueFillBuffer(currentContext->command_queue.get(), this->_mem.get(), &zero, sizeof(zero), offset, bytes, 0, nullptr, &event));
+                THROW_IF_OPENCL_FAILED(::clWaitForEvents(1, &event));
+            }
+        }
+
+        void spark_buffer::read(size_t offset, size_t bytes, void* dest) const
+        {
+            auto currentContext = spark_context::current;
+            THROW_IF_NULL(currentContext);
+
+            THROW_IF_OPENCL_FAILED(::clEnqueueReadBuffer(currentContext->command_queue.get(), const_cast<cl_mem>(this->_mem.get()), CL_TRUE, offset, bytes, dest, 0, nullptr, nullptr));
         }
     }
 }
@@ -134,6 +186,8 @@ SPARK_EXPORT void spark_set_current_context(spark_context_t* context, spark_erro
         error,
         [&]
         {
+            THROW_IF_NULL(context);
+
             spark::lib::spark_context::current = context;
             return;
         });
@@ -145,6 +199,8 @@ SPARK_EXPORT void spark_destroy_context(spark_context_t* context, spark_error_t*
         error,
         [&]
         {
+            THROW_IF_NULL(context);
+
             if(context == spark::lib::spark_context::current)
             {
                 spark::lib::spark_context::current = nullptr;
@@ -160,6 +216,8 @@ SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spar
         error,
         [&]
         {
+            THROW_IF_NULL(kernel_root);
+
             auto len = generateSourceTree(kernel_root, nullptr, 0);
             string sourceTree(len - 1, 0);
             generateSourceTree(kernel_root, const_cast<char*>(sourceTree.data()), len);
@@ -183,6 +241,7 @@ SPARK_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_e
         error,
         [&]
         {
+            THROW_IF_NULL(kernel);
             return kernel->_source.c_str();
         });
 }
@@ -194,6 +253,52 @@ SPARK_EXPORT void spark_destroy_kernel(spark_kernel_t* kernel, spark_error_t** e
         [&]
         {
             delete kernel;
+            return;
+        });
+}
+
+SPARK_EXPORT spark_buffer_t* spark_create_buffer(size_t bytes, const void* data, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            return new spark::lib::spark_buffer(bytes, data);
+        });
+}
+
+SPARK_EXPORT void spark_write_buffer(spark_buffer_t* buffer, size_t offset, size_t bytes, const void* data, spark_error_t** error)
+{
+    return TranslateExceptions(
+    error,
+    [&]
+    {
+        THROW_IF_NULL(buffer);
+
+        buffer->write(offset, bytes, data);
+    });
+}
+
+SPARK_EXPORT void spark_read_buffer(spark_buffer_t* buffer, size_t offset, size_t bytes, void* dest, spark_error_t** error)
+{
+    return TranslateExceptions(
+    error,
+    [&]
+    {
+        THROW_IF_NULL(buffer);
+        THROW_IF_NULL(dest);
+
+        buffer->read(offset, bytes, dest);
+    });
+}
+
+SPARK_EXPORT void spark_destroy_buffer(spark_buffer_t* buffer, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            delete buffer;
             return;
         });
 }

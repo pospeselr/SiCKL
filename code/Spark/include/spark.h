@@ -9,6 +9,7 @@
 #include "spark/node.h"
 #include "spark/runtime.h"
 #include "spark/codegen.h"
+#include "spark/device_buffer.h"
 // kernel authoring
 #include "spark/functions.h"
 #include "spark/meta.h"
@@ -26,3 +27,4 @@
 #include "spark/comment.h"
 #include "spark/statement.h"
 #include "spark/range.h"
+

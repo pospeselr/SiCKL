@@ -22,6 +22,8 @@
     }\
     while(0)
 
+#define THROW_IF_NULL(X) THROW_IF_FALSE((X) != nullptr)
+
 #define SPARK_ASSERT(X) THROW_IF_FALSE(X)
 
 namespace spark

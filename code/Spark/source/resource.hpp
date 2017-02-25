@@ -75,6 +75,11 @@ namespace spark
                 return _val;
             }
 
+            const element_type get() const
+            {
+                return _val;
+            }
+
             operator bool() const
             {
                 return !_empty;

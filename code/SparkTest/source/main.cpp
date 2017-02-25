@@ -3,6 +3,7 @@
 #include <iostream>
 #include <functional>
 #include <typeinfo>
+#include <vector>
 
 using std::cout;
 using std::endl;
@@ -72,6 +73,14 @@ int main()
     {
         auto context = spark_create_context(ThrowOnError());
         spark_set_current_context(context, ThrowOnError());
+
+        device_buffer_1d<float> buffer(128, nullptr);
+
+        device_buffer_1d<float> buffer2(buffer);
+
+        printf("buffer1 size: %lu\n", buffer.size());
+        printf("buffer2 size: %lu\n", buffer2.size());
+
 #if 0
         Kernel<Void(Int, Buffer1D<Int>)> kernel = []()
         {
