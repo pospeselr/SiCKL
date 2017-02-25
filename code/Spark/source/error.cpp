@@ -141,6 +141,7 @@ namespace spark
         void throw_error(const char* error, const char* source, uint32_t line)
         {
             auto buffer = string_format("%s(%u) : %s", source, line, error);
+            SPARK_DEBUGBREAK();
             throw std::runtime_error(buffer);
         }
 

@@ -5,13 +5,13 @@ namespace spark
     namespace client
     {
         // scalar type wrapper
-        template<typename RAW_TYPE>
+        template<typename HOST_TYPE>
         struct scalar
         {
         public:
             // typedefs
             typedef scalar<int32_t> int_type;
-            typedef RAW_TYPE raw_type;
+            typedef HOST_TYPE host_type;
 
             // friends
             template<typename S>
@@ -35,7 +35,7 @@ namespace spark
             SPARK_FORCE_INLINE
             scalar()
             {
-                RAW_TYPE val = {};
+                HOST_TYPE val = {};
                 this->_node = value_constructor(scalar::type, &val, sizeof(val));
             }
 
@@ -46,15 +46,15 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
-            scalar(RAW_TYPE val)
+            scalar(HOST_TYPE val)
             {
                 this->_node = value_constructor(scalar::type, &val, sizeof(val));
             }
 
-            // constructor explicitly takes an int, and converts to RAW_TYPE
+            // constructor explicitly takes an int, and converts to HOST_TYPE
             // reolves abiguity with other types
-            template<typename PRIMITIVE = RAW_TYPE>
-            scalar(typename is_int<PRIMITIVE>::type val) : scalar(static_cast<RAW_TYPE>(val)) {}
+            template<typename PRIMITIVE = HOST_TYPE>
+            scalar(typename is_int<PRIMITIVE>::type val) : scalar(static_cast<HOST_TYPE>(val)) {}
 
             SPARK_FORCE_INLINE
             scalar(const scalar& that)
@@ -84,7 +84,7 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
-            scalar& operator=(RAW_TYPE val)
+            scalar& operator=(HOST_TYPE val)
             {
                 const auto dt = static_cast<spark_datatype_t>(scalar::type);
                 auto constant = spark_create_constant_node(dt, &val, sizeof(val), ThrowOnError());
@@ -105,7 +105,7 @@ namespace spark
 
             // private node ptr
             spark_node_t* _node;
-            static constexpr spark::shared::Datatype type = spark::shared::Datatype(type_to_primitive<RAW_TYPE>::value, spark::shared::Components::Scalar, false);
+            static constexpr spark::shared::Datatype type = spark::shared::Datatype(type_to_primitive<HOST_TYPE>::value, spark::shared::Components::Scalar, false);
         };
         template<typename T>
         constexpr spark::shared::Datatype scalar<T>::type;

@@ -10,6 +10,9 @@ extern "C" void spark_destroy_context(spark_context_t* context, spark_error_t** 
 
 extern "C" spark_kernel_t* spark_create_kernel(spark_node_t* root, spark_error_t** error);
 extern "C" const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_error_t** error);
+extern "C" void spark_set_kernel_arg_buffer(spark_kernel_t* kernel, uint32_t index, spark_buffer_t* buffer, spark_error_t** error);
+extern "C" void spark_set_kernel_arg_primitive(spark_kernel_t* kernel, uint32_t index, size_t size, const void* data, spark_error_t** error);
+extern "C" void spark_run_kernel(spark_kernel_t* kernel, size_t dim1, size_t dim2, size_t dim3, spark_error_t** error);
 extern "C" void spark_destroy_kernel(spark_kernel_t* kernel, spark_error_t** error);
 
 extern "C" spark_buffer_t* spark_create_buffer(size_t bytes, const void* data, spark_error_t** error);

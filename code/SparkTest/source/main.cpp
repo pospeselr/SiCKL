@@ -74,12 +74,11 @@ int main()
         auto context = spark_create_context(ThrowOnError());
         spark_set_current_context(context, ThrowOnError());
 
-        device_buffer_1d<float> buffer(128, nullptr);
+        device_buffer1d<float> float_buffer(128, nullptr);
+        device_buffer1d<int32_t> int_buffer(256, nullptr);
 
-        device_buffer_1d<float> buffer2(buffer);
-
-        printf("buffer1 size: %lu\n", buffer.size());
-        printf("buffer2 size: %lu\n", buffer2.size());
+        printf("float_buffer size: %lu\n", float_buffer.size());
+        printf("int_buffer size: %lu\n", int_buffer.size());
 
 #if 0
         Kernel<Void(Int, Buffer1D<Int>)> kernel = []()
@@ -97,7 +96,7 @@ int main()
         };
 #endif
 #if 1
-        Kernel<Void(PInt, PFloat)> kernel = []()
+        Kernel<Void(Buffer1D<Int>, Buffer1D<Float>)> kernel = []()
         {
 
             Function<Int(Int,Int)> sum =
@@ -113,8 +112,8 @@ int main()
                 Return(val * val);
             };
 
-            Function<Void(PInt, PFloat)> main =
-            [=](PInt buff1, PFloat buff2)
+            Function<Void(Buffer1D<Int>, Buffer1D<Float>)> main =
+            [=](Buffer1D<Int> buff1, Buffer1D<Float> buff2)
             {
                 Comment("Kernel Main");
 
@@ -142,19 +141,17 @@ int main()
                 }
                 a = a + 17;
 
-                buff1 = 7u + buff1 + 2u;
-
                 Comment("Before Dereference");
 
-                *buff1 = 12;
-                Int what = *(buff1 + 1u);
+                buff1[0] = 12;
+                Int what = *(buff1.Data() + 1u);
                 //printf("typeid: %s\n", typeid(what).name());
 
                 Comment("After Dereference");
 
                 Float2 vec2;
                 vec2.X = 1.0f;
-                *buff2 = square(2.0f);
+                buff2[0] = square(2.0f);
                 b = vec2.X;
                 Int2 equals = vec2 == vec2;
 
@@ -187,6 +184,9 @@ int main()
             };
             main.SetEntryPoint();
         };
+        kernel.set_work_dimensions(10, 1, 1);
+        kernel(int_buffer, float_buffer);
+
 #endif
         spark_destroy_context(context, ThrowOnError());
     }

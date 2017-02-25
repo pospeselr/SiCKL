@@ -179,25 +179,74 @@ namespace spark
             spark_pop_scope_node(THROW_ON_ERROR());
 
             // compile and cache program
-            this->_kernel = spark_create_kernel(kernelRoot, THROW_ON_ERROR());
+            this->_kernel.reset(spark_create_kernel(kernelRoot, THROW_ON_ERROR()), [](spark_kernel_t* kernel)
+                {
+                    spark_destroy_kernel(kernel, THROW_ON_ERROR());
+                });
 
-            printf("%s\n", spark_get_kernel_source(this->_kernel, THROW_ON_ERROR()));
+            printf("%s\n", spark_get_kernel_source(this->_kernel.get(), THROW_ON_ERROR()));
 
 
             spark_end_program(THROW_ON_ERROR());
-        };
-
-        ~Kernel()
-        {
-            spark_destroy_kernel(this->_kernel, THROW_ON_ERROR());
         }
 
-        void operator()(PARAMS...) const
+        void set_work_dimensions(size_t dim1)
         {
+            set_work_dimensions(dim1, 1, 1);
+        }
 
-        };
+        void set_work_dimensions(size_t dim1, size_t dim2)
+        {
+            set_work_dimensions(dim1, dim2, 1);
+        }
+
+        void set_work_dimensions(size_t dim1, size_t dim2, size_t dim3)
+        {
+            _work_dimensions[0] = dim1;
+            _work_dimensions[1] = dim2;
+            _work_dimensions[2] = dim3;
+        }
+
+        void operator()(const typename PARAMS::host_type&... args) const
+        {
+            run(0, args...);
+        }
     private:
-        spark_kernel_t* _kernel = nullptr;
+
+        template<typename T>
+        uint32_t set_arg(uint32_t idx, const T& arg) const
+        {
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(arg), &arg, THROW_ON_ERROR());
+            return idx;
+        }
+
+        template<typename T>
+        uint32_t set_arg(uint32_t idx, const device_buffer1d<T>& buffer) const
+        {
+            // buffer
+            spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), THROW_ON_ERROR());
+
+            // buffer length
+            int32_t size = (int32_t)buffer.size();
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(size), &size, THROW_ON_ERROR());
+
+            return idx;
+        }
+
+        void run(uint32_t) const
+        {
+            spark_run_kernel(this->_kernel.get(), _work_dimensions[0], _work_dimensions[1], _work_dimensions[2], THROW_ON_ERROR());
+        }
+
+        template<typename Arg, typename...Args>
+        void run(uint32_t idx, const Arg arg, const Args... args) const
+        {
+            idx = set_arg(idx, arg);
+            run(idx, args...);
+        }
+
+        std::shared_ptr<spark_kernel_t> _kernel;
+        size_t _work_dimensions[3] = {0};
     };
 
     /// Return Operators

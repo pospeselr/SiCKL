@@ -2,10 +2,12 @@
 
 namespace spark
 {
+    template<typename T> struct Kernel;
+
     template<typename T>
-    struct device_buffer_1d
+    struct device_buffer1d
     {
-        device_buffer_1d(size_t count, const T* data)
+        device_buffer1d(size_t count, const T* data)
         : _size(count)
         , _buffer(spark_create_buffer(sizeof(T) * count, data, THROW_ON_ERROR()),
             [](spark_buffer_t* buffer)
@@ -15,9 +17,9 @@ namespace spark
         { }
 
         // zero fill
-        device_buffer_1d(size_t count) : device_buffer_1d(count, nullptr) {}
+        device_buffer1d(size_t count) : device_buffer1d(count, nullptr) {}
         template<size_t N>
-        device_buffer_1d(const T (&arr)[N]) : device_buffer_1d(N, arr) {}
+        device_buffer1d(const T (&arr)[N]) : device_buffer1d(N, arr) {}
 
         void write(size_t offset, size_t count, const T* data)
         {
@@ -70,6 +72,8 @@ namespace spark
         }
 
     private:
+        template<typename F>
+        friend struct Kernel;
 
         const size_t _size;
         std::shared_ptr<spark_buffer_t> _buffer;

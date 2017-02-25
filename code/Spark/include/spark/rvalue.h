@@ -6,7 +6,7 @@ namespace spark
 
     namespace client
     {
-        template<typename RAW_TYPE> struct scalar;
+        template<typename HOST_TYPE> struct scalar;
         template<typename TYPE> struct vector2;
         template<typename TYPE> struct pointer;
 
@@ -26,10 +26,10 @@ namespace spark
         template<typename TYPE, bool DESTRUCT_ATTACH=false> struct rvalue;
 
         // scalar rvalue
-        template<typename RAW_TYPE, bool DESTRUCT_ATTACH>
-        struct rvalue<scalar<RAW_TYPE>, DESTRUCT_ATTACH> : scalar<RAW_TYPE>
+        template<typename HOST_TYPE, bool DESTRUCT_ATTACH>
+        struct rvalue<scalar<HOST_TYPE>, DESTRUCT_ATTACH> : scalar<HOST_TYPE>
         {
-            typedef scalar<RAW_TYPE> TYPE;
+            typedef scalar<HOST_TYPE> TYPE;
 
             SPARK_FORCE_INLINE
             rvalue(spark_node_t* node) : TYPE(node) {}
@@ -38,12 +38,12 @@ namespace spark
             rvalue(const TYPE& that) : rvalue(that._node) {}
 
             SPARK_FORCE_INLINE
-            rvalue(RAW_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), THROW_ON_ERROR())) {}
+            rvalue(HOST_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), THROW_ON_ERROR())) {}
 
-            // constructor explicitly takes an int, and converts to RAW_TYPE
+            // constructor explicitly takes an int, and converts to HOST_TYPE
             // reolves abiguity with other types
-            template<typename PRIMITIVE = RAW_TYPE>
-            rvalue(typename is_int<PRIMITIVE>::type val) : rvalue(static_cast<RAW_TYPE>(val)) {}
+            template<typename PRIMITIVE = HOST_TYPE>
+            rvalue(typename is_int<PRIMITIVE>::type val) : rvalue(static_cast<HOST_TYPE>(val)) {}
 
             SPARK_FORCE_INLINE
             ~rvalue()
@@ -69,7 +69,7 @@ namespace spark
         struct rvalue<vector2<SCALAR_TYPE>, DESTRUCT_ATTACH> : vector2<SCALAR_TYPE>
         {
             typedef vector2<SCALAR_TYPE> TYPE;
-            typedef typename SCALAR_TYPE::raw_type RAW_TYPE;
+            typedef typename SCALAR_TYPE::host_type HOST_TYPE;
 
             rvalue(spark_node_t* node) : TYPE(node) {}
             rvalue(const TYPE& that) : rvalue(that._node) {}

@@ -10,6 +10,9 @@ namespace spark
         template<typename T>
         struct buffer1d
         {
+        public:
+            typedef spark::device_buffer1d<typename T::host_type> host_type;
+
             // extern constructor
             buffer1d(extern_construct_t)
             : _data(extern_construct)

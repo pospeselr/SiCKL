@@ -23,6 +23,8 @@ namespace spark
         using unique_cl_kernel = unique_any<cl_kernel, decltype(&::clReleaseKernel), &::clReleaseKernel>;
         using unique_cl_mem = unique_any<cl_mem, decltype(&::clReleaseMemObject), &::clReleaseMemObject>;
 
+        /// Spark Context
+
         struct spark_context
         {
             spark_context();
@@ -34,6 +36,29 @@ namespace spark
             static thread_local spark_context* current;
         };
         thread_local spark_context* spark_context::current = nullptr;
+
+        struct spark_buffer
+        {
+            spark_buffer(size_t size, const void* data);
+            void write(size_t offset, size_t bytes, const void* data);
+            void read(size_t offset, size_t bytes, void* dest) const;
+
+            unique_cl_mem _mem;
+        };
+
+        struct spark_kernel
+        {
+            spark_kernel(string&& source);
+
+            void set_arg(uint32_t index, const spark_buffer* buffer);
+            void set_arg(uint32_t index, size_t size, const void* data);
+
+            void run(const size_t(&work_dimensions)[3]);
+
+            string _source;
+            unique_cl_program _program;
+            unique_cl_kernel _kernel;
+        };
 
         spark_context::spark_context()
         {
@@ -57,16 +82,7 @@ namespace spark
             this->command_queue.reset(clCommandQueue);
         }
 
-        struct spark_kernel
-        {
-            spark_kernel(string&& source);
-            void write(size_t offset, size_t bytes, const void* data);
-            void read(size_t offset, size_t bytes, void* dest);
-
-            string _source;
-            unique_cl_program _program;
-            unique_cl_kernel _kernel;
-        };
+        /// Spark Kernel
 
         spark_kernel::spark_kernel(string&& source)
         : _source(source)
@@ -105,14 +121,29 @@ namespace spark
             this->_kernel.reset(clKernel);
         }
 
-        struct spark_buffer
+        void spark_kernel::set_arg(uint32_t index, const spark_buffer* buffer)
         {
-            spark_buffer(size_t size, const void* data);
-            void write(size_t offset, size_t bytes, const void* data);
-            void read(size_t offset, size_t bytes, void* dest) const;
+            auto mem = buffer->_mem.get();
+            THROW_IF_OPENCL_FAILED(::clSetKernelArg(this->_kernel.get(), index, sizeof(mem), &mem));
+        }
 
-            unique_cl_mem _mem;
-        };
+        void spark_kernel::set_arg(uint32_t index, size_t size, const void* data)
+        {
+            THROW_IF_OPENCL_FAILED(::clSetKernelArg(this->_kernel.get(), index, size, data));
+        }
+
+        void spark_kernel::run(const size_t(&work_dimensions)[3])
+        {
+            auto currentContext = spark_context::current;
+            THROW_IF_NULL(currentContext);
+
+            cl_event event;
+            THROW_IF_OPENCL_FAILED(::clEnqueueNDRangeKernel(currentContext->command_queue.get(), this->_kernel.get(), 3, nullptr, work_dimensions, nullptr, 0, nullptr, &event));
+
+            THROW_IF_OPENCL_FAILED(::clWaitForEvents(1, &event));
+        }
+
+        // Spark Buffer
 
         spark_buffer::spark_buffer(size_t size, const void* data)
         {
@@ -242,7 +273,53 @@ SPARK_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_e
         [&]
         {
             THROW_IF_NULL(kernel);
+
             return kernel->_source.c_str();
+        });
+}
+
+SPARK_EXPORT void spark_set_kernel_arg_buffer(spark_kernel_t* kernel, uint32_t index, spark_buffer_t* buffer, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            THROW_IF_NULL(kernel);
+            THROW_IF_NULL(buffer);
+
+            kernel->set_arg(index, buffer);
+            return;
+        });
+}
+
+SPARK_EXPORT void spark_set_kernel_arg_primitive(spark_kernel_t* kernel, uint32_t index, size_t size, const void* data, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            THROW_IF_NULL(kernel);
+            THROW_IF_FALSE(size > 0);
+            THROW_IF_NULL(data);
+
+            kernel->set_arg(index, size, data);
+            return;
+        });
+}
+
+SPARK_EXPORT void spark_run_kernel(spark_kernel_t* kernel, size_t dim1, size_t dim2, size_t dim3, spark_error_t** error)
+{
+    return TranslateExceptions(
+        error,
+        [&]
+        {
+            THROW_IF_NULL(kernel);
+            THROW_IF_FALSE(dim1 > 0);
+            THROW_IF_FALSE(dim2 > 0);
+            THROW_IF_FALSE(dim3 > 0);
+
+            size_t work_dimensions[3] = {dim1, dim2, dim3};
+            kernel->run(work_dimensions);
         });
 }
 

@@ -10,7 +10,7 @@ namespace spark
         {
         public:
             // typedefs
-            typedef vector2<scalar<typename type_to_signed_int<typename TYPE::raw_type>::type>> int_type;
+            typedef vector2<scalar<typename type_to_signed_int<typename TYPE::host_type>::type>> int_type;
 
             // friends
             template<typename S, spark::shared::Property id>
