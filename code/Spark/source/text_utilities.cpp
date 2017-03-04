@@ -12,6 +12,7 @@ namespace spark
             va_list args1, args2;
 
             va_start (args1, format);
+            // vsnprintf destructively modifes the va_list, so make an initial copy
             va_copy(args2, args1);
             auto len = vsnprintf(nullptr, 0, format, args1);
             va_end(args1);

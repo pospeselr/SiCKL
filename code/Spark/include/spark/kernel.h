@@ -60,6 +60,72 @@ namespace spark
             // done with function
             spark_pop_scope_node( THROW_ON_ERROR());
         }
+
+        template<typename CLASS, typename RETURN, typename... ARGS>
+        SPARK_FORCE_INLINE
+        Function<RETURN(ARGS...)> make_function(const CLASS& lambda, RETURN(CLASS::*)(ARGS...) const)
+        {
+            return Function<RETURN(ARGS...)>(lambda);
+        }
+
+        /// Return Operators
+        template<typename RETURN>
+        SPARK_FORCE_INLINE
+        RETURN return_operator(const RETURN& value)
+        {
+            const auto dt = static_cast<spark_datatype_t>(value.type);
+            const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
+
+            auto returnNode = spark_create_operator1_node(dt, op, value._node);
+
+            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+
+            return RETURN(null_construct);
+        }
+
+        template<typename RETURN>
+        SPARK_FORCE_INLINE
+        RETURN return_operator(const rvalue<RETURN>& value)
+        {
+            const auto dt = static_cast<spark_datatype_t>(value.type);
+            const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
+
+            auto returnNode = spark_create_operator1_node(dt, op, value._node);
+
+            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+
+            return RETURN(null_construct);
+        }
+
+        template<typename RETURN>
+        SPARK_FORCE_INLINE
+        RETURN return_operator(const lvalue<RETURN>& value)
+        {
+            const auto dt = static_cast<spark_datatype_t>(value.type);
+            const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
+
+            auto returnNode = spark_create_operator1_node(dt, op, value._node);
+
+            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+
+            return RETURN(null_construct);
+        }
+
+        inline Void return_operator()
+        {
+            const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(spark::shared::Primitive::Void, spark::shared::Components::None, false));
+            const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
+
+            auto returnNode = spark_create_operator_node(dt, op,  THROW_ON_ERROR());
+
+            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+
+            return Void();
+        }
     }
 
     template<typename> struct Function;
@@ -159,6 +225,14 @@ namespace spark
         spark_node_t* _node = nullptr;
     };
 
+
+
+    template<typename TYPE>
+    auto MakeFunction(const TYPE& lambda)
+    {
+        return client::make_function(lambda, &TYPE::operator());
+    }
+
     /// Kernel
     template<typename> struct Kernel;
 
@@ -249,29 +323,7 @@ namespace spark
         size_t _work_dimensions[3] = {0};
     };
 
-    /// Return Operators
-
-    template<typename RETURN>
-    void Return(const RETURN& value)
-    {
-        const auto dt = static_cast<spark_datatype_t>(value.type);
-        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
-
-        auto returnNode = spark_create_operator1_node(dt, op, value._node);
-
-        auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
-        spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
-    }
-
-    void Return()
-    {
-        const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(spark::shared::Primitive::Void, spark::shared::Components::None, false));
-        const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
-
-        auto returnNode = spark_create_operator_node(dt, op,  THROW_ON_ERROR());
-
-        auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
-        spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
-    }
+    /// Return operator
+    #define Return(...) return client::return_operator(__VA_ARGS__)
 }
 

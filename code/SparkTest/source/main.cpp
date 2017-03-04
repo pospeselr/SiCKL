@@ -99,20 +99,20 @@ int main()
         Kernel<Void(Buffer1D<Int>, Buffer1D<Float>)> kernel = []()
         {
 
-            Function<Int(Int,Int)> sum =
-            [](Int a, Int b)
+            auto sum = MakeFunction([](Int a, Int b)
             {
                 Comment("Sum");
                 a = 12;
                 Return(a + b);
-            };
-            Function<Float(Float)> square =
+            });
+
+            auto square = MakeFunction(
             [](Float val)
             {
                 Return(val * val);
-            };
+            });
 
-            Function<Void(Buffer1D<Int>, Buffer1D<Float>)> main =
+            auto main = MakeFunction(
             [=](Buffer1D<Int> buff1, Buffer1D<Float> buff2)
             {
                 Comment("Kernel Main");
@@ -181,7 +181,7 @@ int main()
                 Int2 swiz = equals.XX;
                 swiz.XY = equals.YX;
                 Return();
-            };
+            });
             main.SetEntryPoint();
         };
         kernel.set_work_dimensions(10, 1, 1);

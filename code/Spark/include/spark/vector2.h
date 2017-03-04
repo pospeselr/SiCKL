@@ -29,6 +29,9 @@ namespace spark
             vector2() : vector2(0.0f, 0.0f) {}
 
             SPARK_FORCE_INLINE
+            vector2(null_construct_t) : _node(nullptr) {}
+
+            SPARK_FORCE_INLINE
             vector2(extern_construct_t)
             {
                 this->_node = extern_constructor(vector2::type);

@@ -40,6 +40,9 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
+            scalar(null_construct_t) : _node(nullptr) {}
+
+            SPARK_FORCE_INLINE
             scalar(extern_construct_t)
             {
                 this->_node = extern_constructor(scalar::type);

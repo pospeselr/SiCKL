@@ -1,4 +1,4 @@
-find_package(OpenCL REQUIRED)
+find_package(OpenCL 1.2 REQUIRED)
 
 add_compile_options(-std=c++1z)
 add_compile_options(-Wall)
