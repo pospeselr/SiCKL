@@ -2,6 +2,8 @@
 
 namespace spark
 {
+    template<typename> struct Function;
+
     namespace client
     {
         SPARK_NEVER_INLINE
@@ -127,8 +129,6 @@ namespace spark
             return Void();
         }
     }
-
-    template<typename> struct Function;
 
     template<typename RETURN, typename... PARAMS>
     struct Function<RETURN(PARAMS...)>
