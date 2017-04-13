@@ -4,13 +4,41 @@ namespace spark
 {
     namespace client
     {
-        // wrapper for all vector2 types
         template<typename TYPE>
-        struct vector2
+        struct host_vector2
+        {
+            union
+            {
+                struct
+                {
+                    TYPE x;
+                    TYPE y;
+                };
+                TYPE data[2];
+            };
+        };
+    }
+    typedef client::host_vector2<int8_t> char2;
+    typedef client::host_vector2<uint8_t> uchar2;
+    typedef client::host_vector2<int16_t> short2;
+    typedef client::host_vector2<uint16_t> ushort2;
+    typedef client::host_vector2<int32_t> int2;
+    typedef client::host_vector2<uint32_t> uint2;
+    typedef client::host_vector2<int64_t> long2;
+    typedef client::host_vector2<uint64_t> ulong2;
+    typedef client::host_vector2<float> float2;
+    typedef client::host_vector2<double> double2;
+
+    namespace client
+    {
+        // wrapper for all device_vector2 types
+        template<typename TYPE>
+        struct device_vector2
         {
         public:
             // typedefs
-            typedef vector2<scalar<typename type_to_signed_int<typename TYPE::host_type>::type>> int_type;
+            typedef device_vector2<scalar<typename type_to_signed_int<typename TYPE::host_type>::type>> int_type;
+            typedef host_vector2<typename TYPE::host_type> host_type;
 
             // friends
             template<typename S, spark::shared::Property id>
@@ -18,7 +46,7 @@ namespace spark
         protected:
             // node constructor
             SPARK_FORCE_INLINE
-            vector2(spark_node_t* node)
+            device_vector2(spark_node_t* node)
             : _node(node)
             {
                 SPARK_ASSERT(_node != nullptr);
@@ -26,48 +54,48 @@ namespace spark
         public:
             // constructors
             SPARK_FORCE_INLINE
-            vector2() : vector2(0.0f, 0.0f) {}
+            device_vector2() : device_vector2(0.0f, 0.0f) {}
 
             SPARK_FORCE_INLINE
-            vector2(null_construct_t) : _node(nullptr) {}
+            device_vector2(null_construct_t) : _node(nullptr) {}
 
             SPARK_FORCE_INLINE
-            vector2(extern_construct_t)
+            device_vector2(extern_construct_t)
             {
-                this->_node = extern_constructor(vector2::type);
+                this->_node = extern_constructor(device_vector2::type);
             }
 
             SPARK_FORCE_INLINE
-            vector2(const rvalue<vector2>& that)
+            device_vector2(const rvalue<device_vector2>& that)
             {
-                this->_node = copy_constructor(vector2::type, that._node);
+                this->_node = copy_constructor(device_vector2::type, that._node);
             }
 
             SPARK_FORCE_INLINE
-            vector2(const lvalue<vector2>& that)
+            device_vector2(const lvalue<device_vector2>& that)
             {
-                this->_node = copy_constructor(vector2::type, that._node);
+                this->_node = copy_constructor(device_vector2::type, that._node);
             }
 
             SPARK_FORCE_INLINE
-            vector2(const vector2& that)
+            device_vector2(const device_vector2& that)
             {
-                this->_node = copy_constructor(vector2::type, that._node);
+                this->_node = copy_constructor(device_vector2::type, that._node);
             }
 
             SPARK_FORCE_INLINE
-            vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
+            device_vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
             {
                 spark_node_t* children[] = {x._node, y._node};
-                this->_node = vector_constructor(vector2::type, children, countof(children));
+                this->_node = vector_constructor(device_vector2::type, children, countof(children));
             }
 
-            vector2(vector2&&) = default;
+            device_vector2(device_vector2&&) = default;
 
             SPARK_FORCE_INLINE
-            vector2& operator=(const vector2& that)
+            device_vector2& operator=(const device_vector2& that)
             {
-                assignment_operator(this->_node, vector2::type, that._node);
+                assignment_operator(this->_node, device_vector2::type, that._node);
                 return *this;
             }
 
@@ -77,10 +105,10 @@ namespace spark
                 // swizzles
                 property_rw<TYPE, spark::shared::Property::X> X;
                 property_rw<TYPE, spark::shared::Property::Y> Y;
-                property_r<vector2, spark::shared::Property::XX> XX;
-                property_rw<vector2, spark::shared::Property::XY> XY;
-                property_rw<vector2, spark::shared::Property::YX> YX;
-                property_r<vector2, spark::shared::Property::YY> YY;
+                property_r<device_vector2, spark::shared::Property::XX> XX;
+                property_rw<device_vector2, spark::shared::Property::XY> XY;
+                property_rw<device_vector2, spark::shared::Property::YX> YX;
+                property_r<device_vector2, spark::shared::Property::YY> YY;
                 // others
                 property_rw<TYPE, spark::shared::Property::Lo> Lo;
                 property_rw<TYPE, spark::shared::Property::Hi> Hi;
@@ -95,7 +123,7 @@ namespace spark
             template<typename CAST_TYPE>
             const rvalue<CAST_TYPE> As() const
             {
-                static_assert(is_vector2_type<CAST_TYPE>::value, "vector2 types can only be cast to other vector2 types");
+                static_assert(is_vector2_type<CAST_TYPE>::value, "vector2 types can only be cast to other device_vector2 types");
 
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Cast);
@@ -106,8 +134,8 @@ namespace spark
             static constexpr spark::shared::Datatype type = spark::shared::Datatype(TYPE::type.GetPrimitive(), spark::shared::Components::Vector2, false);
         };
         template<typename T>
-        constexpr spark::shared::Datatype vector2<T>::type;
+        constexpr spark::shared::Datatype device_vector2<T>::type;
         template<typename T>
-        struct is_vector2_type<vector2<T>> {const static bool value = true;};
+        struct is_vector2_type<device_vector2<T>> {const static bool value = true;};
     }
 }

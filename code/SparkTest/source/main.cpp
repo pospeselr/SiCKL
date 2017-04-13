@@ -15,13 +15,14 @@ using std::unique_ptr;
 using namespace spark;
 using namespace spark::client;
 
+// EasyBMP
+#include <EasyBMP.h>
+
 namespace spark
 {
     typedef uint8_t true_t;
     typedef uint16_t false_t;
 
-    template<class T> T& get_lvalue();
-    template<class T> T get_rvalue();
     template<class T> T get();
 
     template<class L, class R>
@@ -80,6 +81,19 @@ int main()
         printf("float_buffer size: %lu\n", float_buffer.size());
         printf("int_buffer size: %lu\n", int_buffer.size());
 
+        Kernel<Void(Float2, Float2, Buffer1D<Float>)> mandelbrot = []()
+        {
+            auto main = MakeFunction([](Float2 min, Float2 max, Buffer1D<Float> output)
+            {
+                Return();
+            });
+            main.SetEntryPoint();
+        };
+        mandelbrot.set_work_dimensions(10, 1, 1);
+        float2 min, max;
+        mandelbrot(min, max, float_buffer);
+
+
 #if 0
         Kernel<Void(Int, Buffer1D<Int>)> kernel = []()
         {
@@ -95,7 +109,7 @@ int main()
             main.SetEntryPoint();
         };
 #endif
-#if 1
+#if 0
         Kernel<Void(Buffer1D<Int>, Buffer1D<Float>)> kernel = []()
         {
 

@@ -7,7 +7,7 @@ namespace spark
     namespace client
     {
         template<typename HOST_TYPE> struct scalar;
-        template<typename TYPE> struct vector2;
+        template<typename TYPE> struct device_vector2;
         template<typename TYPE> struct pointer;
 
         inline
@@ -64,11 +64,11 @@ namespace spark
             rvalue& operator=(const rvalue&) = delete;
         };
 
-        // vector2 rvalue
+        // device_vector2 rvalue
         template<typename SCALAR_TYPE, bool DESTRUCT_ATTACH>
-        struct rvalue<vector2<SCALAR_TYPE>, DESTRUCT_ATTACH> : vector2<SCALAR_TYPE>
+        struct rvalue<device_vector2<SCALAR_TYPE>, DESTRUCT_ATTACH> : device_vector2<SCALAR_TYPE>
         {
-            typedef vector2<SCALAR_TYPE> TYPE;
+            typedef device_vector2<SCALAR_TYPE> TYPE;
             typedef typename SCALAR_TYPE::host_type HOST_TYPE;
 
             rvalue(spark_node_t* node) : TYPE(node) {}

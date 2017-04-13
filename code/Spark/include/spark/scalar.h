@@ -17,7 +17,7 @@ namespace spark
             template<typename S>
             friend struct scalar;
             template<typename S>
-            friend struct vector2;
+            friend struct device_vector2;
             template<typename S, spark::shared::Property id>
             friend struct property_rw;
             template<typename S>

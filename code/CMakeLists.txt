@@ -4,3 +4,4 @@ project(SPARK_ROOT)
 
 add_subdirectory(Spark)
 add_subdirectory(SparkTest)
+add_subdirectory(EasyBMP)
