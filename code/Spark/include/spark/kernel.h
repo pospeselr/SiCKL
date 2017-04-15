@@ -18,9 +18,12 @@ namespace spark
             return opNode;
         }
 
+        template<typename RETURN>
         SPARK_NEVER_INLINE
-        auto function_create_begin(spark::shared::Datatype returnType)
+        auto function_create_begin()
         {
+            const auto returnType = RETURN::type;
+
             // get the root kernel node
             auto kernelRoot = spark_get_root_node( THROW_ON_ERROR());
 
@@ -38,6 +41,12 @@ namespace spark
             spark_push_scope_node(parameterList,  THROW_ON_ERROR());
 
             return std::make_tuple(kernelRoot, functionRoot, parameterList);
+        }
+
+        template<>
+        auto function_create_begin<void>()
+        {
+            return function_create_begin<Void>();
         }
 
         SPARK_NEVER_INLINE
@@ -171,7 +180,7 @@ namespace spark
             spark_node_t* kernelRoot;
             spark_node_t* functionRoot;
             spark_node_t* parameterList;
-            std::tie(kernelRoot, functionRoot, parameterList) = client::function_create_begin(RETURN::type);
+            std::tie(kernelRoot, functionRoot, parameterList) = client::function_create_begin<RETURN>();
 
             // fill out params
             function_header(parameterList, std::forward<PARAMS>(params)...);

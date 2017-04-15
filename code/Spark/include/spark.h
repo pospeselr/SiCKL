@@ -11,7 +11,6 @@
 #include "spark/codegen.h"
 #include "spark/device_buffer.h"
 // kernel authoring
-#include "spark/functions.h"
 #include "spark/meta.h"
 #include "spark/rvalue.h"
 #include "spark/lvalue.h"
@@ -27,4 +26,5 @@
 #include "spark/comment.h"
 #include "spark/statement.h"
 #include "spark/range.h"
+#include "spark/functions.h"
 

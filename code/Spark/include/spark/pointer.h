@@ -52,33 +52,31 @@ namespace spark
             SPARK_FORCE_INLINE
             lvalue<TYPE> operator*()
             {
-                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
-                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Dereference);
-                return lvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
+                return lvalue<TYPE>(dereference(this->_node));
             }
 
             SPARK_FORCE_INLINE
             rvalue<TYPE> operator*() const
             {
-                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
-                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Dereference);
-                return rvalue<TYPE>(spark_create_operator1_node(dt, op, this->_node));
+                return rvalue<TYPE>(dereference(this->_node));
             }
 
             SPARK_FORCE_INLINE
             lvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index)
             {
-                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
-                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
-                return lvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, index._node));
+                const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
+                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Add);
+                spark_node_t* ptr_node = spark_create_operator2_node(dt, op, this->_node, index._node);
+                return lvalue<TYPE>(dereference(ptr_node));
             }
 
             SPARK_FORCE_INLINE
             rvalue<TYPE> operator[](const rvalue<scalar<int32_t>>& index) const
             {
-                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
-                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Index);
-                return rvalue<TYPE>(spark_create_operator2_node(dt, op, this->_node, index._node));
+                const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
+                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Add);
+                spark_node_t* ptr_node = spark_create_operator2_node(dt, op, this->_node, index._node);
+                return rvalue<TYPE>(dereference(ptr_node));
             }
 
             spark_node_t* _node = nullptr;
@@ -86,6 +84,13 @@ namespace spark
 
             static const char* name;
             static constexpr spark::shared::Datatype type = spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true);
+        private:
+            static spark_node_t* dereference(spark_node_t* ptr_node)
+            {
+                const auto dt = static_cast<spark_datatype_t>(TYPE::type);
+                const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Dereference);
+                return spark_create_operator1_node(dt, op, ptr_node);
+            }
         };
         template<typename TYPE>
         constexpr spark::shared::Datatype pointer<TYPE>::type;

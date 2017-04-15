@@ -114,7 +114,6 @@ const char* spark_operator_to_str(spark_operator_t val)
 		"Operator::Dereference",
 		"Operator::PostfixIncrement",
 		"Operator::PostfixDecrement",
-		"Operator::Index",
 		"Operator::Add",
 		"Operator::Subtract",
 		"Operator::Multiply",
@@ -138,6 +137,8 @@ const char* spark_operator_to_str(spark_operator_t val)
 		"Operator::Property",
 		"Operator::Return",
 		"Operator::Cast",
+		"Operator::Index",
+		"Operator::NormalizedIndex",
 	};
 	static_assert(countof(operatorNames) == static_cast<size_t>(Operator::Count), "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < static_cast<spark_operator_t>(Operator::Count));

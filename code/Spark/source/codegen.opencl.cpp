@@ -152,14 +152,6 @@ namespace spark
                 generateValueNode(ctx, value->_children.front());
                 doSnprintf(ctx, "%s)", unary[static_cast<spark_operator_t>(op - Operator::PostfixIncrement)]);
             }
-            else if(op == Operator::Index)
-            {
-                SPARK_ASSERT(value->_children.size() == 2);
-                generateValueNode(ctx, value->_children.front());
-                doSnprintf(ctx, "[");
-                generateValueNode(ctx, value->_children.back());
-                doSnprintf(ctx, "]");
-            }
             else if(op >= Operator::Add && op <= Operator::LeftShift)
             {
                 SPARK_ASSERT(value->_children.size() == 2);
@@ -258,6 +250,16 @@ namespace spark
                 doSnprintf(ctx, ")");
 
                 generateValueNode(ctx, value->_children.front());
+            }
+            else if(op == Operator::Index)
+            {
+                SPARK_ASSERT(value->_children.size() == 0);
+                doSnprintf(ctx, "(int2)(get_global_id(0), get_global_id(1))");
+            }
+            else if(op == Operator::NormalizedIndex)
+            {
+                SPARK_ASSERT(value->_children.size() == 0);
+                doSnprintf(ctx, "(float2)((float)get_global_id(0)/(float)(get_global_size(0) - 1), (float)get_global_id(1)/(float)(get_global_size(1) - 1))");
             }
         }
 

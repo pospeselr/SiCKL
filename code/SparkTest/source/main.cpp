@@ -75,34 +75,33 @@ int main()
         auto context = spark_create_context(ThrowOnError());
         spark_set_current_context(context, ThrowOnError());
 
-        device_buffer1d<float> float_buffer(128, nullptr);
-        device_buffer1d<int32_t> int_buffer(256, nullptr);
+        device_buffer2d<float2> float_table(13, 6, nullptr);
 
-        device_buffer2d<float> float_table(100, 100, nullptr);
-        //float_table.read_rect(0, 0, 10, 10, nullptr);
-
-        printf("float_buffer size: %lu bytes\n", float_buffer.size());
-        printf("int_buffer size: %lu bytes\n", int_buffer.size());
-
-        Kernel<Void(Float2, Float2, Buffer2D<Float>)> mandelbrot = []()
+        Kernel<Void(Float2, Float2, Buffer2D<Float2>)> mandelbrot = []()
         {
-            auto main = MakeFunction([](Float2 min, Float2 max, Buffer2D<Float> output)
+            auto main = MakeFunction([](Float2 min, Float2 max, Buffer2D<Float2> output)
             {
-                Float fl = output[3][1];
-/*
-
-                BufferView1D<Float> view(output, 0, 10);
-                Int whatever = view.Count;
-                whatever = whatever * 2;
-*/
-                Return();
+                output[Index()] = NormalizedIndex();
             });
             main.SetEntryPoint();
         };
-        mandelbrot.set_work_dimensions(10, 1, 1);
+        mandelbrot.set_work_dimensions(float_table.rows(), float_table.columns());
+
         float2 min, max;
         mandelbrot(min, max, float_table);
 
+        unique_ptr<float2[]> host_table(new float2[float_table.count()]);
+        float_table.read(host_table.get());
+
+        for(int i = 0; i < float_table.rows(); i++)
+        {
+            for(int j = 0; j < float_table.columns(); j++)
+            {
+                const auto& current = host_table[i * float_table.columns() + j];
+                cout << "<" << current.x << ", " << current.y << ">, ";
+            }
+            cout << endl;
+        }
 
 
 #if 0

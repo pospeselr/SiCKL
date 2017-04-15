@@ -152,8 +152,6 @@ namespace spark
             // postfix uniary operators
             PostfixIncrement,
             PostfixDecrement,
-            // index operator
-            Index,
             // binary infix operators
             Add,
             Subtract,
@@ -179,6 +177,9 @@ namespace spark
             Property,
             Return,
             Cast,
+            // built-in functions
+            Index,
+            NormalizedIndex,
 
             Count
         };
