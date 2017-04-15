@@ -99,9 +99,10 @@ namespace spark
                 default:                components_str = ""; break;
             }
 
+            const char* address_space_str = pointer ? "__global " : "";
             const char* pointer_str = pointer ? "*" : "";
 
-            doSnprintf(ctx, "%s%s%s", primitive_str, components_str, pointer_str);
+            doSnprintf(ctx, "%s%s%s%s", address_space_str, primitive_str, components_str, pointer_str);
         }
 
         static void generateIndent(context& ctx)
@@ -474,11 +475,6 @@ namespace spark
                 SPARK_ASSERT(currentChild->_type == spark_nodetype::symbol);
                 // add to our set of init'd variables
                 ctx.inited_variables.insert(currentChild->_symbol.id);
-
-                if(currentChild->_symbol.type.GetPointer())
-                {
-                    doSnprintf(ctx, "__global ");
-                }
 
                 generateOpenCLType(ctx, currentChild->_symbol.type);
                 doSnprintf(ctx, " ");

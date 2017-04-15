@@ -260,6 +260,8 @@ SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spar
             string openclSource(len - 1, 0);
             generateOpenCLSource(kernel_root, const_cast<char*>(openclSource.data()), len);
 
+            printf("%s\n", openclSource.c_str());
+
             // build/link kernel
             auto kernel = new spark::lib::spark_kernel(std::move(openclSource));
             return kernel;

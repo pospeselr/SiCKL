@@ -199,10 +199,19 @@ namespace spark
         void function_header(spark_node_t* parameterList, client::buffer1d<TYPE> param0, TAIL_PARAMS... tailParams)
         {
             spark_add_child_node(parameterList, param0.Data()._node, THROW_ON_ERROR());
-            spark_add_child_node(parameterList, param0.Size._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Count._node, THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
 
+        // overload for buffer2d
+        template<typename TYPE, typename... TAIL_PARAMS>
+        void function_header(spark_node_t* parameterList, client::buffer2d<TYPE> param0, TAIL_PARAMS... tailParams)
+        {
+            spark_add_child_node(parameterList, param0.Data()._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Rows._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Columns._node, THROW_ON_ERROR());
+            return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
+        }
 
         SPARK_FORCE_INLINE
         void function_header(spark_node_t*) {};
@@ -258,7 +267,7 @@ namespace spark
                     spark_destroy_kernel(kernel, THROW_ON_ERROR());
                 });
 
-            printf("%s\n", spark_get_kernel_source(this->_kernel.get(), THROW_ON_ERROR()));
+            //printf("%s\n", spark_get_kernel_source(this->_kernel.get(), THROW_ON_ERROR()));
 
 
             spark_end_program(THROW_ON_ERROR());
@@ -303,6 +312,21 @@ namespace spark
             // buffer length
             int32_t size = (int32_t)buffer.size();
             spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(size), &size, THROW_ON_ERROR());
+
+            return idx;
+        }
+
+        template<typename T>
+        uint32_t set_arg(uint32_t idx, const device_buffer2d<T>& buffer) const
+        {
+            // buffer
+            spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), THROW_ON_ERROR());
+
+            // dimensions
+            int32_t rows = buffer.rows();
+            int32_t columns = buffer.columns();
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(rows), &rows, THROW_ON_ERROR());
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(columns), &columns, THROW_ON_ERROR());
 
             return idx;
         }

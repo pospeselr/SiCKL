@@ -78,20 +78,31 @@ int main()
         device_buffer1d<float> float_buffer(128, nullptr);
         device_buffer1d<int32_t> int_buffer(256, nullptr);
 
-        printf("float_buffer size: %lu\n", float_buffer.size());
-        printf("int_buffer size: %lu\n", int_buffer.size());
+        device_buffer2d<float> float_table(100, 100, nullptr);
+        //float_table.read_rect(0, 0, 10, 10, nullptr);
 
-        Kernel<Void(Float2, Float2, Buffer1D<Float>)> mandelbrot = []()
+        printf("float_buffer size: %lu bytes\n", float_buffer.size());
+        printf("int_buffer size: %lu bytes\n", int_buffer.size());
+
+        Kernel<Void(Float2, Float2, Buffer2D<Float>)> mandelbrot = []()
         {
-            auto main = MakeFunction([](Float2 min, Float2 max, Buffer1D<Float> output)
+            auto main = MakeFunction([](Float2 min, Float2 max, Buffer2D<Float> output)
             {
+                Float fl = output[3][1];
+/*
+
+                BufferView1D<Float> view(output, 0, 10);
+                Int whatever = view.Count;
+                whatever = whatever * 2;
+*/
                 Return();
             });
             main.SetEntryPoint();
         };
         mandelbrot.set_work_dimensions(10, 1, 1);
         float2 min, max;
-        mandelbrot(min, max, float_buffer);
+        mandelbrot(min, max, float_table);
+
 
 
 #if 0
