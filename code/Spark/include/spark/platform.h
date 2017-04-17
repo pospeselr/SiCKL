@@ -19,6 +19,7 @@
 #elif defined(SPARK_COMPILER_CLANG)
     #define SPARK_DEBUGBREAK() __builtin_trap()
 #elif defined(SPARK_COMPILER_GCC)
+    #include <signal.h>
     #define SPARK_DEBUGBREAK() raise(SIGTRAP)
 #endif
 

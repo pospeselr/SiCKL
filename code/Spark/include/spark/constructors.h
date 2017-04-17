@@ -27,16 +27,16 @@ namespace spark
         {
             auto primitive = datatype.GetPrimitive();
 
-            SPARK_ASSERT(primitive == Primitive::Char ||
-                         primitive == Primitive::UChar ||
-                         primitive == Primitive::Short ||
-                         primitive == Primitive::UShort ||
-                         primitive == Primitive::Int ||
-                         primitive == Primitive::UInt ||
-                         primitive == Primitive::Long ||
-                         primitive == Primitive::ULong ||
-                         primitive == Primitive::Float ||
-                         primitive == Primitive::Double);
+            SPARK_ASSERT(primitive == spark::shared::Primitive::Char ||
+                         primitive == spark::shared::Primitive::UChar ||
+                         primitive == spark::shared::Primitive::Short ||
+                         primitive == spark::shared::Primitive::UShort ||
+                         primitive == spark::shared::Primitive::Int ||
+                         primitive == spark::shared::Primitive::UInt ||
+                         primitive == spark::shared::Primitive::Long ||
+                         primitive == spark::shared::Primitive::ULong ||
+                         primitive == spark::shared::Primitive::Float ||
+                         primitive == spark::shared::Primitive::Double);
 
             const auto dt = static_cast<spark_datatype_t>(datatype);
             const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Assignment);

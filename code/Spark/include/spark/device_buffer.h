@@ -80,9 +80,9 @@ namespace spark
     template<typename T>
     struct device_buffer2d
     {
-        device_buffer2d(size_t rows, size_t columns, const T* data)
-        : _rows(rows)
-        , _columns(columns)
+        device_buffer2d(size_t width, size_t height, const T* data)
+        : _width(width)
+        , _height(height)
         , _buffer(spark_create_buffer(sizeof(T) * this->count(), data, THROW_ON_ERROR()),
             [](spark_buffer_t* buffer)
             {
@@ -90,7 +90,7 @@ namespace spark
             })
         { }
 
-        device_buffer2d(size_t rows, size_t columns) : device_buffer2d(rows, columns, nullptr) {}
+        device_buffer2d(size_t width, size_t height) : device_buffer2d(width, height, nullptr) {}
         template<size_t M, size_t N>
         device_buffer2d(const T (&arr)[M][N]) : device_buffer2d(N, M, arr) {}
 
@@ -104,17 +104,17 @@ namespace spark
             spark_read_buffer(_buffer.get(), 0, size(), dest, THROW_ON_ERROR());
         }
 
-        int32_t rows() const { return _rows; }
-        int32_t columns() const {return _columns; }
-        size_t count() const { return _rows * _columns; }
+        int32_t width() const { return _width; }
+        int32_t height() const {return _height; }
+        size_t count() const { return _width * _height; }
         size_t size() const { return count() * sizeof(T); }
 
     private:
         template<typename F>
         friend struct Kernel;
 
-        const size_t _rows;
-        const size_t _columns;
+        const size_t _width;
+        const size_t _height;
         std::shared_ptr<spark_buffer_t> _buffer;
     };
 }

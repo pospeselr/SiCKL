@@ -51,11 +51,13 @@ namespace spark
         {
             buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& count)
             : _data(buffer.Data())
+            , _stride(1)
             , Count(count)
             { }
 
-            buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& offset, const rvalue<Int>& count)
-            : _data(buffer.Data() + offset)
+            buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& stride, const rvalue<Int>& count)
+            : _data(buffer.Data())
+            , _stride(stride)
             , Count(count)
             {
 
@@ -63,6 +65,15 @@ namespace spark
 
             buffer_view1d(const rvalue<Pointer<T>> head, const rvalue<Int>& count)
             : _data(head)
+            , _stride(1)
+            , Count(count)
+            {
+
+            }
+
+            buffer_view1d(const rvalue<Pointer<T>> head, const rvalue<Int>& stride, const rvalue<Int>& count)
+            : _data(head)
+            , _stride(stride)
             , Count(count)
             {
 
@@ -70,16 +81,17 @@ namespace spark
 
             lvalue<T> operator[](const rvalue<Int>& index)
             {
-                return _data[index];
+                return _data[_stride * index];
             }
 
             rvalue<T> operator[](const rvalue<Int>& index) const
             {
-                return _data[index];
+                return _data[_stride * index];
             }
 
-            rvalue<Int> Count;
+            const rvalue<Int> Count;
         private:
+            const rvalue<Int> _stride;
             Pointer<T> _data;
         };
 
@@ -91,16 +103,16 @@ namespace spark
             // extern constructor
             buffer2d(extern_construct_t)
             : _data(extern_construct)
-            , Rows(extern_construct)
-            , Columns(extern_construct)
+            , Width(extern_construct)
+            , Height(extern_construct)
             {
 
             }
 
             buffer2d(buffer2d&& other)
             : _data(std::move(other._data))
-            , Rows(std::move(const_cast<Int&>(other.Rows)))
-            , Columns(std::move(const_cast<Int&>(other.Columns)))
+            , Width(std::move(const_cast<Int&>(other.Width)))
+            , Height(std::move(const_cast<Int&>(other.Height)))
             {
 
             }
@@ -112,26 +124,27 @@ namespace spark
 
             const buffer_view1d<T> operator[](const rvalue<Int>& index) const
             {
-                return buffer_view1d<T>(_data + (index * Columns), Columns);
+                return buffer_view1d<T>(_data + index, Width, Height);
             }
 
             buffer_view1d<T> operator[](const rvalue<Int>& index)
             {
-                return buffer_view1d<T>(_data + (index * Columns), Columns);
+                return buffer_view1d<T>(_data + index, Width, Height);
             }
 
             lvalue<T> operator[](const rvalue<Int2>& index)
             {
-                return _data[index.X * Columns + index.Y];
+                return _data[index.Y * Width + index.X];
+
             }
 
             rvalue<T> operator[](const rvalue<Int2>& index) const
             {
-                return _data[index.X * Columns + index.Y];
+                return _data[index.Y * Width + index.X];
             }
 
-            const Int Rows;
-            const Int Columns;
+            const Int Width;
+            const Int Height;
 
         private:
             Pointer<T> _data;

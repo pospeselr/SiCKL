@@ -217,8 +217,8 @@ namespace spark
         void function_header(spark_node_t* parameterList, client::buffer2d<TYPE> param0, TAIL_PARAMS... tailParams)
         {
             spark_add_child_node(parameterList, param0.Data()._node, THROW_ON_ERROR());
-            spark_add_child_node(parameterList, param0.Rows._node, THROW_ON_ERROR());
-            spark_add_child_node(parameterList, param0.Columns._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Width._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Height._node, THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
 
@@ -332,10 +332,10 @@ namespace spark
             spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), THROW_ON_ERROR());
 
             // dimensions
-            int32_t rows = buffer.rows();
-            int32_t columns = buffer.columns();
-            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(rows), &rows, THROW_ON_ERROR());
-            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(columns), &columns, THROW_ON_ERROR());
+            int32_t width = buffer.width();
+            int32_t height = buffer.height();
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(width), &width, THROW_ON_ERROR());
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(height), &height, THROW_ON_ERROR());
 
             return idx;
         }
