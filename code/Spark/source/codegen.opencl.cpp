@@ -55,6 +55,7 @@ namespace spark
             switch(components)
             {
                 case Components::Vector2: components_str = "vec2_"; break;
+                case Components::Vector4: components_str = "vec4_"; break;
                 default:                  components_str = ""; break;
             }
 
@@ -96,6 +97,7 @@ namespace spark
             switch(components)
             {
                 case Components::Vector2: components_str = "2"; break;
+                case Components::Vector4: components_str = "4"; break;
                 default:                components_str = ""; break;
             }
 
@@ -403,22 +405,23 @@ namespace spark
             SPARK_ASSERT(vector->_type == spark_nodetype::vector);
             auto type = vector->_vector.type;
             auto components = type.GetComponents();
-            if(components == Components::Vector2)
+            SPARK_ASSERT(components >= Components::Vector2 && components <= Components::Vector16);
+
+            size_t components_table[] = {2, 4, 8, 16};
+            SPARK_ASSERT(vector->_children.size() == components_table[static_cast<uint32_t>(components - Components::Vector2)]);
+
+            doSnprintf(ctx, "(");
+            generateOpenCLType(ctx, type);
+            doSnprintf(ctx, ")(");
+            for(size_t k = 0; k < vector->_children.size(); k++)
             {
-                SPARK_ASSERT(vector->_children.size() == 2);
-                doSnprintf(ctx, "(");
-                generateOpenCLType(ctx, type);
-                doSnprintf(ctx, ")(");
-                for(size_t k = 0; k < vector->_children.size(); k++)
+                if(k > 0)
                 {
-                    if(k > 0)
-                    {
-                        doSnprintf(ctx, ", ");
-                    }
-                    generateValueNode(ctx, vector->_children[k]);
+                    doSnprintf(ctx, ", ");
                 }
-                doSnprintf(ctx, ")");
+                generateValueNode(ctx, vector->_children[k]);
             }
+            doSnprintf(ctx, ")");
         }
 
         static void generateValueNode(context& ctx, spark_node_t* value)

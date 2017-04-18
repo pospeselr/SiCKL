@@ -6,6 +6,7 @@ namespace spark
     {
         template<typename T> struct is_scalar_type {const static bool value = false;};
         template<typename T> struct is_vector2_type {const static bool value = false;};
+        template<typename T> struct is_vector4_type {const static bool value = false;};
 
         /// Type Translations
 

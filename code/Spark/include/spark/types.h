@@ -93,18 +93,22 @@ namespace spark
     #define MAKE_TYPEDEFS(TYPE, RAW_TYPE)\
     typedef client::scalar<RAW_TYPE> TYPE;\
     typedef client::device_vector2<client::scalar<RAW_TYPE>> TYPE##2;\
+    typedef client::device_vector4<client::scalar<RAW_TYPE>> TYPE##4;\
     typedef Pointer<TYPE> P##TYPE;\
     typedef Pointer<TYPE##2> P##TYPE##2;\
+    typedef Pointer<TYPE##4> P##TYPE##4;\
 
     #define MAKE_INT_TYPES(TYPE, CL_TYPE)\
     MAKE_TYPEDEFS(TYPE, CL_TYPE)\
     MAKE_INT_OPERATORS(TYPE)\
     MAKE_INT_OPERATORS(TYPE##2)\
+    MAKE_INT_OPERATORS(TYPE##4)\
 
     #define MAKE_FLOAT_TYPES(TYPE, CL_TYPE)\
     MAKE_TYPEDEFS(TYPE, CL_TYPE)\
     MAKE_FLOAT_OPERATORS(TYPE)\
     MAKE_FLOAT_OPERATORS(TYPE##2)\
+    MAKE_FLOAT_OPERATORS(TYPE##4)\
 
     // Int has to appear first since it is a return type of other scalar comparison operators
     MAKE_INT_TYPES(Int, int32_t);

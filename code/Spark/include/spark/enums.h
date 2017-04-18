@@ -81,6 +81,11 @@ namespace spark
             Count
         };
 
+        inline constexpr Components operator-(const Components left, const Components right)
+        {
+            return static_cast<Components>(static_cast<uint32_t>(left) - static_cast<uint32_t>(right));
+        }
+
         class Datatype
         {
         private:

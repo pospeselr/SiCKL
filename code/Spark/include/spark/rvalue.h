@@ -8,6 +8,7 @@ namespace spark
     {
         template<typename HOST_TYPE> struct scalar;
         template<typename TYPE> struct device_vector2;
+        template<typename TYPE> struct device_vector4;
         template<typename TYPE> struct pointer;
 
         inline
@@ -81,6 +82,46 @@ namespace spark
                     auto listNode = spark_create_vector_node(static_cast<spark_datatype_t>(TYPE::type), children, countof(children), THROW_ON_ERROR());
                     return listNode;
                 }(x._node, y._node))
+            {
+
+            }
+
+            SPARK_FORCE_INLINE
+            ~rvalue()
+            {
+                // used for prefix/postix operator (or any operator which has side effects and
+                // also returns an rvalue which may be ignored)
+
+                // from 12.2/3:
+
+                // Temporary objects are destroyed as the last step in evaluating the full-
+                // expression (1.9) that (lexically) contains the point where they were created.
+
+                if(DESTRUCT_ATTACH)
+                {
+                    destruct_attach(this->_node);
+                }
+            }
+            rvalue& operator=(const rvalue&) = delete;
+        };
+
+        // device_vector2 rvalue
+        template<typename SCALAR_TYPE, bool DESTRUCT_ATTACH>
+        struct rvalue<device_vector4<SCALAR_TYPE>, DESTRUCT_ATTACH> : device_vector4<SCALAR_TYPE>
+        {
+            typedef device_vector4<SCALAR_TYPE> TYPE;
+            typedef typename SCALAR_TYPE::host_type HOST_TYPE;
+
+            rvalue(spark_node_t* node) : TYPE(node) {}
+            rvalue(const TYPE& that) : rvalue(that._node) {}
+            rvalue(const rvalue<SCALAR_TYPE>& x, const rvalue<SCALAR_TYPE>& y, const rvalue<SCALAR_TYPE>& z, const rvalue<SCALAR_TYPE>& w)
+            : rvalue(
+                [](spark_node_t* x, spark_node_t* y, spark_node_t* z, spark_node_t* w) -> spark_node_t*
+                {
+                    spark_node_t* children[] = {x, y, z, w};
+                    auto listNode = spark_create_vector_node(static_cast<spark_datatype_t>(TYPE::type), children, countof(children), THROW_ON_ERROR());
+                    return listNode;
+                }(x._node, y._node, z._node, w._node))
             {
 
             }

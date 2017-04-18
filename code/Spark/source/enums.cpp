@@ -83,6 +83,7 @@ const char* spark_datatype_to_str(spark_datatype_t val, char* buffer, int32_t sz
 	SPARK_ASSERT(
 		components == Components::Scalar ||
 		components == Components::Vector2 ||
+		components == Components::Vector4 ||
 		components == Components::None);
 
 	const char* primitiveName = primitiveNames[static_cast<uint32_t>(primitive)];

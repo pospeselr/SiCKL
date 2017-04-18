@@ -19,6 +19,7 @@
 #include "spark/void.h"
 #include "spark/scalar.h"
 #include "spark/vector2.h"
+#include "spark/vector4.h"
 #include "spark/pointer.h"
 #include "spark/types.h"
 #include "spark/buffer.h"
