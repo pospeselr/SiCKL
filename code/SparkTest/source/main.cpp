@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdio>
 #include <memory>
 #include <iostream>
@@ -76,16 +77,11 @@ int main()
         spark_set_current_context(context, ThrowOnError());
 
         device_buffer2d<uint8_t> device_fractal(2800, 1600, nullptr);
-        const int32_t max_iterations = 255;
+        const int32_t max_iterations = 1024;
 
         // mandelbrot generating code
         Kernel<Void(Float2, Float2, Buffer2D<UChar>)> mandelbrot = []()
         {
-            auto square_magnitude = MakeFunction([](Float2 vec)
-            {
-                Return(vec.X * vec.X + vec.Y * vec.Y);
-            });
-
             auto main = MakeFunction([&](Float2 min, Float2 max, Buffer2D<UChar> output)
             {
                 Float2 normalized_index = NormalizedIndex();
@@ -94,7 +90,7 @@ int main()
                 Float2 pos(0.0f, 0.0f);
 
                 Int iteration = 0;
-                While(square_magnitude(pos) < 4.0f && iteration < max_iterations)
+                While(Dot(pos, pos) < 4.0f && iteration < max_iterations)
                 {
                     Float xtemp = pos.X*pos.X - pos.Y*pos.Y - pos0.X;
                     pos.Y = 2.0f * pos.X * pos.Y + pos0.Y;
@@ -103,8 +99,10 @@ int main()
                     iteration++;
                 }
 
-                Int2 index = Index();
-                output[index] = iteration.As<UChar>();
+                // log scale colour
+                Float val = Log1Plus(iteration.As<Float>()) * (255.0f / (float)std::log(max_iterations + 1));
+                output[Index()] = (uint8_t)255 - val.As<UChar>();
+
             });
             main.SetEntryPoint();
         };

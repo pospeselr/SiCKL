@@ -113,11 +113,30 @@ namespace spark
             }
         }
 
+        static void generateFunctionCall(context& ctx, spark_node_t* value, const std::pair<const char*, size_t>& function)
+        {
+            // get vals
+            const auto& funcName = function.first;
+            size_t funcParams = function.second;
+
+            SPARK_ASSERT(funcParams == value->_children.size());
+
+            doSnprintf(ctx, "%s(", funcName);
+            generateValueNode(ctx, value->_children.front());
+            for(size_t k = 1; k < funcParams; k++)
+            {
+                doSnprintf(ctx, ", ");
+                generateValueNode(ctx, value->_children[k]);
+            }
+            doSnprintf(ctx, ")");
+        }
+
         static void generateOperatorNode(context& ctx, spark_node_t* value)
         {
             SPARK_ASSERT(value->_type == spark_nodetype::operation);
-
             auto op = value->_operator.id;
+            SPARK_ASSERT(op < Operator::Count);
+
             if(op == Operator::Break)
             {
                 SPARK_ASSERT(value->_children.size() == 0);
@@ -260,6 +279,73 @@ namespace spark
             {
                 SPARK_ASSERT(value->_children.size() == 0);
                 doSnprintf(ctx, "(float2)((float)get_global_id(0)/(float)(get_global_size(0) - 1), (float)get_global_id(1)/(float)(get_global_size(1) - 1))");
+            }
+            else if(op >= Operator::ArcCos && op <= Operator::Sign)
+            {
+                const std::pair<const char*, size_t> functions[] =
+                {
+                    {"acos", 1},
+                    {"acosh", 1},
+                    {"asin", 1},
+                    {"asinh", 1},
+                    {"atan", 1},
+                    {"atan2", 2},
+                    {"atanh", 1},
+                    {"cbrt", 1},
+                    {"ceil", 1},
+                    {"cos", 1},
+                    {"exp", 1},
+                    {"exp2", 1},
+                    {"exp10", 1},
+                    {"fabs", 1},
+                    {"floor", 1},
+                    {"fma", 3},
+                    {"fmax", 2},
+                    {"fmin", 2},
+                    {"fmod", 2},
+                    {"fract", 2},
+                    {"hypot", 2},
+                    {"lgamma", 1},
+                    {"log", 1},
+                    {"log2", 1},
+                    {"log10", 1},
+                    {"log1p", 1},
+                    {"mad", 3},
+                    {"pow", 2},
+                    {"remainder", 2},
+                    {"rsqrt", 1},
+                    {"sin", 1},
+                    {"sinh", 1},
+                    {"sqrt", 1},
+                    {"tan", 1},
+                    {"tanh", 1},
+                    {"tgamma", 1},
+                    {"trunc", 1},
+                    {"cross", 2},
+                    {"dot", 2},
+                    {"distance", 2},
+                    {"length", 2},
+                    {"normalize", 1},
+                    {"fast_distance", 2},
+                    {"fast_length", 1},
+                    {"fast_normalize", 1},
+                    {"abs", 1},
+                    {"abs_diff", 2},
+                    {"max", 2},
+                    {"min", 2},
+                    {"clamp", 3},
+                    {"degrees", 1},
+                    {"radians", 1},
+                    {"mix", 3},
+                    {"step", 2},
+                    {"smoothstep", 3},
+                    {"sign", 1},
+                };
+                // get index
+                auto idx = (size_t)(op - Operator::ArcCos);
+                SPARK_ASSERT(idx < countof(functions));
+
+                generateFunctionCall(ctx, value, functions[idx]);
             }
         }
 

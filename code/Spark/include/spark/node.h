@@ -45,3 +45,12 @@ inline spark_node_t* spark_create_operator2_node(spark_datatype_t dt, spark_oper
     spark_add_child_node(result_node, arg2, THROW_ON_ERROR());
     return result_node;
 }
+inline spark_node_t* spark_create_operator3_node(spark_datatype_t dt, spark_operator_t op, spark_node_t* arg1, spark_node_t* arg2, spark_node_t* arg3)
+{
+    auto result_node = spark_create_operator_node(dt, op, THROW_ON_ERROR());
+    spark_add_child_node(result_node, arg1, THROW_ON_ERROR());
+    spark_add_child_node(result_node, arg2, THROW_ON_ERROR());
+    spark_add_child_node(result_node, arg3, THROW_ON_ERROR());
+    return result_node;
+}
+
