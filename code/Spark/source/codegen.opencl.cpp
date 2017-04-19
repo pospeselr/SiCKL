@@ -540,8 +540,7 @@ namespace spark
             {
                 doSnprintf(ctx, "__kernel ");
                 generateOpenCLType(ctx, node->_function.returnType);
-                // entry point always called main
-                doSnprintf(ctx, " main");
+                doSnprintf(ctx, " entry_point");
             }
             else
             {

@@ -116,7 +116,7 @@ namespace spark
 
             // create kernel with 'main' entrypoint
             cl_int createKernelError = CL_SUCCESS;
-            cl_kernel clKernel = ::clCreateKernel(this->_program.get(), "main", &createKernelError);
+            cl_kernel clKernel = ::clCreateKernel(this->_program.get(), "entry_point", &createKernelError);
             THROW_IF_OPENCL_FAILED(createKernelError);
             this->_kernel.reset(clKernel);
         }
