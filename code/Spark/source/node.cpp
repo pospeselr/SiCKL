@@ -27,7 +27,7 @@ using namespace spark;
 using namespace spark::lib;
 using namespace spark::shared;
 
-SPARK_EXPORT void spark_begin_program(spark_error_t** error)
+RUFF_EXPORT void spark_begin_program(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -37,7 +37,7 @@ SPARK_EXPORT void spark_begin_program(spark_error_t** error)
         });
 }
 
-SPARK_EXPORT void spark_end_program(spark_error_t** error)
+RUFF_EXPORT void spark_end_program(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -54,7 +54,7 @@ SPARK_EXPORT void spark_end_program(spark_error_t** error)
 
 // node creation
 
-SPARK_EXPORT spark_node_t* spark_create_control_node(spark_control_t c, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_control_node(spark_control_t c, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -71,7 +71,7 @@ SPARK_EXPORT spark_node_t* spark_create_control_node(spark_control_t c, spark_er
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_operator_t id, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark_operator_t id, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -87,7 +87,7 @@ SPARK_EXPORT spark_node_t* spark_create_operator_node(spark_datatype_t dt, spark
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_function_node(spark_datatype_t returnType, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_function_node(spark_datatype_t returnType, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -104,7 +104,7 @@ SPARK_EXPORT spark_node_t* spark_create_function_node(spark_datatype_t returnTyp
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -120,7 +120,7 @@ SPARK_EXPORT spark_node_t* spark_create_symbol_node(spark_datatype_t dt, spark_e
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_constant_node(spark_datatype_t dt, const void* raw, size_t sz, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_constant_node(spark_datatype_t dt, const void* raw, size_t sz, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -141,7 +141,7 @@ SPARK_EXPORT spark_node_t* spark_create_constant_node(spark_datatype_t dt, const
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_property_node(spark_property_t prop, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_property_node(spark_property_t prop, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -156,7 +156,7 @@ SPARK_EXPORT spark_node_t* spark_create_property_node(spark_property_t prop, spa
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_comment_node(const char* comment, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -171,7 +171,7 @@ SPARK_EXPORT spark_node_t* spark_create_comment_node(const char* comment, spark_
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_node_t** children, size_t count, spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_vector_node(spark_datatype_t type, spark_node_t** children, size_t count, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -194,7 +194,7 @@ SPARK_EXPORT spark_node_t* spark_create_vector_node(spark_datatype_t type, spark
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_create_scope_block_node(spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_create_scope_block_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -209,7 +209,7 @@ SPARK_EXPORT spark_node_t* spark_create_scope_block_node(spark_error_t** error)
 }
 
 // tree modification
-SPARK_EXPORT void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t** error)
+RUFF_EXPORT void spark_add_child_node(spark_node_t* root, spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -225,7 +225,7 @@ SPARK_EXPORT void spark_add_child_node(spark_node_t* root, spark_node_t* node, s
 }
 
 // node property query
-SPARK_EXPORT bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
+RUFF_EXPORT bool spark_node_get_attached(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -235,7 +235,7 @@ SPARK_EXPORT bool spark_node_get_attached(spark_node_t* node, spark_error_t** er
         });
 }
 
-SPARK_EXPORT void spark_node_make_entrypoint(spark_node_t* node, spark_error_t** error)
+RUFF_EXPORT void spark_node_make_entrypoint(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -246,7 +246,7 @@ SPARK_EXPORT void spark_node_make_entrypoint(spark_node_t* node, spark_error_t**
 }
 
 // source scope
-SPARK_EXPORT void spark_push_scope_node(spark_node_t* node, spark_error_t** error)
+RUFF_EXPORT void spark_push_scope_node(spark_node_t* node, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -256,7 +256,7 @@ SPARK_EXPORT void spark_push_scope_node(spark_node_t* node, spark_error_t** erro
         });
 }
 
-SPARK_EXPORT void spark_pop_scope_node(spark_error_t** error)
+RUFF_EXPORT void spark_pop_scope_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -266,7 +266,7 @@ SPARK_EXPORT void spark_pop_scope_node(spark_error_t** error)
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_peek_scope_node(spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_peek_scope_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -276,7 +276,7 @@ SPARK_EXPORT spark_node_t* spark_peek_scope_node(spark_error_t** error)
         });
 }
 
-SPARK_EXPORT spark_node_t* spark_get_root_node(spark_error_t** error)
+RUFF_EXPORT spark_node_t* spark_get_root_node(spark_error_t** error)
 {
     return TranslateExceptions(
         error,

@@ -15,12 +15,12 @@ namespace spark
         SPARK_NEVER_INLINE
         void destruct_attach(spark_node_t* node)
         {
-            bool nodeAttached = spark_node_get_attached(node, THROW_ON_ERROR());
+            bool nodeAttached = spark_node_get_attached(node, SPARK_THROW_ON_ERROR());
             if(nodeAttached == false)
             {
                 // add to tree
-                spark_node_t* currentScope = spark_peek_scope_node(THROW_ON_ERROR());
-                spark_add_child_node(currentScope, node, THROW_ON_ERROR());
+                spark_node_t* currentScope = spark_peek_scope_node(SPARK_THROW_ON_ERROR());
+                spark_add_child_node(currentScope, node, SPARK_THROW_ON_ERROR());
             }
         }
 
@@ -39,7 +39,7 @@ namespace spark
             rvalue(const TYPE& that) : rvalue(that._node) {}
 
             SPARK_FORCE_INLINE
-            rvalue(HOST_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), THROW_ON_ERROR())) {}
+            rvalue(HOST_TYPE val) : rvalue(spark_create_constant_node(static_cast<spark_datatype_t>(TYPE::type), &val, sizeof(val), SPARK_THROW_ON_ERROR())) {}
 
             // constructor explicitly takes an int, and converts to HOST_TYPE
             // reolves abiguity with other types
@@ -75,16 +75,7 @@ namespace spark
             rvalue(spark_node_t* node) : TYPE(node) {}
             rvalue(const TYPE& that) : rvalue(that._node) {}
             rvalue(const rvalue<SCALAR_TYPE>& x, const rvalue<SCALAR_TYPE>& y)
-            : rvalue(
-                [](spark_node_t* x, spark_node_t* y) -> spark_node_t*
-                {
-                    spark_node_t* children[] = {x, y};
-                    auto listNode = spark_create_vector_node(static_cast<spark_datatype_t>(TYPE::type), children, countof(children), THROW_ON_ERROR());
-                    return listNode;
-                }(x._node, y._node))
-            {
-
-            }
+            : rvalue(vector_constructor(TYPE::type, {x._node, y._node})) {}
 
             SPARK_FORCE_INLINE
             ~rvalue()
@@ -115,16 +106,7 @@ namespace spark
             rvalue(spark_node_t* node) : TYPE(node) {}
             rvalue(const TYPE& that) : rvalue(that._node) {}
             rvalue(const rvalue<SCALAR_TYPE>& x, const rvalue<SCALAR_TYPE>& y, const rvalue<SCALAR_TYPE>& z, const rvalue<SCALAR_TYPE>& w)
-            : rvalue(
-                [](spark_node_t* x, spark_node_t* y, spark_node_t* z, spark_node_t* w) -> spark_node_t*
-                {
-                    spark_node_t* children[] = {x, y, z, w};
-                    auto listNode = spark_create_vector_node(static_cast<spark_datatype_t>(TYPE::type), children, countof(children), THROW_ON_ERROR());
-                    return listNode;
-                }(x._node, y._node, z._node, w._node))
-            {
-
-            }
+            : rvalue(vector_constructor(TYPE::type, {x._node, y._node, z._node, w._node})) {}
 
             SPARK_FORCE_INLINE
             ~rvalue()

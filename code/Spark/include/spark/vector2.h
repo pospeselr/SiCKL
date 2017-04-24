@@ -86,8 +86,7 @@ namespace spark
             SPARK_FORCE_INLINE
             device_vector2(const rvalue<TYPE>& x, const rvalue<TYPE>& y)
             {
-                spark_node_t* children[] = {x._node, y._node};
-                this->_node = vector_constructor(device_vector2::type, children, countof(children));
+                this->_node = vector_constructor(device_vector2::type, {x._node, y._node});
             }
 
             device_vector2(device_vector2&&) = default;

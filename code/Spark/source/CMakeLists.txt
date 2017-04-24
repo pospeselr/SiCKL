@@ -20,3 +20,4 @@ add_library(spark SHARED
 target_link_libraries(spark OpenCL)
 
 include_directories(../include)
+include_directories(../../Ruff)

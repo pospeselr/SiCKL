@@ -7,12 +7,17 @@ namespace spark
     template<typename T>
     struct device_buffer1d
     {
+        device_buffer1d()
+        : _count(0)
+        , _buffer(nullptr)
+        { }
+
         device_buffer1d(size_t count, const T* data)
         : _count(count)
-        , _buffer(spark_create_buffer(size(), data, THROW_ON_ERROR()),
+        , _buffer(spark_create_buffer(size(), data, SPARK_THROW_ON_ERROR()),
             [](spark_buffer_t* buffer)
             {
-                spark_destroy_buffer(buffer, THROW_ON_ERROR());
+                spark_destroy_buffer(buffer, SPARK_THROW_ON_ERROR());
             })
         { }
 
@@ -23,7 +28,7 @@ namespace spark
 
         void write(size_t offset, size_t count, const T* data)
         {
-            spark_write_buffer(_buffer.get(), sizeof(T) * offset, sizeof(T) * count, data, THROW_ON_ERROR());
+            spark_write_buffer(_buffer.get(), sizeof(T) * offset, sizeof(T) * count, data, SPARK_THROW_ON_ERROR());
         }
 
         void write(size_t count, const T* data)
@@ -53,7 +58,7 @@ namespace spark
 
         void read(size_t offset, size_t count, T* dest)
         {
-            spark_read_buffer(_buffer.get(), sizeof(T) * offset, sizeof(T) * count, dest, THROW_ON_ERROR());
+            spark_read_buffer(_buffer.get(), sizeof(T) * offset, sizeof(T) * count, dest, SPARK_THROW_ON_ERROR());
         }
 
         void read(size_t count, T* dest) const
@@ -83,10 +88,10 @@ namespace spark
         device_buffer2d(size_t width, size_t height, const T* data)
         : _width(width)
         , _height(height)
-        , _buffer(spark_create_buffer(sizeof(T) * this->count(), data, THROW_ON_ERROR()),
+        , _buffer(spark_create_buffer(sizeof(T) * this->count(), data, SPARK_THROW_ON_ERROR()),
             [](spark_buffer_t* buffer)
             {
-                spark_destroy_buffer(buffer, THROW_ON_ERROR());
+                spark_destroy_buffer(buffer, SPARK_THROW_ON_ERROR());
             })
         { }
 
@@ -96,12 +101,12 @@ namespace spark
 
         void write(const T* data)
         {
-            spark_write_buffer(_buffer.get(), 0, size(), data, THROW_ON_ERROR());
+            spark_write_buffer(_buffer.get(), 0, size(), data, SPARK_THROW_ON_ERROR());
         }
 
         void read(T* dest) const
         {
-            spark_read_buffer(_buffer.get(), 0, size(), dest, THROW_ON_ERROR());
+            spark_read_buffer(_buffer.get(), 0, size(), dest, SPARK_THROW_ON_ERROR());
         }
 
         int32_t width() const { return _width; }

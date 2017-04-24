@@ -21,7 +21,7 @@ const char* spark_nodetype_to_str(spark_nodetype_t val)
 		"NodeType::Vector",
 		"NodeType::ScopeBlock",
 	};
-	static_assert(countof(nodeNames) == (size_t)spark_nodetype::count, "size mismatch between nodeNames and spark_nodetype::count");
+	static_assert(ruff::countof(nodeNames) == (size_t)spark_nodetype::count, "size mismatch between nodeNames and spark_nodetype::count");
 	SPARK_ASSERT(val < spark_nodetype::count);
 
 	return nodeNames[static_cast<size_t>(val)];
@@ -39,7 +39,7 @@ const char* spark_control_to_str(spark_control_t val)
 		"Control::While",
 		"Control::For",
 	};
-	static_assert(countof(controlNames) == static_cast<size_t>(Control::Count), "size mismatch between contorlNames and spark_control::count");
+	static_assert(ruff::countof(controlNames) == static_cast<size_t>(Control::Count), "size mismatch between contorlNames and spark_control::count");
 	SPARK_ASSERT(val < static_cast<size_t>(Control::Count));
 	return controlNames[static_cast<size_t>(val)];
 }
@@ -197,7 +197,7 @@ const char* spark_operator_to_str(spark_operator_t val)
 		"Operator::SmoothStep",
 		"Operator::Sign",
 	};
-	static_assert(countof(operatorNames) == static_cast<size_t>(Operator::Count), "size mismatch between operatorNames and Operator::Count");
+	static_assert(ruff::countof(operatorNames) == static_cast<size_t>(Operator::Count), "size mismatch between operatorNames and Operator::Count");
 	SPARK_ASSERT(val < static_cast<spark_operator_t>(Operator::Count));
 
 	return operatorNames[val];
@@ -216,7 +216,7 @@ const char* spark_property_to_str(spark_property_t val, char* buffer, int32_t sz
 			"odd",
 		};
 
-		static_assert(countof(propertyNames) == static_cast<size_t>(Property::Count - Property::FirstProperty), "size mismatch between propertyNames and Property::Count");
+		static_assert(ruff::countof(propertyNames) == static_cast<size_t>(Property::Count - Property::FirstProperty), "size mismatch between propertyNames and Property::Count");
 		SPARK_ASSERT(val < static_cast<spark_property_t>(Property::Count));
 
 		snprintf(buffer, sz, "%s", propertyNames[static_cast<spark_property_t>(property - Property::FirstProperty)]);

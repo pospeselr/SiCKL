@@ -246,7 +246,7 @@ namespace spark
 
                 SPARK_ASSERT(value->_children.back()->_type == spark_nodetype::property);
                 char property[5];
-                spark_property_to_str(static_cast<spark_property_t>(value->_children.back()->_property.id), property, countof(property));
+                spark_property_to_str(static_cast<spark_property_t>(value->_children.back()->_property.id), property, ruff::countof(property));
                 doSnprintf(ctx, ".%s", property);
             }
             else if(op == Operator::Return)
@@ -345,7 +345,7 @@ namespace spark
                 };
                 // get index
                 auto idx = (size_t)(op - Operator::ArcCos);
-                SPARK_ASSERT(idx < countof(functions));
+                SPARK_ASSERT(idx < ruff::countof(functions));
 
                 generateFunctionCall(ctx, value, functions[idx]);
             }
@@ -599,7 +599,7 @@ namespace spark
     }
 }
 
-SPARK_EXPORT int32_t spark_node_to_opencl(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+RUFF_EXPORT int32_t spark_node_to_opencl(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
     return TranslateExceptions(
         error,

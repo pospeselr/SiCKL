@@ -90,7 +90,7 @@ namespace spark
             scalar& operator=(HOST_TYPE val)
             {
                 const auto dt = static_cast<spark_datatype_t>(scalar::type);
-                auto constant = spark_create_constant_node(dt, &val, sizeof(val), ThrowOnError());
+                auto constant = spark_create_constant_node(dt, &val, sizeof(val), SPARK_THROW_ON_ERROR());
                 assignment_operator(this->_node, scalar::type, constant);
                 return *this;
             }

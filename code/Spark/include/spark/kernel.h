@@ -12,8 +12,8 @@ namespace spark
             const auto dt = static_cast<spark_datatype_t>(returnType);
             const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Call);
 
-            auto opNode = spark_create_operator_node(dt, static_cast<spark_operator_t>(op),  THROW_ON_ERROR());
-            spark_add_child_node(opNode, functionNode,  THROW_ON_ERROR());
+            auto opNode = spark_create_operator_node(dt, static_cast<spark_operator_t>(op),  SPARK_THROW_ON_ERROR());
+            spark_add_child_node(opNode, functionNode,  SPARK_THROW_ON_ERROR());
 
             return opNode;
         }
@@ -25,20 +25,20 @@ namespace spark
             const auto returnType = RETURN::type;
 
             // get the root kernel node
-            auto kernelRoot = spark_get_root_node( THROW_ON_ERROR());
+            auto kernelRoot = spark_get_root_node( SPARK_THROW_ON_ERROR());
 
             // verify the kernel root is our current scope
-            SPARK_ASSERT(spark_peek_scope_node( THROW_ON_ERROR()) == kernelRoot);
+            SPARK_ASSERT(spark_peek_scope_node( SPARK_THROW_ON_ERROR()) == kernelRoot);
 
             // create root of function Node
             const auto dt = static_cast<spark_datatype_t>(returnType);
-            auto functionRoot = spark_create_function_node(dt,  THROW_ON_ERROR());
-            spark_push_scope_node(functionRoot,  THROW_ON_ERROR());
+            auto functionRoot = spark_create_function_node(dt,  SPARK_THROW_ON_ERROR());
+            spark_push_scope_node(functionRoot,  SPARK_THROW_ON_ERROR());
 
             // create the parameter list
-            auto parameterList = spark_create_control_node(static_cast<spark_control_t>(spark::shared::Control::ParameterList),  THROW_ON_ERROR());
-            spark_add_child_node(functionRoot, parameterList,  THROW_ON_ERROR());
-            spark_push_scope_node(parameterList,  THROW_ON_ERROR());
+            auto parameterList = spark_create_control_node(static_cast<spark_control_t>(spark::shared::Control::ParameterList),  SPARK_THROW_ON_ERROR());
+            spark_add_child_node(functionRoot, parameterList,  SPARK_THROW_ON_ERROR());
+            spark_push_scope_node(parameterList,  SPARK_THROW_ON_ERROR());
 
             return std::make_tuple(kernelRoot, functionRoot, parameterList);
         }
@@ -52,24 +52,24 @@ namespace spark
         SPARK_NEVER_INLINE
         void function_create_middle(spark_node_t* functionRoot)
         {
-            spark_pop_scope_node( THROW_ON_ERROR());
+            spark_pop_scope_node( SPARK_THROW_ON_ERROR());
 
             // create the body and make current scope
-            auto body = spark_create_scope_block_node( THROW_ON_ERROR());
-            spark_add_child_node(functionRoot, body,  THROW_ON_ERROR());
-            spark_push_scope_node(body,  THROW_ON_ERROR());
+            auto body = spark_create_scope_block_node( SPARK_THROW_ON_ERROR());
+            spark_add_child_node(functionRoot, body,  SPARK_THROW_ON_ERROR());
+            spark_push_scope_node(body,  SPARK_THROW_ON_ERROR());
         }
 
         SPARK_NEVER_INLINE
         void function_create_end(spark_node_t* kernelRoot, spark_node_t* functionRoot)
         {
-            spark_pop_scope_node( THROW_ON_ERROR());
+            spark_pop_scope_node( SPARK_THROW_ON_ERROR());
 
             // add function to kernel root
-            spark_add_child_node(kernelRoot, functionRoot,  THROW_ON_ERROR());
+            spark_add_child_node(kernelRoot, functionRoot,  SPARK_THROW_ON_ERROR());
 
             // done with function
-            spark_pop_scope_node( THROW_ON_ERROR());
+            spark_pop_scope_node( SPARK_THROW_ON_ERROR());
         }
 
         template<typename CLASS, typename RETURN, typename... ARGS>
@@ -89,8 +89,8 @@ namespace spark
 
             auto returnNode = spark_create_operator1_node(dt, op, value._node);
 
-            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
-            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node( SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  SPARK_THROW_ON_ERROR());
 
             return RETURN(null_construct);
         }
@@ -104,8 +104,8 @@ namespace spark
 
             auto returnNode = spark_create_operator1_node(dt, op, value._node);
 
-            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
-            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node( SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  SPARK_THROW_ON_ERROR());
 
             return RETURN(null_construct);
         }
@@ -119,8 +119,8 @@ namespace spark
 
             auto returnNode = spark_create_operator1_node(dt, op, value._node);
 
-            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
-            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node( SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  SPARK_THROW_ON_ERROR());
 
             return RETURN(null_construct);
         }
@@ -130,10 +130,10 @@ namespace spark
             const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(spark::shared::Primitive::Void, spark::shared::Components::None, false));
             const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);
 
-            auto returnNode = spark_create_operator_node(dt, op,  THROW_ON_ERROR());
+            auto returnNode = spark_create_operator_node(dt, op,  SPARK_THROW_ON_ERROR());
 
-            auto currentScope = spark_peek_scope_node( THROW_ON_ERROR());
-            spark_add_child_node(currentScope, returnNode,  THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node( SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, returnNode,  SPARK_THROW_ON_ERROR());
 
             return Void();
         }
@@ -161,7 +161,7 @@ namespace spark
         SPARK_FORCE_INLINE
         void SetEntryPoint()
         {
-            spark_node_make_entrypoint(this->_node,  THROW_ON_ERROR());
+            spark_node_make_entrypoint(this->_node,  SPARK_THROW_ON_ERROR());
         }
 
         SPARK_FORCE_INLINE
@@ -199,7 +199,7 @@ namespace spark
         SPARK_FORCE_INLINE
         void function_header(spark_node_t* parameterList, PARAM param0, TAIL_PARAMS... tailParams)
         {
-            spark_add_child_node(parameterList, param0._node,  THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0._node,  SPARK_THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
 
@@ -207,8 +207,8 @@ namespace spark
         template<typename TYPE, typename... TAIL_PARAMS>
         void function_header(spark_node_t* parameterList, client::buffer1d<TYPE> param0, TAIL_PARAMS... tailParams)
         {
-            spark_add_child_node(parameterList, param0.Data()._node, THROW_ON_ERROR());
-            spark_add_child_node(parameterList, param0.Count._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Data()._node, SPARK_THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Count._node, SPARK_THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
 
@@ -216,9 +216,9 @@ namespace spark
         template<typename TYPE, typename... TAIL_PARAMS>
         void function_header(spark_node_t* parameterList, client::buffer2d<TYPE> param0, TAIL_PARAMS... tailParams)
         {
-            spark_add_child_node(parameterList, param0.Data()._node, THROW_ON_ERROR());
-            spark_add_child_node(parameterList, param0.Width._node, THROW_ON_ERROR());
-            spark_add_child_node(parameterList, param0.Height._node, THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Data()._node, SPARK_THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Width._node, SPARK_THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0.Height._node, SPARK_THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
 
@@ -233,7 +233,7 @@ namespace spark
             SPARK_ASSERT(opNode != nullptr);
             SPARK_ASSERT(param0._node != nullptr);
 
-            spark_add_child_node(opNode, param0._node,  THROW_ON_ERROR());
+            spark_add_child_node(opNode, param0._node,  SPARK_THROW_ON_ERROR());
 
             function_push_param(opNode, tailParams...);
         }
@@ -259,27 +259,27 @@ namespace spark
     {
         Kernel(auto func)
         {
-            spark_begin_program( THROW_ON_ERROR());
+            spark_begin_program( SPARK_THROW_ON_ERROR());
 
             // create kernel AST
-            auto kernelRoot = spark_create_control_node(static_cast<spark_control_t>(spark::shared::Control::Root),  THROW_ON_ERROR());
-            spark_push_scope_node(kernelRoot,  THROW_ON_ERROR());
+            auto kernelRoot = spark_create_control_node(static_cast<spark_control_t>(spark::shared::Control::Root),  SPARK_THROW_ON_ERROR());
+            spark_push_scope_node(kernelRoot,  SPARK_THROW_ON_ERROR());
 
             // build the function body
             func();
 
-            spark_pop_scope_node(THROW_ON_ERROR());
+            spark_pop_scope_node(SPARK_THROW_ON_ERROR());
 
             // compile and cache program
-            this->_kernel.reset(spark_create_kernel(kernelRoot, THROW_ON_ERROR()), [](spark_kernel_t* kernel)
+            this->_kernel.reset(spark_create_kernel(kernelRoot, SPARK_THROW_ON_ERROR()), [](spark_kernel_t* kernel)
                 {
-                    spark_destroy_kernel(kernel, THROW_ON_ERROR());
+                    spark_destroy_kernel(kernel, SPARK_THROW_ON_ERROR());
                 });
 
-            //printf("%s\n", spark_get_kernel_source(this->_kernel.get(), THROW_ON_ERROR()));
+            //printf("%s\n", spark_get_kernel_source(this->_kernel.get(), SPARK_THROW_ON_ERROR()));
 
 
-            spark_end_program(THROW_ON_ERROR());
+            spark_end_program(SPARK_THROW_ON_ERROR());
         }
 
         void set_work_dimensions(size_t dim1)
@@ -308,7 +308,7 @@ namespace spark
         template<typename T>
         uint32_t set_arg(uint32_t idx, const T& arg) const
         {
-            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(arg), &arg, THROW_ON_ERROR());
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(arg), &arg, SPARK_THROW_ON_ERROR());
             return idx;
         }
 
@@ -316,11 +316,11 @@ namespace spark
         uint32_t set_arg(uint32_t idx, const device_buffer1d<T>& buffer) const
         {
             // buffer
-            spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), THROW_ON_ERROR());
+            spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), SPARK_THROW_ON_ERROR());
 
             // buffer length
             int32_t size = (int32_t)buffer.size();
-            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(size), &size, THROW_ON_ERROR());
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(size), &size, SPARK_THROW_ON_ERROR());
 
             return idx;
         }
@@ -329,20 +329,20 @@ namespace spark
         uint32_t set_arg(uint32_t idx, const device_buffer2d<T>& buffer) const
         {
             // buffer
-            spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), THROW_ON_ERROR());
+            spark_set_kernel_arg_buffer(this->_kernel.get(), idx++, buffer._buffer.get(), SPARK_THROW_ON_ERROR());
 
             // dimensions
             int32_t width = buffer.width();
             int32_t height = buffer.height();
-            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(width), &width, THROW_ON_ERROR());
-            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(height), &height, THROW_ON_ERROR());
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(width), &width, SPARK_THROW_ON_ERROR());
+            spark_set_kernel_arg_primitive(this->_kernel.get(), idx++, sizeof(height), &height, SPARK_THROW_ON_ERROR());
 
             return idx;
         }
 
         void run(uint32_t) const
         {
-            spark_run_kernel(this->_kernel.get(), _work_dimensions[0], _work_dimensions[1], _work_dimensions[2], THROW_ON_ERROR());
+            spark_run_kernel(this->_kernel.get(), _work_dimensions[0], _work_dimensions[1], _work_dimensions[2], SPARK_THROW_ON_ERROR());
         }
 
         template<typename Arg, typename...Args>

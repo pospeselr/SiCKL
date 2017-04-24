@@ -141,7 +141,6 @@ namespace spark
         void throw_error(const char* error, const char* source, uint32_t line)
         {
             auto buffer = string_format("%s(%u) : %s", source, line, error);
-//            SPARK_DEBUGBREAK();
             throw std::runtime_error(buffer);
         }
 
@@ -167,12 +166,12 @@ namespace spark
     }
 }
 
-SPARK_EXPORT void spark_destroy_error(spark_error_t* error)
+RUFF_EXPORT void spark_destroy_error(spark_error_t* error)
 {
     delete error;
 }
 
-SPARK_EXPORT const char* spark_get_error_message(spark_error_t* error)
+RUFF_EXPORT const char* spark_get_error_message(spark_error_t* error)
 {
     return error->_error_message.c_str();
 }

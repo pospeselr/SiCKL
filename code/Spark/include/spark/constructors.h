@@ -17,7 +17,7 @@ namespace spark
         spark_node_t* extern_constructor(spark::shared::Datatype datatype)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);
-            auto thisNode = spark_create_symbol_node(dt, THROW_ON_ERROR());
+            auto thisNode = spark_create_symbol_node(dt, SPARK_THROW_ON_ERROR());
             return thisNode;
         }
 
@@ -25,32 +25,30 @@ namespace spark
         SPARK_NEVER_INLINE
         spark_node_t* value_constructor(spark::shared::Datatype datatype, const void* raw, size_t sz)
         {
-            auto primitive = datatype.GetPrimitive();
-
-            SPARK_ASSERT(primitive == spark::shared::Primitive::Char ||
-                         primitive == spark::shared::Primitive::UChar ||
-                         primitive == spark::shared::Primitive::Short ||
-                         primitive == spark::shared::Primitive::UShort ||
-                         primitive == spark::shared::Primitive::Int ||
-                         primitive == spark::shared::Primitive::UInt ||
-                         primitive == spark::shared::Primitive::Long ||
-                         primitive == spark::shared::Primitive::ULong ||
-                         primitive == spark::shared::Primitive::Float ||
-                         primitive == spark::shared::Primitive::Double);
+            SPARK_ASSERT(datatype.GetPrimitive() == spark::shared::Primitive::Char ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::UChar ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Short ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::UShort ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Int ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::UInt ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Long ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::ULong ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Float ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Double);
 
             const auto dt = static_cast<spark_datatype_t>(datatype);
             const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Assignment);
 
-            auto thisNode = spark_create_symbol_node(dt, THROW_ON_ERROR());
+            auto thisNode = spark_create_symbol_node(dt, SPARK_THROW_ON_ERROR());
 
             // init to val
-            auto valNode = spark_create_constant_node(dt, raw, sz, THROW_ON_ERROR());
+            auto valNode = spark_create_constant_node(dt, raw, sz, SPARK_THROW_ON_ERROR());
 
             // create assignment node
             auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, valNode);
             // add to tree
-            auto currentScope = spark_peek_scope_node(THROW_ON_ERROR());
-            spark_add_child_node(currentScope, assignmentNode, THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node(SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, assignmentNode, SPARK_THROW_ON_ERROR());
 
             return thisNode;
         }
@@ -62,25 +60,25 @@ namespace spark
             const auto dt = static_cast<spark_datatype_t>(datatype);
             const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Assignment);
 
-            auto thisNode = spark_create_symbol_node(dt, THROW_ON_ERROR());
+            auto thisNode = spark_create_symbol_node(dt, SPARK_THROW_ON_ERROR());
             auto thatNode = that;
 
             // create assignment node
             auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
             // add to tree
-            auto currentScope = spark_peek_scope_node(THROW_ON_ERROR());
-            spark_add_child_node(currentScope, assignmentNode, THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node(SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, assignmentNode, SPARK_THROW_ON_ERROR());
 
             return thisNode;
         }
 
         inline
         SPARK_NEVER_INLINE
-        spark_node_t* vector_constructor(spark::shared::Datatype datatype, spark_node_t** children, size_t count)
+        spark_node_t* vector_constructor(spark::shared::Datatype datatype, std::initializer_list<spark_node_t*> children)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);
 
-            auto listNode = spark_create_vector_node(dt, children, count, THROW_ON_ERROR());
+            auto listNode = spark_create_vector_node(dt, const_cast<spark_node_t**>(children.begin()), children.size(), SPARK_THROW_ON_ERROR());
             auto thisNode = copy_constructor(dt, listNode);
             return thisNode;
         }
@@ -95,8 +93,8 @@ namespace spark
             // create assignment node
             auto assignmentNode = spark_create_operator2_node(dt, op, thisNode, thatNode);
             // add to tree
-            auto currentScope = spark_peek_scope_node(THROW_ON_ERROR());
-            spark_add_child_node(currentScope, assignmentNode, THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node(SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, assignmentNode, SPARK_THROW_ON_ERROR());
         }
     }
 }

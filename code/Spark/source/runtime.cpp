@@ -187,7 +187,7 @@ namespace spark
     }
 }
 
-SPARK_EXPORT spark_context_t* spark_create_context(spark_error_t** error)
+RUFF_EXPORT spark_context_t* spark_create_context(spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -211,7 +211,7 @@ SPARK_EXPORT spark_context_t* spark_create_context(spark_error_t** error)
         });
 }
 
-SPARK_EXPORT void spark_set_current_context(spark_context_t* context, spark_error_t** error)
+RUFF_EXPORT void spark_set_current_context(spark_context_t* context, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -224,7 +224,7 @@ SPARK_EXPORT void spark_set_current_context(spark_context_t* context, spark_erro
         });
 }
 
-SPARK_EXPORT void spark_destroy_context(spark_context_t* context, spark_error_t** error)
+RUFF_EXPORT void spark_destroy_context(spark_context_t* context, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -241,7 +241,7 @@ SPARK_EXPORT void spark_destroy_context(spark_context_t* context, spark_error_t*
         });
 }
 
-SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spark_error_t** error)
+RUFF_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -268,7 +268,7 @@ SPARK_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spar
         });
 }
 
-SPARK_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_error_t** error)
+RUFF_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -280,7 +280,7 @@ SPARK_EXPORT const char* spark_get_kernel_source(spark_kernel_t* kernel, spark_e
         });
 }
 
-SPARK_EXPORT void spark_set_kernel_arg_buffer(spark_kernel_t* kernel, uint32_t index, spark_buffer_t* buffer, spark_error_t** error)
+RUFF_EXPORT void spark_set_kernel_arg_buffer(spark_kernel_t* kernel, uint32_t index, spark_buffer_t* buffer, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -294,7 +294,7 @@ SPARK_EXPORT void spark_set_kernel_arg_buffer(spark_kernel_t* kernel, uint32_t i
         });
 }
 
-SPARK_EXPORT void spark_set_kernel_arg_primitive(spark_kernel_t* kernel, uint32_t index, size_t size, const void* data, spark_error_t** error)
+RUFF_EXPORT void spark_set_kernel_arg_primitive(spark_kernel_t* kernel, uint32_t index, size_t size, const void* data, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -309,7 +309,7 @@ SPARK_EXPORT void spark_set_kernel_arg_primitive(spark_kernel_t* kernel, uint32_
         });
 }
 
-SPARK_EXPORT void spark_run_kernel(spark_kernel_t* kernel, size_t dim1, size_t dim2, size_t dim3, spark_error_t** error)
+RUFF_EXPORT void spark_run_kernel(spark_kernel_t* kernel, size_t dim1, size_t dim2, size_t dim3, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -325,7 +325,7 @@ SPARK_EXPORT void spark_run_kernel(spark_kernel_t* kernel, size_t dim1, size_t d
         });
 }
 
-SPARK_EXPORT void spark_destroy_kernel(spark_kernel_t* kernel, spark_error_t** error)
+RUFF_EXPORT void spark_destroy_kernel(spark_kernel_t* kernel, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -336,7 +336,7 @@ SPARK_EXPORT void spark_destroy_kernel(spark_kernel_t* kernel, spark_error_t** e
         });
 }
 
-SPARK_EXPORT spark_buffer_t* spark_create_buffer(size_t bytes, const void* data, spark_error_t** error)
+RUFF_EXPORT spark_buffer_t* spark_create_buffer(size_t bytes, const void* data, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
@@ -346,7 +346,7 @@ SPARK_EXPORT spark_buffer_t* spark_create_buffer(size_t bytes, const void* data,
         });
 }
 
-SPARK_EXPORT void spark_write_buffer(spark_buffer_t* buffer, size_t offset, size_t bytes, const void* data, spark_error_t** error)
+RUFF_EXPORT void spark_write_buffer(spark_buffer_t* buffer, size_t offset, size_t bytes, const void* data, spark_error_t** error)
 {
     return TranslateExceptions(
     error,
@@ -358,7 +358,7 @@ SPARK_EXPORT void spark_write_buffer(spark_buffer_t* buffer, size_t offset, size
     });
 }
 
-SPARK_EXPORT void spark_read_buffer(spark_buffer_t* buffer, size_t offset, size_t bytes, void* dest, spark_error_t** error)
+RUFF_EXPORT void spark_read_buffer(spark_buffer_t* buffer, size_t offset, size_t bytes, void* dest, spark_error_t** error)
 {
     return TranslateExceptions(
     error,
@@ -371,7 +371,7 @@ SPARK_EXPORT void spark_read_buffer(spark_buffer_t* buffer, size_t offset, size_
     });
 }
 
-SPARK_EXPORT void spark_destroy_buffer(spark_buffer_t* buffer, spark_error_t** error)
+RUFF_EXPORT void spark_destroy_buffer(spark_buffer_t* buffer, spark_error_t** error)
 {
     return TranslateExceptions(
         error,

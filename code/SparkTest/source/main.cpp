@@ -10,6 +10,9 @@ using std::cout;
 using std::endl;
 using std::unique_ptr;
 
+// ruff
+#include <ruff.h>
+
 // spark
 #define SPARK_DEBUG
 #include <spark.h>
@@ -37,44 +40,44 @@ namespace spark
     // verification assignment is working as expected
 
     // rvalue
-    SPARK_STATIC_ASSERT(is_assignable<rvalue<Int>, Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<rvalue<Int>, Int>() == false);
     // scalar and vector types
-    SPARK_STATIC_ASSERT(is_assignable<Int, Int>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<const Int, Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<Int, UInt>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<Int2, Int2>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<Int2, UInt2>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<Int, Int>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<const Int, Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<Int, UInt>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<Int2, Int2>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<Int2, UInt2>() == false);
     // properties
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::X), Int>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::X), UInt>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::XY), Int2>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::XY), UInt2>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int2::XX), Int2>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<Int, decltype(Int2::X)>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<Int2, decltype(Int2::XY)>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int2::X), Int>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int2::X), UInt>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int2::XY), Int2>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int2::XY), UInt2>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int2::XX), Int2>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<Int, decltype(Int2::X)>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<Int2, decltype(Int2::XY)>() == true);
     // casting
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int().As<UInt>()), Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int().As<UInt>()), UInt>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int().As<UInt>()), Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int().As<UInt>()), UInt>() == false);
     // return from operator
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int() + Int()), Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int() + Int()), Int>() == false);
     // assignment operator
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int() = Int()), Int>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int() = Int()), Int>() == true);
     // post/pre inc/dec
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int()++), Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(Int()--), Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(--Int()), Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int()++), Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(Int()--), Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(++Int()), Int>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(--Int()), Int>() == false);
     // pointer dereference
-    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(extern_construct))), Int>() == true);
-    SPARK_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(extern_construct))), UInt>() == false);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(extern_construct))), Int>() == true);
+    RUFF_STATIC_ASSERT(is_assignable<decltype(*(Pointer<Int>(extern_construct))), UInt>() == false);
 }
 
 int main()
 {
     try
     {
-        auto context = spark_create_context(ThrowOnError());
-        spark_set_current_context(context, ThrowOnError());
+        auto context = spark_create_context(SPARK_THROW_ON_ERROR());
+        spark_set_current_context(context, SPARK_THROW_ON_ERROR());
 
         device_buffer2d<uint8_t> device_fractal(2800, 1600, nullptr);
         const int32_t max_iterations = 1024;
@@ -136,7 +139,7 @@ int main()
         bmp_fractal.WriteToFile("fractal.bmp");
 
         // end spark session
-        spark_destroy_context(context, ThrowOnError());
+        spark_destroy_context(context, SPARK_THROW_ON_ERROR());
     }
     catch(std::exception& ex)
     {

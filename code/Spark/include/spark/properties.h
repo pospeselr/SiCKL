@@ -12,7 +12,7 @@ namespace spark
             const auto dt = static_cast<spark_datatype_t>(datatype);
 
             // create property node
-            auto propertyNode = spark_create_property_node(prop, THROW_ON_ERROR());
+            auto propertyNode = spark_create_property_node(prop, SPARK_THROW_ON_ERROR());
             auto lvalue = spark_create_operator2_node(dt, static_cast<spark_operator_t>(spark::shared::Operator::Property), thisNode, propertyNode);
 
             // create assignment node
@@ -20,8 +20,8 @@ namespace spark
             auto assignmentNode = spark_create_operator2_node(dt, static_cast<spark_operator_t>(op), lvalue, thatNode);
 
             // add to tree
-            auto currentScope = spark_peek_scope_node(THROW_ON_ERROR());
-            spark_add_child_node(currentScope, assignmentNode, THROW_ON_ERROR());
+            auto currentScope = spark_peek_scope_node(SPARK_THROW_ON_ERROR());
+            spark_add_child_node(currentScope, assignmentNode, SPARK_THROW_ON_ERROR());
         }
 
         template<typename TYPE, spark::shared::Property ID>
@@ -31,7 +31,7 @@ namespace spark
             operator const rvalue<TYPE>() const
             {
                 const auto prop = static_cast<spark_property_t>(ID);
-                auto propertyNode = spark_create_property_node(prop, THROW_ON_ERROR());
+                auto propertyNode = spark_create_property_node(prop, SPARK_THROW_ON_ERROR());
 
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Property);
@@ -43,7 +43,7 @@ namespace spark
             const rvalue<TYPE> operator()() const
             {
                 const auto prop = static_cast<spark_property_t>(ID);
-                auto propertyNode = spark_create_property_node(prop, THROW_ON_ERROR());
+                auto propertyNode = spark_create_property_node(prop, SPARK_THROW_ON_ERROR());
 
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Property);
@@ -60,7 +60,7 @@ namespace spark
             operator lvalue<TYPE>()
             {
                 const auto prop = static_cast<spark_property_t>(ID);
-                auto propertyNode = spark_create_property_node(prop, THROW_ON_ERROR());
+                auto propertyNode = spark_create_property_node(prop, SPARK_THROW_ON_ERROR());
 
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Property);
@@ -72,7 +72,7 @@ namespace spark
             lvalue<TYPE> operator()()
             {
                 const auto prop = static_cast<spark_property_t>(ID);
-                auto propertyNode = spark_create_property_node(prop, THROW_ON_ERROR());
+                auto propertyNode = spark_create_property_node(prop, SPARK_THROW_ON_ERROR());
 
                 const auto dt = static_cast<spark_datatype_t>(TYPE::type);
                 const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Property);

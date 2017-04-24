@@ -12,9 +12,11 @@
 #include <utility>
 #include <unordered_set>
 
+// ruff
+#define RUFF_DEBUG
+#include <ruff.h>
+
 // spark
-#include "spark/platform.h"
-#include "spark/utilities.h"
 #include "spark/enums.h"
 
 // opencl

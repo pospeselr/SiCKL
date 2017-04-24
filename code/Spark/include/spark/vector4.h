@@ -88,8 +88,7 @@ namespace spark
             SPARK_FORCE_INLINE
             device_vector4(const rvalue<TYPE>& x, const rvalue<TYPE>& y, const rvalue<TYPE>& z, const rvalue<TYPE>& w)
             {
-                spark_node_t* children[] = {x._node, y._node, z._node, w._node};
-                this->_node = vector_constructor(device_vector4::type, children, countof(children));
+                this->_node = vector_constructor(device_vector4::type, {x._node, y._node, z._node, w._node});
             }
 
             device_vector4(device_vector4&&) = default;
@@ -104,20 +103,18 @@ namespace spark
             // properties
             union
             {
-#if 0
                 // swizzles
                 property_rw<TYPE, spark::shared::Property::X> X;
                 property_rw<TYPE, spark::shared::Property::Y> Y;
-                property_r<device_vector4, spark::shared::Property::XX> XX;
-                property_rw<device_vector4, spark::shared::Property::XY> XY;
-                property_rw<device_vector4, spark::shared::Property::YX> YX;
-                property_r<device_vector4, spark::shared::Property::YY> YY;
+                property_rw<TYPE, spark::shared::Property::Z> Z;
+                property_rw<TYPE, spark::shared::Property::W> W;
+
                 // others
-                property_rw<TYPE, spark::shared::Property::Lo> Lo;
-                property_rw<TYPE, spark::shared::Property::Hi> Hi;
-                property_rw<TYPE, spark::shared::Property::Even> Even;
-                property_rw<TYPE, spark::shared::Property::Odd> Odd;
-#endif
+                property_rw<device_vector2<TYPE>, spark::shared::Property::Lo> Lo;
+                property_rw<device_vector2<TYPE>, spark::shared::Property::Hi> Hi;
+                property_rw<device_vector2<TYPE>, spark::shared::Property::Even> Even;
+                property_rw<device_vector2<TYPE>, spark::shared::Property::Odd> Odd;
+
                 // private node ptr
                 spark_node_t* _node;
             };

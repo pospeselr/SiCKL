@@ -184,7 +184,7 @@ namespace spark
             char propertyBuffer[8];
             written = doSnprintf(buffer, buffer_size, written,
                 "Property::%s\n",
-                spark_property_to_str(prop, propertyBuffer, countof(propertyBuffer)));
+                spark_property_to_str(prop, propertyBuffer, ruff::countof(propertyBuffer)));
             return written;
         }
 
@@ -303,7 +303,7 @@ namespace spark
     }
 }
 
-SPARK_EXPORT int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
+RUFF_EXPORT int32_t spark_node_to_text(spark_node_t* node, char* out_buffer, int32_t buffer_size, spark_error_t** error)
 {
     return TranslateExceptions(
         error,
