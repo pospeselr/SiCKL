@@ -1,0 +1,17 @@
+add_compile_options(-std=c++1z)
+add_compile_options(-Wall)
+add_compile_options(-Werror)
+add_compile_options(-Wfatal-errors)
+add_compile_options(-O3)
+add_compile_options(-g)
+add_compile_options(-fvisibility=hidden)
+
+add_library(thistle SHARED
+    thistle.cpp
+    linear_transform_node.cpp)
+
+target_link_libraries(thistle spark)
+
+include_directories(../../Ruff)
+include_directories(../../Spark/include)
+include_directories(../include)
