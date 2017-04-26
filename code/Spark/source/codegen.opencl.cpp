@@ -366,22 +366,22 @@ namespace spark
             switch(constant->_constant.type.GetPrimitive())
             {
                 case Primitive::Char:
-                    doSnprintf(ctx, "%lli", *reinterpret_cast<int8_t*>(raw));
+                    doSnprintf(ctx, "%i", *reinterpret_cast<int8_t*>(raw));
                     break;
                 case Primitive::UChar:
-                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint8_t*>(raw));
+                    doSnprintf(ctx, "%uu", *reinterpret_cast<uint8_t*>(raw));
                     break;
                 case Primitive::Short:
-                    doSnprintf(ctx, "%lli", *reinterpret_cast<int16_t*>(raw));
+                    doSnprintf(ctx, "%i", *reinterpret_cast<int16_t*>(raw));
                     break;
                 case Primitive::UShort:
-                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint16_t*>(raw));
+                    doSnprintf(ctx, "%uu", *reinterpret_cast<uint16_t*>(raw));
                     break;
                 case Primitive::Int:
-                    doSnprintf(ctx, "%lli", *reinterpret_cast<int32_t*>(raw));
+                    doSnprintf(ctx, "%i", *reinterpret_cast<int32_t*>(raw));
                     break;
                 case Primitive::UInt:
-                    doSnprintf(ctx, "%lluu", *reinterpret_cast<uint32_t*>(raw));
+                    doSnprintf(ctx, "%uu", *reinterpret_cast<uint32_t*>(raw));
                     break;
                 case Primitive::Long:
                     doSnprintf(ctx, "%lli", *reinterpret_cast<int64_t*>(raw));
