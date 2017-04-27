@@ -68,7 +68,7 @@ namespace spark
 
         void read(T* dest) const
         {
-            read(0, this->size(), dest);
+            read(0, _count, dest);
         }
 
         size_t count() const { return _count;}
