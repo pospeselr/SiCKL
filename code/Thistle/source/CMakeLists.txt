@@ -8,7 +8,8 @@ add_compile_options(-fvisibility=hidden)
 
 add_library(thistle SHARED
     thistle.cpp
-    linear_transform_node.cpp)
+    thistle_error.cpp
+    thistle_sample_batch.cpp)
 
 target_link_libraries(thistle spark)
 
