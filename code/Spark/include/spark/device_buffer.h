@@ -53,10 +53,10 @@ namespace spark
 
         void zero()
         {
-            zero(0, this->_size);
+            zero(0, this->size());
         }
 
-        void read(size_t offset, size_t count, T* dest)
+        void read(size_t offset, size_t count, T* dest) const
         {
             spark_read_buffer(_buffer.get(), sizeof(T) * offset, sizeof(T) * count, dest, SPARK_THROW_ON_ERROR());
         }
@@ -68,10 +68,10 @@ namespace spark
 
         void read(T* dest) const
         {
-            read(0, this->_size, dest);
+            read(0, this->size(), dest);
         }
 
-        int32_t count() const { return _count;}
+        size_t count() const { return _count;}
         size_t size() const { return count() * sizeof(T); }
 
     private:
