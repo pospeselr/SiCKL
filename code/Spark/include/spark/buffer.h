@@ -14,14 +14,14 @@ namespace spark
 
             // extern constructor
             buffer1d(extern_construct_t)
-            : _data(extern_construct)
-            , Count(extern_construct)
+            : Count(extern_construct)
+            , _data(extern_construct)
             { }
 
             // move constructor
             buffer1d(buffer1d&& other)
-            : _data(std::move(other._data))
-            , Count(std::move(const_cast<Int&>(other.Count)))
+            : Count(std::move(const_cast<Int&>(other.Count)))
+            , _data(std::move(other._data))
             {
 
             }
@@ -50,31 +50,31 @@ namespace spark
         struct buffer_view1d
         {
             buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& count)
-            : _data(buffer.Data())
+            : Count(count)
             , _stride(1)
-            , Count(count)
+            , _data(buffer.Data())
             { }
 
             buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& stride, const rvalue<Int>& count)
-            : _data(buffer.Data())
+            : Count(count)
             , _stride(stride)
-            , Count(count)
+            , _data(buffer.Data())
             {
 
             }
 
             buffer_view1d(const rvalue<Pointer<T>> head, const rvalue<Int>& count)
-            : _data(head)
+            : Count(count)
             , _stride(1)
-            , Count(count)
+            , _data(head)
             {
 
             }
 
             buffer_view1d(const rvalue<Pointer<T>> head, const rvalue<Int>& stride, const rvalue<Int>& count)
-            : _data(head)
+            : Count(count)
             , _stride(stride)
-            , Count(count)
+            , _data(head)
             {
 
             }
@@ -102,17 +102,17 @@ namespace spark
 
             // extern constructor
             buffer2d(extern_construct_t)
-            : _data(extern_construct)
-            , Width(extern_construct)
+            : Width(extern_construct)
             , Height(extern_construct)
+            , _data(extern_construct)
             {
 
             }
 
             buffer2d(buffer2d&& other)
-            : _data(std::move(other._data))
-            , Width(std::move(const_cast<Int&>(other.Width)))
+            : Width(std::move(const_cast<Int&>(other.Width)))
             , Height(std::move(const_cast<Int&>(other.Height)))
+            ,_data(std::move(other._data))
             {
 
             }
