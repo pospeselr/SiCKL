@@ -18,16 +18,18 @@ int main() try
     auto size = thistle_get_batch_size(batch, THISTLE_THROW_ON_ERROR());
     auto width = thistle_get_sample_width(batch, THISTLE_THROW_ON_ERROR());
     auto height = thistle_get_sample_height(batch, THISTLE_THROW_ON_ERROR());
-    auto channels = thistle_get_sample_channels(batch, THISTLE_THROW_ON_ERROR   ());
+    auto channels = thistle_get_sample_channels(batch, THISTLE_THROW_ON_ERROR());
+
+    thistle_get_sample_data(batch, buffer.get(), 784*100, THISTLE_THROW_ON_ERROR());
 
     cout << "batch size : " << size << endl;
     cout << "width      : " << width << endl;
     cout << "height     : " << height << endl;
     cout << "channels   : " << channels << endl;
 
-
     cout << "Hello World" << endl;
 
+    thistle_free_sample_batch(batch, THISTLE_THROW_ON_ERROR());
     thistle_end_session(THISTLE_THROW_ON_ERROR());
 } catch(const exception& ex)
 {

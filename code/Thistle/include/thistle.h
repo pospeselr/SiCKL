@@ -35,7 +35,7 @@ extern "C" size_t thistle_get_batch_size(thistle_sample_batch_t* batch, thistle_
 extern "C" size_t thistle_get_sample_width(thistle_sample_batch_t* batch, thistle_error_t** error);
 extern "C" size_t thistle_get_sample_height(thistle_sample_batch_t* batch, thistle_error_t** error);
 extern "C" size_t thistle_get_sample_channels(thistle_sample_batch_t* batch, thistle_error_t** error);
-extern "C" void thistle_get_data(thistle_sample_batch_t* batch, float* buffer, size_t bufferLength, thistle_error_t** error);
+extern "C" void thistle_get_sample_data(thistle_sample_batch_t* batch, float* buffer, size_t bufferLength, thistle_error_t** error);
 extern "C" thistle_sample_batch_t* thistle_create_sample_batch(size_t width, size_t height, size_t channels, size_t batchSize, float* data, thistle_error_t** error);
-
+extern "C" void thistle_free_sample_batch(thistle_sample_batch_t* batch, thistle_error_t**);
 
