@@ -105,6 +105,7 @@ namespace spark
     #define While(X)  if (auto __while_##__LINE__ = spark::client::while_statement(X))
     #define For(X)    for(X)
 
+    inline
     void Break()
     {
         const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(spark::shared::Primitive::Void, spark::shared::Components::None, false));

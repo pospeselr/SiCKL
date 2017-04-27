@@ -6,6 +6,7 @@ namespace spark
 
     namespace client
     {
+        inline
         SPARK_NEVER_INLINE
         spark_node_t* functor_operator(spark::shared::Datatype returnType, spark_node_t* functionNode)
         {
@@ -19,6 +20,7 @@ namespace spark
         }
 
         template<typename RETURN>
+        inline
         SPARK_NEVER_INLINE
         auto function_create_begin()
         {
@@ -44,12 +46,13 @@ namespace spark
         }
 
         template<>
+        inline
         auto function_create_begin<void>()
         {
             return function_create_begin<Void>();
         }
 
-        SPARK_NEVER_INLINE
+        inline SPARK_NEVER_INLINE
         void function_create_middle(spark_node_t* functionRoot)
         {
             spark_pop_scope_node( SPARK_THROW_ON_ERROR());
@@ -60,7 +63,7 @@ namespace spark
             spark_push_scope_node(body,  SPARK_THROW_ON_ERROR());
         }
 
-        SPARK_NEVER_INLINE
+        inline SPARK_NEVER_INLINE
         void function_create_end(spark_node_t* kernelRoot, spark_node_t* functionRoot)
         {
             spark_pop_scope_node( SPARK_THROW_ON_ERROR());
@@ -73,7 +76,7 @@ namespace spark
         }
 
         template<typename CLASS, typename RETURN, typename... ARGS>
-        SPARK_FORCE_INLINE
+        inline SPARK_FORCE_INLINE
         Function<RETURN(ARGS...)> make_function(const CLASS& lambda, RETURN(CLASS::*)(ARGS...) const)
         {
             return Function<RETURN(ARGS...)>(lambda);
@@ -125,7 +128,8 @@ namespace spark
             return RETURN(null_construct);
         }
 
-        inline Void return_operator()
+        inline
+        Void return_operator()
         {
             const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(spark::shared::Primitive::Void, spark::shared::Components::None, false));
             const auto op = static_cast<spark_operator_t>(spark::shared::Operator::Return);

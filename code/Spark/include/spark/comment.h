@@ -2,6 +2,7 @@
 
 namespace spark
 {
+    inline
 	void Comment(const char* comment)
 	{
 		// create comment node

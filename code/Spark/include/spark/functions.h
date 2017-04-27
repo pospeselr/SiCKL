@@ -4,6 +4,7 @@ namespace spark
 {
     // built-ins
 
+    inline SPARK_FORCE_INLINE
     const Int2 Index()
     {
         const auto dt = static_cast<spark_datatype_t>(Int::type);
@@ -11,6 +12,7 @@ namespace spark
         return client::rvalue<Int2>(spark_create_operator_node(dt, op, SPARK_THROW_ON_ERROR()));
     }
 
+    inline SPARK_FORCE_INLINE
     const Float2 NormalizedIndex()
     {
         const auto dt = static_cast<spark_datatype_t>(Int::type);
@@ -19,7 +21,7 @@ namespace spark
     }
 
     #define MAKE_FUNCTION_1(RETURN_TYPE, TYPE, NAME, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> NAME(const client::rvalue<TYPE>& arg1)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
@@ -28,7 +30,7 @@ namespace spark
     }
 
     #define MAKE_FUNCTION_2(RETURN_TYPE, TYPE1, TYPE2, NAME, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> NAME(const client::rvalue<TYPE1>& arg1, const client::rvalue<TYPE2>& arg2)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
@@ -37,7 +39,7 @@ namespace spark
     }
 
     #define MAKE_FUNCTION_3(RETURN_TYPE, TYPE1, TYPE2, TYPE3, NAME, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> NAME(const client::rvalue<TYPE1>& arg1, const client::rvalue<TYPE2>& arg2, const client::rvalue<TYPE3>& arg3)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\

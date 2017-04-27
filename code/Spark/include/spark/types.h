@@ -10,7 +10,7 @@ namespace spark
     /// Operators
 
     #define MAKE_UNARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> operator OP(const client::rvalue<TYPE>& right)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
@@ -19,7 +19,7 @@ namespace spark
     }
 
     #define MAKE_BINARY_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE> operator OP (const client::rvalue<TYPE>& left, const client::rvalue<TYPE>& right)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
@@ -28,7 +28,7 @@ namespace spark
     }
 
     #define MAKE_PREFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE, true> operator OP (const TYPE& value)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\
@@ -37,7 +37,7 @@ namespace spark
     }
 
     #define MAKE_POSTFIX_OPERATOR(RETURN_TYPE, TYPE, OP, ENUM)\
-    SPARK_FORCE_INLINE\
+    inline SPARK_FORCE_INLINE\
     const client::rvalue<RETURN_TYPE, true> operator OP (const TYPE& value, int)\
     {\
         const auto dt = static_cast<spark_datatype_t>(RETURN_TYPE::type);\

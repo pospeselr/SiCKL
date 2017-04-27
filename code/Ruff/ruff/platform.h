@@ -36,9 +36,9 @@
 #if defined(RUFF_COMPILER_MSVC)
     #define RUFF_FORCE_INLINE __declspec(__forceinline)
 #elif defined(RUFF_COMPILER_CLANG)
-    #define RUFF_FORCE_INLINE __attribute__ ((always_inline)) inline
+    #define RUFF_FORCE_INLINE __attribute__ ((always_inline))
 #elif defined(RUFF_COMPILER_GCC)
-    #define RUFF_FORCE_INLINE __attribute__ ((always_inline)) inline
+    #define RUFF_FORCE_INLINE __attribute__ ((always_inline))
 #endif
 
 // force never inline of function

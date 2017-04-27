@@ -6,6 +6,7 @@ namespace spark
 {
     namespace client
     {
+        inline
         void property_assignment_operator(spark::shared::Property property, spark::shared::Datatype datatype, spark_node_t* thisNode, spark_node_t* thatNode)
         {
             const auto prop = static_cast<spark_property_t>(property);
