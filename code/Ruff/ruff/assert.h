@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef RUFF_PRINT_ASSERT
     #include <stdint.h>
     namespace ruff
