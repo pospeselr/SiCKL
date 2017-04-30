@@ -77,6 +77,7 @@ namespace spark
                 this->_node = copy_constructor(device_vector2::type, that._node);
             }
 
+
             SPARK_FORCE_INLINE
             device_vector2(const device_vector2& that)
             {
@@ -95,6 +96,13 @@ namespace spark
             device_vector2& operator=(const device_vector2& that)
             {
                 assignment_operator(this->_node, device_vector2::type, that._node);
+                return *this;
+            }
+
+            SPARK_FORCE_INLINE
+            device_vector2& operator=(device_vector2&& that)
+            {
+                this->_node = that._node;
                 return *this;
             }
 

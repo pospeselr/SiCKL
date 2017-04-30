@@ -262,6 +262,7 @@ RUFF_EXPORT void spark_pop_scope_node(spark_error_t** error)
         error,
         [&]
         {
+            SPARK_ASSERT(g_nodeStack.size() > 0);
             g_nodeStack.pop_back();
         });
 }
@@ -272,6 +273,7 @@ RUFF_EXPORT spark_node_t* spark_peek_scope_node(spark_error_t** error)
         error,
         [&]
         {
+            SPARK_ASSERT(g_nodeStack.size() > 0);
             return g_nodeStack.back();
         });
 }
@@ -282,6 +284,7 @@ RUFF_EXPORT spark_node_t* spark_get_root_node(spark_error_t** error)
         error,
         [&]
         {
+            SPARK_ASSERT(g_nodeStack.size() > 0);
             return g_nodeStack.front();
         });
 }

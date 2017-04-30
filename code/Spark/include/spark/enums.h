@@ -47,7 +47,6 @@ namespace spark
             ElseIf,
             Else,
             While,
-            For,
 
             Count
         };

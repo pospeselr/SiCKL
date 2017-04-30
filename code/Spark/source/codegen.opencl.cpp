@@ -459,6 +459,7 @@ namespace spark
                     doSnprintf(ctx, "if (");
                     generateValueNode(ctx, control->_children.front());
                     doSnprintf(ctx, ")\n");
+                    generateIndent(ctx);
                     generateScopeBlock(ctx, control->_children.back());
                     break;
                 case Control::ElseIf:
@@ -466,11 +467,13 @@ namespace spark
                     doSnprintf(ctx, "else if (");
                     generateValueNode(ctx, control->_children.front());
                     doSnprintf(ctx, ")\n");
+                    generateIndent(ctx);
                     generateScopeBlock(ctx, control->_children.back());
                     break;
                 case Control::Else:
                     SPARK_ASSERT(control->_children.size() == 1);
                     doSnprintf(ctx, "else\n");
+                    generateIndent(ctx);
                     generateScopeBlock(ctx, control->_children.back());
                     break;
                 case Control::While:
@@ -479,6 +482,7 @@ namespace spark
                     doSnprintf(ctx, "while (");
                     generateValueNode(ctx, control->_children.front());
                     doSnprintf(ctx, ")\n");
+                    generateIndent(ctx);
                     generateScopeBlock(ctx, control->_children.back());
                     break;
                 }
@@ -491,7 +495,6 @@ namespace spark
         {
             SPARK_ASSERT(scopeBlock->_type == spark_nodetype::scope_block);
 
-            generateIndent(ctx);
             doSnprintf(ctx, "{\n");
 
             ctx.indent += 1;
@@ -515,6 +518,9 @@ namespace spark
                         break;
                     case spark_nodetype::comment:
                         doSnprintf(ctx, "/* %s */\n", currentNode->_comment);
+                        break;
+                    case spark_nodetype::scope_block:
+                        generateScopeBlock(ctx, currentNode);
                         break;
                     default:
                         doSnprintf(ctx, "#unimplemented\n");

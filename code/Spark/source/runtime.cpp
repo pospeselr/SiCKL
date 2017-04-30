@@ -248,6 +248,8 @@ RUFF_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spark
         [&]
         {
             THROW_IF_NULL(kernel_root);
+            THROW_IF_FALSE(kernel_root->_type == spark::lib::spark_nodetype::control);
+            THROW_IF_FALSE(kernel_root->_control == spark::shared::Control::Root);
 
             auto len = generateSourceTree(kernel_root, nullptr, 0);
             string sourceTree(len - 1, 0);

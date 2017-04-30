@@ -37,7 +37,6 @@ const char* spark_control_to_str(spark_control_t val)
 		"Control::ElseIf",
 		"Control::Else",
 		"Control::While",
-		"Control::For",
 	};
 	static_assert(ruff::countof(controlNames) == static_cast<size_t>(Control::Count), "size mismatch between contorlNames and spark_control::count");
 	SPARK_ASSERT(val < static_cast<size_t>(Control::Count));

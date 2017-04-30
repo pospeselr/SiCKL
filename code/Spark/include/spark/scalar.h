@@ -87,6 +87,13 @@ namespace spark
             }
 
             SPARK_FORCE_INLINE
+            scalar& operator=(scalar&& that)
+            {
+                this->_node = that._node;
+                return *this;
+            }
+
+            SPARK_FORCE_INLINE
             scalar& operator=(HOST_TYPE val)
             {
                 const auto dt = static_cast<spark_datatype_t>(scalar::type);

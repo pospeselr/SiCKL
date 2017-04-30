@@ -126,7 +126,7 @@ namespace spark
     MAKE_FLOAT_TYPES(Double, double);
 
     template<typename TYPE>
-    SPARK_FORCE_INLINE
+    inline SPARK_FORCE_INLINE
     const client::rvalue<client::pointer<TYPE>> operator+(const client::pointer<TYPE>& ptr, const client::rvalue<Int>& offset)
     {
         const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));
@@ -135,7 +135,7 @@ namespace spark
     }
 
     template<typename TYPE>
-    SPARK_FORCE_INLINE
+    inline SPARK_FORCE_INLINE
     const client::rvalue<client::pointer<TYPE>> operator+(const client::rvalue<Int>& offset, const client::pointer<TYPE>& ptr)
     {
         const auto dt = static_cast<spark_datatype_t>(spark::shared::Datatype(TYPE::type.GetPrimitive(), TYPE::type.GetComponents(), true));

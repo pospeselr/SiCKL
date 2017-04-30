@@ -156,4 +156,26 @@ namespace spark
     using Buffer2D = client::buffer2d<T>;
     template<typename T>
     using BufferView1D = client::buffer_view1d<T>;
+
+    template<typename T>
+    spark::client::rvalue<T> Dot(Buffer1D<T>& left, Buffer1D<T>& right)
+    {
+        T result;
+        For(Int i : Range<Int>(0, left.Count))
+        {
+            result = result + left[i] * right[i];
+        }
+        return result;
+    }
+
+    template<typename T>
+    spark::client::rvalue<T> Dot(BufferView1D<T>& left, BufferView1D<T>& right)
+    {
+        T result;
+        For(Int i : Range<Int>(0, left.Count))
+        {
+            result = result + left[i] * right[i];
+        }
+        return result;
+    }
 }
