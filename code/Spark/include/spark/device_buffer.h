@@ -3,6 +3,8 @@
 namespace spark
 {
     template<typename T> struct Kernel;
+    template<typename T> struct device_buffer1d;
+    template<typename T> struct device_buffer2d;
 
     template<typename T>
     struct device_buffer1d
@@ -25,6 +27,13 @@ namespace spark
         device_buffer1d(size_t count) : device_buffer1d(count, nullptr) {}
         template<size_t N>
         device_buffer1d(const T (&arr)[N]) : device_buffer1d(N, arr) {}
+
+        device_buffer1d(const device_buffer2d<T>& data)
+        : _count(data._count)
+        , _buffer(data._buffer)
+        { }
+
+        device_buffer1d(device_buffer1d&&) = default;
 
         void write(size_t offset, size_t count, const T* data)
         {
@@ -80,6 +89,8 @@ namespace spark
 
         const size_t _count;
         std::shared_ptr<spark_buffer_t> _buffer;
+
+        friend struct device_buffer2d<T>;
     };
 
     template<typename T>
@@ -98,6 +109,16 @@ namespace spark
         device_buffer2d(size_t width, size_t height) : device_buffer2d(width, height, nullptr) {}
         template<size_t M, size_t N>
         device_buffer2d(const T (&arr)[M][N]) : device_buffer2d(N, M, arr) {}
+
+        device_buffer2d(size_t width, size_t height, const device_buffer1d<T>& buffer)
+        : _width(width)
+        , _height(height)
+        , _buffer(buffer._buffer)
+        {
+            SPARK_ASSERT(size() == buffer.size());
+        }
+
+        device_buffer2d(device_buffer2d&&) = default;
 
         void write(const T* data)
         {
@@ -121,5 +142,7 @@ namespace spark
         const size_t _width;
         const size_t _height;
         std::shared_ptr<spark_buffer_t> _buffer;
+
+        friend struct device_buffer1d<T>;
     };
 }

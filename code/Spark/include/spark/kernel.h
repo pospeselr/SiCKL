@@ -350,10 +350,10 @@ namespace spark
         }
 
         template<typename Arg, typename...Args>
-        void run(uint32_t idx, const Arg arg, const Args... args) const
+        void run(uint32_t idx, Arg&& arg, Args&&... args) const
         {
             idx = set_arg(idx, arg);
-            run(idx, args...);
+            run(idx, std::forward<Args>(args)...);
         }
 
         std::shared_ptr<spark_kernel_t> _kernel;
