@@ -109,8 +109,8 @@ namespace spark
             spark_read_buffer(_buffer.get(), 0, size(), dest, SPARK_THROW_ON_ERROR());
         }
 
-        int32_t width() const { return _width; }
-        int32_t height() const {return _height; }
+        size_t width() const { return _width; }
+        size_t height() const {return _height; }
         size_t count() const { return _width * _height; }
         size_t size() const { return count() * sizeof(T); }
 
