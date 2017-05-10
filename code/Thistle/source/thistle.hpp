@@ -15,4 +15,5 @@
 #define SPARK_ASSERT(X) RUFF_ASSERT(X)
 #define SPARK_VERIFY(X) RUFF_VERIFY(X)
 #include <spark.h>
+using namespace spark;
 

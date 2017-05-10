@@ -8,18 +8,23 @@ struct thistle_sample_batch
         size_t sampleChannels,
         size_t batchSize,
         float* dataBuffer)
-    : _sample_width(sampleWidth)
-    , _sample_height(sampleHeight)
-    , _sample_channels(sampleChannels)
-    , _batch_size(batchSize)
-    , _data(sampleWidth * sampleHeight * sampleChannels * batchSize, dataBuffer)
+    : sample_width(sampleWidth)
+    , sample_height(sampleHeight)
+    , sample_channels(sampleChannels)
+    , batch_size(batchSize)
+    , data(sampleWidth * sampleHeight * sampleChannels * batchSize, dataBuffer)
     { }
 
-    const size_t _sample_width;
-    const size_t _sample_height;
-    const size_t _sample_channels;
-    const size_t _batch_size;
+    const size_t sample_width;
+    const size_t sample_height;
+    const size_t sample_channels;
+    const size_t batch_size;
 
-    spark::device_buffer1d<float> _data;
+    size_t sample_size() const
+    {
+        return sample_width * sample_height * sample_channels;
+    }
+
+    spark::device_buffer1d<float> data;
 };
 typedef thistle_sample_batch thistle_sample_batch_t;
