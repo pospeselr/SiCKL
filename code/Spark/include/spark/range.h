@@ -97,9 +97,9 @@ namespace spark
 			Int stop = _temp_stop;
 			Int step = _temp_step;
 
-			_val = std::move(start);
-			_stop = std::move(stop);
-			_step = std::move(step);
+			_val._node = start._node;
+			_stop._node = stop._node;
+			_step._node = step._node;
 		}
 
 		const TYPE get_value()

@@ -17,6 +17,7 @@
         auto assertion = (X);\
         if(!assertion)\
         {\
+            RUFF_DEBUGBREAK();\
             spark::lib::throw_error(#X, __FILE__, __LINE__);\
         }\
     }\

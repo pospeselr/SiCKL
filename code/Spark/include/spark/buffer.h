@@ -126,14 +126,34 @@ namespace spark
                 return rvalue<Pointer<T>>(_data._node);
             }
 
-            const buffer_view1d<T> operator[](const rvalue<Int>& index) const
+            const buffer_view1d<T> Row(const rvalue<Int>& i) const
             {
-                return buffer_view1d<T>(_data + index, Width, Height);
+                return buffer_view1d<T>(_data + Width * i, Width);
             }
 
-            buffer_view1d<T> operator[](const rvalue<Int>& index)
+            buffer_view1d<T> Row(const rvalue<Int>& i)
             {
-                return buffer_view1d<T>(_data + index, Width, Height);
+                return buffer_view1d<T>(_data + Width * i, Width);
+            }
+
+            const buffer_view1d<T> Column(const rvalue<Int>& j) const
+            {
+                return buffer_view1d<T>(_data + j, Height, Width);
+            }
+
+            buffer_view1d<T> Column(const rvalue<Int>& j)
+            {
+                return buffer_view1d<T>(_data + j, Height, Width);
+            }
+
+            const buffer_view1d<T> operator[](const rvalue<Int>& i) const
+            {
+                return Row(i);
+            }
+
+            buffer_view1d<T> operator[](const rvalue<Int>& i)
+            {
+                return Row(i);
             }
 
             lvalue<T> operator[](const rvalue<Int2>& index)

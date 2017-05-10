@@ -158,11 +158,14 @@ void verify_buffer_view1d()
     device_buffer1d<int32_t> evens(half_count, nullptr);
     device_buffer1d<int32_t> odds(half_count, nullptr);
 
+    // even indices to one buffer, odd ones to the other
     Kernel<Void(BufferView1D<Int>, BufferView1D<Int>, BufferView1D<Int>)> split_data = []()
     {
         auto main = MakeFunction([](BufferView1D<Int> source, BufferView1D<Int> even_dest, BufferView1D<Int> odd_dest)
         {
+            // every other val from beginning
             BufferView1D<Int> even_view(source, half_count, 2, 0);
+            // every other val from first
             BufferView1D<Int> odd_view(source, half_count, 2, 1);
 
             Int idx = Index().X;
@@ -189,6 +192,70 @@ void verify_buffer_view1d()
     }
 }
 
+void verify_buffer_view2d()
+{
+    const size_t row_count = 29;
+    const size_t col_count = 53;
+
+    const size_t x_mul = 3;
+    const size_t y_mul = 5;
+
+    unique_ptr<int2[]> indices(new int2[row_count * col_count]);
+    // each value contains it's own inex
+    for(size_t y = 0; y < row_count; y++)
+    {
+        for(size_t x = 0; x < col_count; x++)
+        {
+            indices[y * col_count + x] = int2(x, y);
+        }
+    }
+
+    Kernel<Void(Buffer2D<Int2>, BufferView1D<Int>, BufferView1D<Int>)> get_indices = []()
+    {
+        auto main = MakeFunction([](Buffer2D<Int2> indices, BufferView1D<Int> out_row, BufferView1D<Int> out_col)
+        {
+            Int2 index = Index();
+            Int row = index.Y;
+            Int col = index.X;
+
+            If(col == 0)
+            {
+                auto col_view = indices.Column(0);
+                out_col[row] = col_view[row].Y * y_mul;
+            }
+
+            If(row == 0)
+            {
+                auto row_view = indices.Row(0);
+                out_row[col] = row_view[col].X * x_mul;
+            }
+        });
+        main.SetEntryPoint();
+    };
+    get_indices.set_work_dimensions(col_count, row_count);
+
+    device_buffer2d<int2> index_buffer(row_count, col_count, indices.get());
+    device_buffer1d<int32_t> row_buffer(col_count, nullptr);
+    device_buffer1d<int32_t> col_buffer(row_count, nullptr);
+
+    get_indices(index_buffer, row_buffer, col_buffer);
+    int32_t rows[col_count];
+    int32_t cols[row_count];
+
+    row_buffer.read(rows);
+    col_buffer.read(cols);
+
+    for(size_t x = 0; x < col_count; x++)
+    {
+        SPARK_ASSERT(rows[x] == x * x_mul);
+    }
+
+    for(size_t y = 0; y < row_count; y++)
+    {
+        SPARK_ASSERT(cols[y] == y * y_mul);
+    }
+}
+
 #define RUN_TEST(X) current_test = #X; if(tests.find(current_test) != tests.end() || tests.size() == 0) X();
 
 int main(int argc, char** argv)
@@ -207,6 +274,7 @@ int main(int argc, char** argv)
 
         RUN_TEST(make_mandelbrot);
         RUN_TEST(verify_buffer_view1d);
+        RUN_TEST(verify_buffer_view2d);
 
         // end spark session
         spark_destroy_context(context, SPARK_THROW_ON_ERROR());

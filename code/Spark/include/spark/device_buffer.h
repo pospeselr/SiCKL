@@ -80,6 +80,13 @@ namespace spark
             read(0, _count, dest);
         }
 
+        template<size_t N>
+        void read(T (&dest)[N])
+        {
+            SPARK_ASSERT(N == _count);
+            read(0, N, dest);
+        }
+
         size_t count() const { return _count;}
         size_t size() const { return count() * sizeof(T); }
 

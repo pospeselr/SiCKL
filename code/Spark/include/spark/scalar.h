@@ -2,6 +2,8 @@
 
 namespace spark
 {
+    template<typename> struct Range;
+
     namespace client
     {
         template<typename T> struct buffer_view1d;
@@ -26,6 +28,8 @@ namespace spark
             friend struct pointer;
             template<typename>
             friend struct buffer_view1d;
+            template<typename>
+            friend struct Range;
         protected:
             // node constructor
             SPARK_FORCE_INLINE

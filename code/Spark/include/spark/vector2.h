@@ -16,6 +16,16 @@ namespace spark
                 };
                 TYPE data[2];
             };
+
+            host_vector2(TYPE x, TYPE y)
+            : x(x)
+            , y(y)
+            { }
+
+            host_vector2()
+            : x()
+            , y()
+            {}
         };
     }
     typedef client::host_vector2<int8_t> char2;
