@@ -201,7 +201,7 @@ namespace spark
         // build function AST
         template<typename PARAM, typename... TAIL_PARAMS>
         SPARK_FORCE_INLINE
-        void function_header(spark_node_t* parameterList, PARAM param0, TAIL_PARAMS... tailParams)
+        void function_header(spark_node_t* parameterList, PARAM&& param0, TAIL_PARAMS&&... tailParams)
         {
             spark_add_child_node(parameterList, param0._node,  SPARK_THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
@@ -209,16 +209,16 @@ namespace spark
 
         // overload for buffer1d
         template<typename TYPE, typename... TAIL_PARAMS>
-        void function_header(spark_node_t* parameterList, client::buffer1d<TYPE> param0, TAIL_PARAMS... tailParams)
+        void function_header(spark_node_t* parameterList, client::buffer_view1d<TYPE>&& param0, TAIL_PARAMS&&... tailParams)
         {
-            spark_add_child_node(parameterList, param0.Data()._node, SPARK_THROW_ON_ERROR());
+            spark_add_child_node(parameterList, param0._data._node, SPARK_THROW_ON_ERROR());
             spark_add_child_node(parameterList, param0.Count._node, SPARK_THROW_ON_ERROR());
             return function_header(parameterList, std::forward<TAIL_PARAMS>(tailParams)...);
         }
 
         // overload for buffer2d
         template<typename TYPE, typename... TAIL_PARAMS>
-        void function_header(spark_node_t* parameterList, client::buffer2d<TYPE> param0, TAIL_PARAMS... tailParams)
+        void function_header(spark_node_t* parameterList, client::buffer2d<TYPE>&& param0, TAIL_PARAMS&&... tailParams)
         {
             spark_add_child_node(parameterList, param0.Data()._node, SPARK_THROW_ON_ERROR());
             spark_add_child_node(parameterList, param0.Width._node, SPARK_THROW_ON_ERROR());

@@ -55,6 +55,33 @@ namespace spark
 
         inline
         SPARK_NEVER_INLINE
+        spark_node_t* constant_constructor(spark::shared::Datatype datatype, void* raw, size_t sz)
+        {
+            SPARK_ASSERT(datatype.GetPrimitive() == spark::shared::Primitive::Char ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::UChar ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Short ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::UShort ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Int ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::UInt ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Long ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::ULong ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Float ||
+                         datatype.GetPrimitive() == spark::shared::Primitive::Double);
+
+            const auto dt = static_cast<spark_datatype_t>(datatype);
+            return spark_create_constant_node(dt, raw, sz, SPARK_THROW_ON_ERROR());
+        }
+
+        template<typename T>
+        inline
+        SPARK_FORCE_INLINE
+        spark_node_t* constant_constructor(spark::shared::Datatype datatype, T val)
+        {
+            return constant_constructor(datatype, &val, sizeof(val));
+        }
+
+        inline
+        SPARK_NEVER_INLINE
         spark_node_t* copy_constructor(spark::shared::Datatype datatype, spark_node_t* that)
         {
             const auto dt = static_cast<spark_datatype_t>(datatype);

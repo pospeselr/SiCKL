@@ -4,6 +4,8 @@ namespace spark
 {
     namespace client
     {
+        template<typename T> struct buffer_view1d;
+
         // scalar type wrapper
         template<typename HOST_TYPE>
         struct scalar
@@ -22,6 +24,8 @@ namespace spark
             friend struct property_rw;
             template<typename S>
             friend struct pointer;
+            template<typename>
+            friend struct buffer_view1d;
         protected:
             // node constructor
             SPARK_FORCE_INLINE
@@ -83,13 +87,6 @@ namespace spark
             scalar& operator=(const scalar& that)
             {
                 assignment_operator(this->_node, scalar::type, that._node);
-                return *this;
-            }
-
-            SPARK_FORCE_INLINE
-            scalar& operator=(scalar&& that)
-            {
-                this->_node = that._node;
                 return *this;
             }
 

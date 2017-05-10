@@ -100,13 +100,6 @@ namespace spark
                 return *this;
             }
 
-            SPARK_FORCE_INLINE
-            device_vector4& operator=(device_vector4&& that)
-            {
-                this->_node = that._node;
-                return *this;
-            }
-
             // properties
             union
             {

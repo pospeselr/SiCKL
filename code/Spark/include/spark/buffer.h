@@ -8,60 +8,40 @@ namespace spark
     namespace client
     {
         template<typename T>
-        struct buffer1d
+        struct buffer_view1d
         {
             typedef spark::device_buffer1d<typename T::host_type> host_type;
 
-            // extern constructor
-            buffer1d(extern_construct_t)
+            // extern constuctor
+            buffer_view1d(extern_construct_t)
             : Count(extern_construct)
+            , _stride(constant_constructor<int32_t>(Int::type, 1))
             , _data(extern_construct)
             { }
 
-            // move constructor
-            buffer1d(buffer1d&& other)
+            buffer_view1d(buffer_view1d&& other)
             : Count(std::move(const_cast<Int&>(other.Count)))
+            , _stride(std::move(const_cast<Int&>(other._stride)))
             , _data(std::move(other._data))
-            {
-
-            }
-
-            lvalue<T> operator[](const rvalue<Int>& index)
-            {
-                return _data[index];
-            }
-
-            rvalue<T> operator[](const rvalue<Int>& index) const
-            {
-                return _data[index];
-            }
-
-            rvalue<Pointer<T>> Data()
-            {
-                return rvalue<Pointer<T>>(_data._node);
-            }
-
-            const Int Count;
-        private:
-            Pointer<T> _data;
-        };
-
-        template<typename T>
-        struct buffer_view1d
-        {
-            buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& count)
-            : Count(count)
-            , _stride(1)
-            , _data(buffer.Data())
             { }
 
-            buffer_view1d(buffer1d<T>& buffer, const rvalue<Int>& stride, const rvalue<Int>& count)
+            buffer_view1d(buffer_view1d& buffer, const rvalue<Int>& count)
             : Count(count)
-            , _stride(stride)
-            , _data(buffer.Data())
-            {
+            , _stride(buffer._stride)
+            , _data(buffer._data)
+            { }
 
-            }
+            buffer_view1d(buffer_view1d& buffer, const rvalue<Int>& count, const rvalue<Int>& stride)
+            : Count(count)
+            , _stride(buffer._stride * stride)
+            , _data(buffer._data)
+            { }
+
+            buffer_view1d(buffer_view1d& buffer, const rvalue<Int>& count, const rvalue<Int>& stride, const rvalue<Int>& offset)
+            : Count(count)
+            , _stride(buffer._stride * stride)
+            , _data(buffer._data + (offset * buffer._stride))
+            { }
 
             buffer_view1d(const rvalue<Pointer<T>> head, const rvalue<Int>& count)
             : Count(count)
@@ -109,10 +89,14 @@ namespace spark
                 return _data[_stride * (Count - 1)];
             }
 
-            const rvalue<Int> Count;
+            const Int Count;
         private:
-            const rvalue<Int> _stride;
+            const Int _stride;
             Pointer<T> _data;
+
+            // needed to access private _data member
+            template<typename>
+            friend struct Function;
         };
 
         template<typename T>
@@ -171,31 +155,7 @@ namespace spark
         };
     }
     template<typename T>
-    using Buffer1D = client::buffer1d<T>;
-    template<typename T>
     using Buffer2D = client::buffer2d<T>;
     template<typename T>
     using BufferView1D = client::buffer_view1d<T>;
-
-    template<typename T>
-    spark::client::rvalue<T> Dot(Buffer1D<T>& left, Buffer1D<T>& right)
-    {
-        T result;
-        For(Int i : Range<Int>(0, left.Count))
-        {
-            result = result + left[i] * right[i];
-        }
-        return result;
-    }
-
-    template<typename T>
-    spark::client::rvalue<T> Dot(BufferView1D<T>& left, BufferView1D<T>& right)
-    {
-        T result;
-        For(Int i : Range<Int>(0, left.Count))
-        {
-            result = result + left[i] * right[i];
-        }
-        return result;
-    }
 }
