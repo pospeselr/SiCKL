@@ -89,6 +89,26 @@ namespace spark
                 return _data[_stride * index];
             }
 
+            lvalue<T> First()
+            {
+                return _data[0];
+            }
+
+            rvalue<T> First() const
+            {
+                return _data[0];
+            }
+
+            lvalue<T> Last()
+            {
+                return _data[_stride * (Count - 1)];
+            }
+
+            rvalue<T> Last() const
+            {
+                return _data[_stride * (Count - 1)];
+            }
+
             const rvalue<Int> Count;
         private:
             const rvalue<Int> _stride;
