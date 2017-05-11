@@ -26,7 +26,7 @@ int main() try
     auto height = thistle_get_sample_height(batch, THISTLE_THROW_ON_ERROR());
     auto channels = thistle_get_sample_channels(batch, THISTLE_THROW_ON_ERROR());
 
-    thistle_set_sample_data(batch, buffer.get(), 784 * batch_count, THISTLE_THROW_ON_ERROR());
+    thistle_set_sample_data(batch, 784 * batch_count, buffer.get(), THISTLE_THROW_ON_ERROR());
 
     cout << "batch size : " << size << endl;
     cout << "width      : " << width << endl;
@@ -55,7 +55,7 @@ int main() try
 
     unique_ptr<float[]> transformed(new float[784 * batch_count]);
     memset(transformed.get(), 784 * batch_count * sizeof(float), 0x00);
-    thistle_get_sample_data(batch, transformed.get(), 784 * batch_count , THISTLE_THROW_ON_ERROR());
+    thistle_get_sample_data(transformed_batch, 784 * batch_count, transformed.get(), THISTLE_THROW_ON_ERROR());
 
     for(int i = 0; i < 784 * batch_count; i++)
     {

@@ -41,7 +41,7 @@ RUFF_EXPORT size_t thistle_get_sample_channels(thistle_sample_batch_t* batch, th
     });
 }
 
-RUFF_EXPORT void thistle_get_sample_data(thistle_sample_batch_t* batch, float* buffer, size_t bufferLength, thistle_error_t** error)
+RUFF_EXPORT void thistle_get_sample_data(thistle_sample_batch_t* batch, size_t bufferLength, float* buffer, thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
@@ -53,7 +53,7 @@ RUFF_EXPORT void thistle_get_sample_data(thistle_sample_batch_t* batch, float* b
     });
 }
 
-RUFF_EXPORT void thistle_set_sample_data(thistle_sample_batch* batch, const float* buffer, size_t bufferLength, thistle_error_t** error)
+RUFF_EXPORT void thistle_set_sample_data(thistle_sample_batch* batch, size_t bufferLength, const float* buffer, thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
