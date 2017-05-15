@@ -22,17 +22,17 @@ extern "C" void thistle_free_buffer(thistle_buffer_t* batch, thistle_error_t** e
 
 // node type and functions
 typedef struct thistle_node thistle_node_t;
-extern "C" void thistle_calc_node_output(thistle_node_t* node, const thistle_buffer_t* inputBatch, thistle_buffer_t* outputBatch, thistle_error_t** error);
-extern "C" size_t thistle_get_node_parameters_count(thistle_node_t* node, thistle_error_t** error);
-extern "C" void thistle_calc_node_parameter_deltas(thistle_node_t* node, thistle_buffer_t* inputs, thistle_buffer_t* outputDeltas, thistle_buffer_t* paramDeltas, thistle_buffer_t* constants, thistle_error_t** error);
-extern "C" void thistle_calc_node_input_deltas(thistle_node_t* node, thistle_buffer_t* inputs, thistle_buffer_t* inputDeltas, thistle_buffer_t* constants, thistle_error_t** error);
+extern "C" size_t thistle_get_node_parameters_count(const thistle_node_t* node, thistle_error_t** error);
+extern "C" void thistle_calc_node_output(const thistle_node_t* node, const thistle_buffer_t* inputBatch, const thistle_buffer_t* constants, thistle_buffer_t* outputBatch, thistle_error_t** error);
+extern "C" void thistle_calc_node_parameter_deltas(const thistle_node_t* node, const thistle_buffer_t* inputs, const thistle_buffer_t* outputDeltas, const thistle_buffer_t* constants,  thistle_buffer_t* paramDeltas, thistle_error_t** error);
+extern "C" void thistle_calc_node_input_deltas(const thistle_node_t* node, const thistle_buffer_t* inputs, const thistle_buffer_t* outputDeltas, const thistle_buffer_t* constants, thistle_buffer_t* inptuDeltas, thistle_error_t** error);
 
 // construction functions for various node types
 extern "C" thistle_node_t* thistle_create_linear_transform_node(size_t inputs, size_t outputs, const float* weights, size_t weight_count, thistle_error_t** error);
 typedef enum thistle_cost_function
 {
-    square_difference,
-    cross_entropy,
+    square_difference = 0,
+    cross_entropy     = 1,
 } thistle_cost_function_t;
 extern "C" thistle_node_t* thistle_create_label_node(size_t labelCount, thistle_cost_function_t costFunction, thistle_error_t** error);
 

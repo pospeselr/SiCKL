@@ -11,7 +11,8 @@ add_library(thistle SHARED
     thistle_error.cpp
     thistle_buffer.cpp
     thistle_node.cpp
-    thistle_linear_transform_node.cpp)
+    thistle_linear_transform_node.cpp
+    thistle_label_node.cpp)
 
 target_link_libraries(thistle spark)
 

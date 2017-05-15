@@ -54,7 +54,7 @@ int main() try
     cout << "parameters : " << parameterCount << endl;
     auto deltaBuffer = thistle_create_flat_buffer(parameterCount, nullptr, THISTLE_THROW_ON_ERROR());
 
-    thistle_calc_node_output(transform_node, batch, transformed_batch, THISTLE_THROW_ON_ERROR());
+    thistle_calc_node_output(transform_node, batch, nullptr, transformed_batch, THISTLE_THROW_ON_ERROR());
 
     unique_ptr<float[]> transformed(new float[784 * batch_count]);
     memset(transformed.get(), 784 * batch_count * sizeof(float), 0x00);
