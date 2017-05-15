@@ -4,6 +4,9 @@
 #include <cstddef>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
+#define LOG_VAL(X) std::cout << #X " : " << (X) << std::endl
+
 
 // ruff
 #include <ruff.h>

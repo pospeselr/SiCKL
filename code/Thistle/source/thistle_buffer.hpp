@@ -1,13 +1,13 @@
 #pragma once
 
-struct thistle_sample_batch
+struct thistle_buffer
 {
-    thistle_sample_batch(
+    thistle_buffer(
         size_t sampleWidth,
         size_t sampleHeight,
         size_t sampleChannels,
         size_t batchSize,
-        float* dataBuffer)
+        const float* dataBuffer)
     : sample_width(sampleWidth)
     , sample_height(sampleHeight)
     , sample_channels(sampleChannels)
@@ -27,4 +27,4 @@ struct thistle_sample_batch
 
     spark::device_buffer1d<float> data;
 };
-typedef thistle_sample_batch thistle_sample_batch_t;
+typedef thistle_buffer thistle_buffer_t;

@@ -9,7 +9,7 @@ add_compile_options(-fvisibility=hidden)
 add_library(thistle SHARED
     thistle.cpp
     thistle_error.cpp
-    thistle_sample_batch.cpp
+    thistle_buffer.cpp
     thistle_node.cpp
     thistle_linear_transform_node.cpp)
 

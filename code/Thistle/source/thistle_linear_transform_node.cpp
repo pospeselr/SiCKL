@@ -1,14 +1,11 @@
 #include "thistle.hpp"
 
 #include "thistle_error.hpp"
-#include "thistle_sample_batch.hpp"
+#include "thistle_buffer.hpp"
 #include "thistle_node.hpp"
 #include "thistle_linear_transform_node.hpp"
 
 using ruff::translate_exceptions;
-
-#include <iostream>
-#define LOG_VAL(X) std::cout << #X " : " << (X) << std::endl
 
 thistle_linear_transform_node::thistle_linear_transform_node(
     size_t inputs,
@@ -27,14 +24,15 @@ thistle_linear_transform_node::thistle_linear_transform_node(
         BufferView1D<Float> feature = weights[feature_idx];
         BufferView1D<Float> input = input_buffer[batch_idx];
 
-        // init to bias
-        Float sum = feature.Last();
+        Float sum = 0.0f;
         For(Int j : Range<Int>(0, inputs))
         {
             Float x_j = input[j];
             Float w_ij = feature[j];
             sum = sum + (x_j * w_ij);
         }
+        // finally add bias
+        sum = sum + feature.Last();
 
         output_buffer[idx] = sum;
     });
@@ -44,7 +42,12 @@ thistle_linear_transform_node::thistle_linear_transform_node(
     RUFF_THROW_IF_FALSE(weight_count == ((inputs + 1) * outputs));
 }
 
-void thistle_linear_transform_node::calc_output(const thistle_sample_batch_t* inputBatch, thistle_sample_batch_t* outputBatch) const
+size_t thistle_linear_transform_node::get_parameter_count() const
+{
+    return _weights.count();
+}
+
+void thistle_linear_transform_node::calc_output(const thistle_buffer_t* inputBatch, thistle_buffer_t* outputBatch) const
 {
     RUFF_THROW_IF_FALSE(inputBatch->batch_size == outputBatch->batch_size);
     RUFF_THROW_IF_FALSE(inputBatch->sample_size() == this->inputs());
@@ -58,6 +61,14 @@ void thistle_linear_transform_node::calc_output(const thistle_sample_batch_t* in
     device_buffer2d<float> input_buffer(inputBatch->sample_size(), inputBatch->batch_size, inputBatch->data);
     device_buffer2d<float> output_buffer(outputBatch->sample_size(), outputBatch->batch_size, outputBatch->data);
     _kernel(_weights, input_buffer, output_buffer);
+}
+
+void thistle_linear_transform_node::calc_parameter_deltas(
+    const thistle_buffer_t* iputBatch,
+    const thistle_buffer_t* outputBatchDelta,
+    thistle_buffer_t* parameterDeltas) const
+{
+
 }
 
 RUFF_EXPORT thistle_node_t* thistle_create_linear_transform_node(size_t inputs, size_t outputs, const float* weights, size_t weight_count, thistle_error_t** error)
