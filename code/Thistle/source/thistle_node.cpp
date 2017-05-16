@@ -55,14 +55,14 @@ RUFF_EXPORT void thistle_calc_node_input_deltas(
     const thistle_buffer_t* inputs,
     const thistle_buffer_t* outputDeltas,
     const thistle_buffer_t* constants,
-    thistle_buffer_t* inptuDeltas,
+    thistle_buffer_t* inputDeltas,
     thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(node);
 
-        node->calc_parameter_deltas(inputs, outputDeltas, constants, inptuDeltas);
+        node->calc_input_deltas(inputs, outputDeltas, constants, inputDeltas);
     });
 }
 

@@ -20,3 +20,5 @@
 #include <spark.h>
 using namespace spark;
 
+// thistle published header
+#include <thistle.h>
