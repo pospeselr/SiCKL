@@ -98,5 +98,5 @@ namespace ruff
     while(false)
 
 #define RUFF_THROW_IF_NULL(X) RUFF_THROW_IF_FALSE((X) != nullptr)
-
+#define RUFF_THROW_IF_NOT_NULL(X) RUFF_THROW_IF_FALSE(X == nullptr)
 }
