@@ -19,7 +19,7 @@ struct thistle_node
         const thistle_buffer_t* inputBatch,
         const thistle_buffer_t* outputBatchDeltas,
         const thistle_buffer_t* constants,
-        thistle_buffer_t* inputDeltas) const = 0;
+        thistle_buffer_t* inputBatchDeltas) const = 0;
 };
 typedef thistle_node thistle_node_t;
 

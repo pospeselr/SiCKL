@@ -104,39 +104,40 @@ void thistle_label_node::calc_parameter_deltas(
     const thistle_buffer_t* constants,
     thistle_buffer_t* parameterDeltas) const
 {
-
+    // no-op
 }
 
 void thistle_label_node::calc_input_deltas(
     const thistle_buffer_t* inputBatch,
     const thistle_buffer_t* outputBatchDelta,
     const thistle_buffer_t* constants,
-    thistle_buffer_t* inputDeltas) const
+    thistle_buffer_t* inputBatchDeltas) const
 {
     // validate pointers
     RUFF_THROW_IF_NULL(inputBatch);
     RUFF_THROW_IF_FALSE(outputBatchDelta == nullptr);
     RUFF_THROW_IF_FALSE(constants);
-    RUFF_THROW_IF_NULL(inputDeltas);
+    RUFF_THROW_IF_NULL(inputBatchDeltas);
 
     // validate input
     RUFF_THROW_IF_FALSE(inputBatch->sample_size() == constants->sample_size());
-    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == inputDeltas->sample_size());
+    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == inputBatchDeltas->sample_size());
     // batch sizes
     RUFF_THROW_IF_FALSE(inputBatch->batch_size == constants->batch_size);
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == inputDeltas->batch_size);
+    RUFF_THROW_IF_FALSE(inputBatch->batch_size == inputBatchDeltas->batch_size);
+
     const auto batchSize = inputBatch->batch_size;
     // label dimensions
     RUFF_THROW_IF_FALSE(inputBatch->sample_width == constants->sample_width);
     RUFF_THROW_IF_FALSE(inputBatch->sample_height == constants->sample_height);
     RUFF_THROW_IF_FALSE(inputBatch->sample_channels == constants->sample_channels);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_width == inputDeltas->sample_width);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_height == inputDeltas->sample_height);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_channels == inputDeltas->sample_channels);
+    RUFF_THROW_IF_FALSE(inputBatch->sample_width == inputBatchDeltas->sample_width);
+    RUFF_THROW_IF_FALSE(inputBatch->sample_height == inputBatchDeltas->sample_height);
+    RUFF_THROW_IF_FALSE(inputBatch->sample_channels == inputBatchDeltas->sample_channels);
 
     device_buffer2d<float> input_buffer(this->labels, batchSize, inputBatch->data);
     device_buffer2d<float> label_buffer(this->labels, batchSize, constants->data);
-    device_buffer2d<float> input_delta_buffer(this->labels, batchSize, inputDeltas->data);
+    device_buffer2d<float> input_delta_buffer(this->labels, batchSize, inputBatchDeltas->data);
 
     _calc_input_deltas_kernel.set_work_dimensions(this->labels, batchSize);
     _calc_input_deltas_kernel(input_buffer, label_buffer, input_delta_buffer);

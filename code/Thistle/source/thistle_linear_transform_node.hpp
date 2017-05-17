@@ -24,7 +24,7 @@ struct thistle_linear_transform_node : public thistle_node
         const thistle_buffer_t* inputBatch,
         const thistle_buffer_t* outputBatchDeltas,
         const thistle_buffer_t* constants,
-        thistle_buffer_t* inputDeltas) const override;
+        thistle_buffer_t* inputBatchDeltas) const override;
 
     // helper methods
     size_t inputs() const {return _weights.width() - 1;}    // bias not included
@@ -34,4 +34,6 @@ struct thistle_linear_transform_node : public thistle_node
 private:
     device_buffer2d<float> _weights;
     mutable Kernel<Void(Buffer2D<Float>, Buffer2D<Float>, Buffer2D<Float>)> _calc_output_kernel;
+    mutable Kernel<Void(Buffer2D<Float>, Buffer2D<Float>, Buffer2D<Float>)> _calc_parameter_deltas_kernel;
+    mutable Kernel<Void(Buffer2D<Float>, Buffer2D<Float>, Buffer2D<Float>)> _calc_input_deltas_kernel;
 };

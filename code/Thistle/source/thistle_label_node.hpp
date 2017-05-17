@@ -21,7 +21,7 @@ struct thistle_label_node : public thistle_node
         const thistle_buffer_t* inputBatch,
         const thistle_buffer_t* outputBatchDeltas,
         const thistle_buffer_t* constants,
-        thistle_buffer_t* inputDeltas) const override;
+        thistle_buffer_t* inputBatchDeltas) const override;
 
     const size_t labels;
     const thistle_cost_function_t cost_function;
