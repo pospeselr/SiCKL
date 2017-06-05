@@ -120,9 +120,5 @@ namespace spark
     private:
         const size_t _width;
         const size_t _height;
-
-        template<typename F>
-        friend struct Kernel;
-//        friend struct device_buffer1d<T>;
     };
 }
