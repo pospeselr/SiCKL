@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 typedef struct thistle_error thistle_error_t;
 extern "C" void thistle_free_error(thistle_error_t*);
@@ -23,9 +23,11 @@ extern "C" void thistle_free_buffer(thistle_buffer_t* batch, thistle_error_t** e
 // node type and functions
 typedef struct thistle_node thistle_node_t;
 extern "C" size_t thistle_get_node_parameters_count(const thistle_node_t* node, thistle_error_t** error);
+extern "C" void thistle_get_node_parameters(const thistle_node_t* node, size_t bufferLength, float* dest, thistle_error_t** error);
 extern "C" void thistle_calc_node_output(const thistle_node_t* node, const thistle_buffer_t* inputBatch, const thistle_buffer_t* constants, thistle_buffer_t* outputBatch, thistle_error_t** error);
 extern "C" void thistle_calc_node_parameter_deltas(const thistle_node_t* node, const thistle_buffer_t* inputs, const thistle_buffer_t* outputDeltas, const thistle_buffer_t* constants,  thistle_buffer_t* paramDeltas, thistle_error_t** error);
 extern "C" void thistle_calc_node_input_deltas(const thistle_node_t* node, const thistle_buffer_t* inputs, const thistle_buffer_t* outputDeltas, const thistle_buffer_t* constants, thistle_buffer_t* inputDeltas, thistle_error_t** error);
+extern "C" void thistle_free_node(thistle_node_t* node, thistle_error_t** error);
 
 // construction functions for various node types
 extern "C" thistle_node_t* thistle_create_linear_transform_node(size_t inputs, size_t outputs, const float* weights, size_t weight_count, thistle_error_t** error);
@@ -35,6 +37,15 @@ typedef enum thistle_cost_function
     thistle_cross_entropy     = 1,
 } thistle_cost_function_t;
 extern "C" thistle_node_t* thistle_create_label_node(size_t labelCount, thistle_cost_function_t costFunction, thistle_error_t** error);
+
+// thistle_paramter_updater type and functions
+typedef struct thistle_parameter_updater thistle_parameter_updater_t;
+extern "C" void thistle_update_node_parameters(const thistle_parameter_updater_t* updater, thistle_node_t* node, const thistle_buffer_t* paramDeltas, thistle_error_t** error);
+extern "C" void thistle_free_parameter_updater(thistle_parameter_updater_t* udater, thistle_error_t** error);
+
+// construction functions for various parameter updater types
+extern "C" thistle_parameter_updater_t* thistle_create_sgd_parameter_updater(size_t parameterCount, thistle_error_t** error);
+extern "C" void thistle_set_sgd_parameter_updater_hyperparameters(thistle_parameter_updater_t* updater, float learningRate, float momentum, thistle_error_t** error);
 
 // C++ helpers
 #ifdef __cplusplus

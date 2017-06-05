@@ -6,8 +6,11 @@ struct thistle_label_node : public thistle_node
         size_t labels,
         thistle_cost_function_t costFunction);
 
+    ~thistle_label_node() = default;
+
     // thistle_node interface
     size_t get_parameter_count() const override;
+    device_buffer1d<float>* get_parameter_buffer() override;
     void calc_output(
         const thistle_buffer_t* inputBatch,
         const thistle_buffer_t* constants,

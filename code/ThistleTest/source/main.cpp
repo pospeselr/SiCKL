@@ -71,9 +71,10 @@ void verify_linear_transform_output()
 
 void verify_label_learning_signal()
 {
-    const size_t input_count = 13;
+    const size_t input_count = 29;
     const size_t output_count = 1;
-    const size_t weight_count = (13 + 1) * output_count;
+    const size_t weight_count = (input_count + 1) * output_count;
+    const size_t batch_count = 59;
 
     auto init_buffer = [](auto& buffer, float min, float max)
     {
@@ -89,85 +90,97 @@ void verify_label_learning_signal()
     float initial_weights[weight_count];
     init_buffer(initial_weights, -1.0f, 1.0f);
 
-    float input_vector[input_count];
+    float input_vector[input_count * batch_count];
     init_buffer(input_vector, 0.0f, 1.0f);
 
-    float label_vector[output_count];
-    float true_product = true_weights[input_count];
+    float label_vector[output_count * batch_count];
     float initial_product = initial_weights[input_count];
     float error;
     float output_delta;
     {
-        for(size_t k = 0; k < input_count; k++)
+        for(size_t j = 0; j < batch_count; j++)
         {
-            float& input_k = input_vector[k];
+            float true_product = true_weights[input_count];
+            for(size_t k = 0; k < input_count; k++)
+            {
+                float& input_k = input_vector[k + j * input_count];
 
-            float& tw_k = true_weights[k];
-            true_product += input_k * tw_k;
-
-            float& iw_k = initial_weights[k];
-            initial_product += input_k * iw_k;
+                float& tw_k = true_weights[k];
+                true_product += input_k * tw_k;
+            }
+            label_vector[j] = true_product;
+            cout << "label_vector[" << j << "] : " << true_product << endl;
         }
-        label_vector[0] = true_product;
-
-        cout << "Truth : " << true_product << endl;
-        cout << "Initial : " << initial_product << endl;
-        float diff = initial_product - true_product;
-        error = diff * diff;
-        cout << "Square Error: " << error << endl;
-
-        output_delta = -2.0f * diff;
-
-        cout << "Output Delta: " << output_delta << endl;
     }
 
-    auto input_batch = thistle_create_sample_buffer(input_count, 1, 1, 1, input_vector, THISTLE_THROW_ON_ERROR());
-    auto output_batch = thistle_create_sample_buffer(output_count, 1, 1, 1, nullptr, THISTLE_THROW_ON_ERROR());
-    auto label_batch = thistle_create_sample_buffer(output_count, 1, 1, 1, label_vector, THISTLE_THROW_ON_ERROR());
-    auto error_batch = thistle_create_sample_buffer(1, 1, 1, 1, nullptr, THISTLE_THROW_ON_ERROR());
-    auto label_delta_batch = thistle_create_sample_buffer(output_count, 1, 1, 1, nullptr, THISTLE_THROW_ON_ERROR());
+    auto input_batch = thistle_create_sample_buffer(input_count, 1, 1, batch_count, input_vector, THISTLE_THROW_ON_ERROR());
+    auto output_batch = thistle_create_sample_buffer(output_count, 1, 1, batch_count, nullptr, THISTLE_THROW_ON_ERROR());
+    auto label_batch = thistle_create_sample_buffer(output_count, 1, 1, batch_count, label_vector, THISTLE_THROW_ON_ERROR());
+    auto error_batch = thistle_create_sample_buffer(1, 1, 1, batch_count, nullptr, THISTLE_THROW_ON_ERROR());
+    auto label_delta_batch = thistle_create_sample_buffer(output_count, 1, 1, batch_count, nullptr, THISTLE_THROW_ON_ERROR());
     auto parameter_delta_buffer = thistle_create_flat_buffer(weight_count, nullptr, THISTLE_THROW_ON_ERROR());
 
     // create nodes
     auto transform_node = thistle_create_linear_transform_node(input_count, output_count, initial_weights, weight_count, THISTLE_THROW_ON_ERROR());
     auto label_node = thistle_create_label_node(output_count, thistle_square_difference, THISTLE_THROW_ON_ERROR());
 
-    // feedforward!
-    thistle_calc_node_output(transform_node, input_batch, nullptr, output_batch, THISTLE_THROW_ON_ERROR());
-    float calculated_initial;
-    thistle_get_buffer_data(output_batch, 1, &calculated_initial, THISTLE_THROW_ON_ERROR());
+    // set and init weight updater
+    auto weight_updater = thistle_create_sgd_parameter_updater(weight_count, THISTLE_THROW_ON_ERROR());
 
-    // verify dot product calculation
-    cout << "Calculated Initial: " << calculated_initial << endl;
-    RUFF_ASSERT(calculated_initial == initial_product);
+    float learningRate = 0.01f;
+    float momentum = 0.5f;
 
-    // calculate square error
-    thistle_calc_node_output(label_node, output_batch, label_batch, error_batch, THISTLE_THROW_ON_ERROR());
-    float calculated_error;
-    thistle_get_buffer_data(error_batch, 1, &calculated_error, THISTLE_THROW_ON_ERROR());
-
-    // verify error calculation
-    cout << "Calculated Error: " << calculated_error << endl;
-    RUFF_ASSERT(calculated_error == error);
-
-    // calculate label error derivatives
-    thistle_calc_node_input_deltas(label_node, output_batch, nullptr, label_batch, label_delta_batch, THISTLE_THROW_ON_ERROR());
-    float calculated_output_delta;
-    thistle_get_buffer_data(label_delta_batch, output_count, &calculated_output_delta, THISTLE_THROW_ON_ERROR());
-    cout << "Calculated Label Delta: " << calculated_output_delta << endl;
-    RUFF_ASSERT(calculated_output_delta == output_delta);
-
-    // calculate weight matrix derivatives
-    thistle_calc_node_parameter_deltas(transform_node, input_batch, label_delta_batch, nullptr, parameter_delta_buffer, THISTLE_THROW_ON_ERROR());
-    float calculated_weight_deltas[weight_count];
-    thistle_get_buffer_data(parameter_delta_buffer, weight_count, calculated_weight_deltas, THISTLE_THROW_ON_ERROR());
-
-    cout << "True, Initial, Delta" << endl;
-    for(size_t k = 0; k < weight_count; k++)
+    for(int k = 0; k < 12000; k++)
     {
-        cout << true_weights[k] << ", " << initial_weights[k] << ", " << calculated_weight_deltas[k] << endl;
+        if((k + 0) % 200 == 0)
+        {
+            learningRate *= 0.99f;
+
+            thistle_set_sgd_parameter_updater_hyperparameters(weight_updater, learningRate, momentum, THISTLE_THROW_ON_ERROR());
+        }
+
+        cout << "LearningRate: " << learningRate << endl;
+        // feedforward!
+        thistle_calc_node_output(transform_node, input_batch, nullptr, output_batch, THISTLE_THROW_ON_ERROR());
+
+        // calculate square error
+        thistle_calc_node_output(label_node, output_batch, label_batch, error_batch, THISTLE_THROW_ON_ERROR());
+        float calculated_error[batch_count];
+        thistle_get_buffer_data(error_batch, batch_count, calculated_error, THISTLE_THROW_ON_ERROR());
+
+        float average_error = 0.0f;
+        for(float f : calculated_error)
+        {
+            average_error += f;
+        }
+        average_error /= batch_count;
+
+        // verify error calculation
+        cout << "Average Error: " << average_error << endl;
+
+        // calculate label error derivatives
+        thistle_calc_node_input_deltas(label_node, output_batch, nullptr, label_batch, label_delta_batch, THISTLE_THROW_ON_ERROR());
+
+        // calculate weight matrix derivatives
+        thistle_calc_node_parameter_deltas(transform_node, input_batch, label_delta_batch, nullptr, parameter_delta_buffer, THISTLE_THROW_ON_ERROR());
+        float calculated_weight_deltas[weight_count];
+        thistle_get_buffer_data(parameter_delta_buffer, weight_count, calculated_weight_deltas, THISTLE_THROW_ON_ERROR());
+
+        float current_weights[weight_count];
+        thistle_get_node_parameters(transform_node, weight_count, current_weights, THISTLE_THROW_ON_ERROR());
+
+        cout << "True, Current, Delta" << endl;
+        for(size_t k = 0; k < weight_count; k++)
+        {
+            cout << true_weights[k] << ", " << current_weights[k] << ", " << calculated_weight_deltas[k] << endl;
+        }
+
+        thistle_update_node_parameters(weight_updater, transform_node, parameter_delta_buffer, THISTLE_THROW_ON_ERROR());
+
+        cout << "----" << endl;
     }
 
+    thistle_free_parameter_updater(weight_updater, THISTLE_THROW_ON_ERROR());
 }
 
 int main() try

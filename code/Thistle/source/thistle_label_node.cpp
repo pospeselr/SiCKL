@@ -67,6 +67,11 @@ size_t thistle_label_node::get_parameter_count() const
     return 0;
 }
 
+device_buffer1d<float>* thistle_label_node::get_parameter_buffer()
+{
+    return nullptr;
+}
+
 void thistle_label_node::calc_output(
     const thistle_buffer_t* inputBatch,
     const thistle_buffer_t* labelBatch,

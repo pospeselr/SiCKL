@@ -2,7 +2,11 @@
 
 struct thistle_node
 {
+    virtual ~thistle_node() = default;
+
     virtual size_t get_parameter_count() const = 0;
+
+    virtual device_buffer1d<float>* get_parameter_buffer() = 0;
 
     virtual void calc_output(
         const thistle_buffer_t* inputBatch,
