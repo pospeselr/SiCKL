@@ -129,6 +129,11 @@ device_buffer1d<float>* thistle_linear_transform_node::get_parameter_buffer()
     return &_weights;
 }
 
+const device_buffer1d<float>* thistle_linear_transform_node::get_parameter_buffer() const
+{
+    return &_weights;
+}
+
 void thistle_linear_transform_node::calc_output(
     const thistle_buffer_t* inputBatch,
     const thistle_buffer_t* constants,

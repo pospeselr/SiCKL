@@ -72,6 +72,11 @@ device_buffer1d<float>* thistle_label_node::get_parameter_buffer()
     return nullptr;
 }
 
+const device_buffer1d<float>* thistle_label_node::get_parameter_buffer() const
+{
+    return nullptr;
+}
+
 void thistle_label_node::calc_output(
     const thistle_buffer_t* inputBatch,
     const thistle_buffer_t* labelBatch,

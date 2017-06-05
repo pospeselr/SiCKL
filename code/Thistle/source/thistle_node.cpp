@@ -31,7 +31,7 @@ RUFF_EXPORT void thistle_get_node_parameters(
         RUFF_THROW_IF_FALSE(node->get_parameter_count() == bufferLength);
         RUFF_THROW_IF_NULL(dest);
 
-        auto paramBuffer = const_cast<thistle_node_t*>(node)->get_parameter_buffer();
+        auto paramBuffer = node->get_parameter_buffer();
         paramBuffer->read(bufferLength, dest);
     });
 }

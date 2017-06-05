@@ -11,6 +11,7 @@ struct thistle_label_node : public thistle_node
     // thistle_node interface
     size_t get_parameter_count() const override;
     device_buffer1d<float>* get_parameter_buffer() override;
+    const device_buffer1d<float>* get_parameter_buffer() const override;
     void calc_output(
         const thistle_buffer_t* inputBatch,
         const thistle_buffer_t* constants,
