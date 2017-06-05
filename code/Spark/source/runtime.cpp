@@ -42,6 +42,7 @@ namespace spark
             spark_buffer(size_t size, const void* data);
             void write(size_t offset, size_t bytes, const void* data);
             void read(size_t offset, size_t bytes, void* dest) const;
+            void zero(size_t offset, size_t bytes);
 
             unique_cl_mem _mem;
         };
@@ -154,7 +155,13 @@ namespace spark
             cl_mem_flags memFlags = (data == nullptr) ? CL_MEM_READ_WRITE : (CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR);
             cl_mem clMem = ::clCreateBuffer(currentContext->context.get(), memFlags, size, const_cast<void*>(data), &createBufferError);
             THROW_IF_OPENCL_FAILED(createBufferError);
+            // attach cl_mem
             this->_mem.reset(clMem);
+            // zero fill
+            if(data == nullptr)
+            {
+                zero(0, size);
+            }
         }
 
         void spark_buffer::write(size_t offset, size_t bytes, const void* data)
@@ -170,10 +177,7 @@ namespace spark
             // zero out buffer
             else
             {
-                uint8_t zero = 0;
-                cl_event event;
-                THROW_IF_OPENCL_FAILED(::clEnqueueFillBuffer(currentContext->command_queue.get(), this->_mem.get(), &zero, sizeof(zero), offset, bytes, 0, nullptr, &event));
-                THROW_IF_OPENCL_FAILED(::clWaitForEvents(1, &event));
+                zero(offset, bytes);
             }
         }
 
@@ -183,6 +187,17 @@ namespace spark
             THROW_IF_NULL(currentContext);
 
             THROW_IF_OPENCL_FAILED(::clEnqueueReadBuffer(currentContext->command_queue.get(), const_cast<cl_mem>(this->_mem.get()), CL_TRUE, offset, bytes, dest, 0, nullptr, nullptr));
+        }
+
+        void spark_buffer::zero(size_t offset, size_t bytes)
+        {
+            auto currentContext = spark_context::current;
+            THROW_IF_NULL(currentContext);
+
+            uint8_t zero = 0;
+            cl_event event;
+            THROW_IF_OPENCL_FAILED(::clEnqueueFillBuffer(currentContext->command_queue.get(), this->_mem.get(), &zero, sizeof(zero), offset, bytes, 0, nullptr, &event));
+            THROW_IF_OPENCL_FAILED(::clWaitForEvents(1, &event));
         }
     }
 }
@@ -251,14 +266,15 @@ RUFF_EXPORT spark_kernel_t* spark_create_kernel(spark_node_t* kernel_root, spark
             THROW_IF_FALSE(kernel_root->_type == spark::lib::spark_nodetype::control);
             THROW_IF_FALSE(kernel_root->_control == spark::shared::Control::Root);
 
+#if 0
             auto len = generateSourceTree(kernel_root, nullptr, 0);
             string sourceTree(len - 1, 0);
             generateSourceTree(kernel_root, const_cast<char*>(sourceTree.data()), len);
 
             printf("%s\n", sourceTree.c_str());
-
+#endif
             // generates opencl source from AST
-            len = generateOpenCLSource(kernel_root, nullptr, 0);
+            auto len = generateOpenCLSource(kernel_root, nullptr, 0);
             string openclSource(len - 1, 0);
             generateOpenCLSource(kernel_root, const_cast<char*>(openclSource.data()), len);
 
