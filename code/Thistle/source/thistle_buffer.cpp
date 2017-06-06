@@ -5,39 +5,39 @@
 
 using ruff::translate_exceptions;
 
-RUFF_EXPORT size_t thistle_get_buffer_batch_size(thistle_buffer_t* buffer, thistle_error_t** error)
+RUFF_EXPORT size_t thistle_get_buffer_element_count(thistle_buffer_t* buffer, thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(buffer);
-        return buffer->batch_size;
+        return buffer->element_count;
     });
 }
 
-RUFF_EXPORT size_t thistle_get_buffer_sample_width(thistle_buffer_t* buffer, thistle_error_t** error)
+RUFF_EXPORT size_t thistle_get_buffer_element_width(thistle_buffer_t* buffer, thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(buffer);
-        return buffer->sample_width;
+        return buffer->element_width;
     });
 }
 
-RUFF_EXPORT size_t thistle_get_buffer_sample_height(thistle_buffer_t* buffer, thistle_error_t** error)
+RUFF_EXPORT size_t thistle_get_buffer_element_height(thistle_buffer_t* buffer, thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(buffer);
-        return buffer->sample_height;
+        return buffer->element_height;
     });
 }
 
-RUFF_EXPORT size_t thistle_get_buffer_sample_channels(thistle_buffer_t* buffer, thistle_error_t** error)
+RUFF_EXPORT size_t thistle_get_buffer_element_channels(thistle_buffer_t* buffer, thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(buffer);
-        return buffer->sample_channels;
+        return buffer->element_channels;
     });
 }
 

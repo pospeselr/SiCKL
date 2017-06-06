@@ -19,10 +19,10 @@ void verify_linear_transform_output()
     }
 
     auto batch = thistle_create_sample_buffer(28, 28, 1, batch_count, nullptr, THISTLE_THROW_ON_ERROR());
-    auto size = thistle_get_buffer_batch_size(batch, THISTLE_THROW_ON_ERROR());
-    auto width = thistle_get_buffer_sample_width(batch, THISTLE_THROW_ON_ERROR());
-    auto height = thistle_get_buffer_sample_height(batch, THISTLE_THROW_ON_ERROR());
-    auto channels = thistle_get_buffer_sample_channels(batch, THISTLE_THROW_ON_ERROR());
+    auto size = thistle_get_buffer_element_count(batch, THISTLE_THROW_ON_ERROR());
+    auto width = thistle_get_buffer_element_width(batch, THISTLE_THROW_ON_ERROR());
+    auto height = thistle_get_buffer_element_height(batch, THISTLE_THROW_ON_ERROR());
+    auto channels = thistle_get_buffer_element_channels(batch, THISTLE_THROW_ON_ERROR());
 
     thistle_set_buffer_data(batch, 784 * batch_count, buffer.get(), THISTLE_THROW_ON_ERROR());
 

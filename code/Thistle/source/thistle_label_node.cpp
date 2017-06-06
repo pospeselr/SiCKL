@@ -83,18 +83,18 @@ void thistle_label_node::calc_output(
     RUFF_THROW_IF_NULL(outputBatch);
 
     // validate input
-    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == this->labels);
-    RUFF_THROW_IF_FALSE(labelBatch->sample_size() == this->labels);
+    RUFF_THROW_IF_FALSE(inputBatch->element_size() == this->labels);
+    RUFF_THROW_IF_FALSE(labelBatch->element_size() == this->labels);
     // batch sizes
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == labelBatch->batch_size);
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == outputBatch->batch_size);
-    const auto batchSize = inputBatch->batch_size;
+    RUFF_THROW_IF_FALSE(inputBatch->element_count == labelBatch->element_count);
+    RUFF_THROW_IF_FALSE(inputBatch->element_count == outputBatch->element_count);
+    const auto batchSize = inputBatch->element_count;
     // label dimensions
-    RUFF_THROW_IF_FALSE(inputBatch->sample_width == labelBatch->sample_width);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_height == labelBatch->sample_height);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_channels == labelBatch->sample_channels);
+    RUFF_THROW_IF_FALSE(inputBatch->element_width == labelBatch->element_width);
+    RUFF_THROW_IF_FALSE(inputBatch->element_height == labelBatch->element_height);
+    RUFF_THROW_IF_FALSE(inputBatch->element_channels == labelBatch->element_channels);
     // output gets squished to 1 dimension
-    RUFF_THROW_IF_FALSE(outputBatch->sample_size() == 1);
+    RUFF_THROW_IF_FALSE(outputBatch->element_size() == 1);
 
     device_buffer2d<float> input_buffer(this->labels, batchSize, inputBatch->data);
     device_buffer2d<float> label_buffer(this->labels, batchSize, labelBatch->data);
@@ -125,20 +125,20 @@ void thistle_label_node::calc_input_deltas(
     RUFF_THROW_IF_NULL(inputBatchDeltas);
 
     // validate input
-    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == constants->sample_size());
-    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == inputBatchDeltas->sample_size());
+    RUFF_THROW_IF_FALSE(inputBatch->element_size() == constants->element_size());
+    RUFF_THROW_IF_FALSE(inputBatch->element_size() == inputBatchDeltas->element_size());
     // batch sizes
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == constants->batch_size);
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == inputBatchDeltas->batch_size);
+    RUFF_THROW_IF_FALSE(inputBatch->element_count == constants->element_count);
+    RUFF_THROW_IF_FALSE(inputBatch->element_count == inputBatchDeltas->element_count);
 
-    const auto batchSize = inputBatch->batch_size;
+    const auto batchSize = inputBatch->element_count;
     // label dimensions
-    RUFF_THROW_IF_FALSE(inputBatch->sample_width == constants->sample_width);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_height == constants->sample_height);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_channels == constants->sample_channels);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_width == inputBatchDeltas->sample_width);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_height == inputBatchDeltas->sample_height);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_channels == inputBatchDeltas->sample_channels);
+    RUFF_THROW_IF_FALSE(inputBatch->element_width == constants->element_width);
+    RUFF_THROW_IF_FALSE(inputBatch->element_height == constants->element_height);
+    RUFF_THROW_IF_FALSE(inputBatch->element_channels == constants->element_channels);
+    RUFF_THROW_IF_FALSE(inputBatch->element_width == inputBatchDeltas->element_width);
+    RUFF_THROW_IF_FALSE(inputBatch->element_height == inputBatchDeltas->element_height);
+    RUFF_THROW_IF_FALSE(inputBatch->element_channels == inputBatchDeltas->element_channels);
 
     device_buffer2d<float> input_buffer(this->labels, batchSize, inputBatch->data);
     device_buffer2d<float> label_buffer(this->labels, batchSize, constants->data);

@@ -9,10 +9,10 @@ extern "C" void thistle_end_session(thistle_error_t**);
 
 // thistle buffer type and functions
 typedef struct thistle_buffer thistle_buffer_t;
-extern "C" size_t thistle_get_buffer_batch_size(thistle_buffer_t* buffer, thistle_error_t** error);
-extern "C" size_t thistle_get_buffer_sample_width(thistle_buffer_t* buffer, thistle_error_t** error);
-extern "C" size_t thistle_get_buffer_sample_height(thistle_buffer_t* buffer, thistle_error_t** error);
-extern "C" size_t thistle_get_buffer_sample_channels(thistle_buffer_t* buffer, thistle_error_t** error);
+extern "C" size_t thistle_get_buffer_element_count(thistle_buffer_t* buffer, thistle_error_t** error);
+extern "C" size_t thistle_get_buffer_element_width(thistle_buffer_t* buffer, thistle_error_t** error);
+extern "C" size_t thistle_get_buffer_element_height(thistle_buffer_t* buffer, thistle_error_t** error);
+extern "C" size_t thistle_get_buffer_element_channels(thistle_buffer_t* buffer, thistle_error_t** error);
 extern "C" void thistle_get_buffer_data(thistle_buffer_t* buffer, size_t bufferLength, float* dest, thistle_error_t** error);
 extern "C" void thistle_set_buffer_data(thistle_buffer_t* buffer, size_t bufferLength, const float* data, thistle_error_t** error);
 extern "C" void thistle_zero_buffer(thistle_buffer_t* buffer, thistle_error_t** error);

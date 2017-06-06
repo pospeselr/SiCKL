@@ -141,16 +141,16 @@ void thistle_linear_transform_node::calc_output(
     RUFF_THROW_IF_NULL(outputBatch);
 
     // validate input
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == outputBatch->batch_size);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == this->inputs());
-    RUFF_THROW_IF_FALSE(outputBatch->sample_size() == this->outputs());
-    RUFF_THROW_IF_FALSE(outputBatch->sample_height == 1);
-    RUFF_THROW_IF_FALSE(outputBatch->sample_channels == 1);
+    RUFF_THROW_IF_FALSE(inputBatch->element_count == outputBatch->element_count);
+    RUFF_THROW_IF_FALSE(inputBatch->element_size() == this->inputs());
+    RUFF_THROW_IF_FALSE(outputBatch->element_size() == this->outputs());
+    RUFF_THROW_IF_FALSE(outputBatch->element_height == 1);
+    RUFF_THROW_IF_FALSE(outputBatch->element_channels == 1);
 
-    const auto batchSize = inputBatch->batch_size;
+    const auto batchSize = inputBatch->element_count;
 
-    device_buffer2d<float> input_buffer(inputBatch->sample_size(), batchSize, inputBatch->data);
-    device_buffer2d<float> output_buffer(outputBatch->sample_size(), batchSize, outputBatch->data);
+    device_buffer2d<float> input_buffer(inputBatch->element_size(), batchSize, inputBatch->data);
+    device_buffer2d<float> output_buffer(outputBatch->element_size(), batchSize, outputBatch->data);
 
     _calc_output_kernel.set_work_dimensions(this->outputs(), batchSize);
     _calc_output_kernel(_weights, input_buffer, output_buffer);
@@ -169,18 +169,18 @@ void thistle_linear_transform_node::calc_parameter_deltas(
     RUFF_THROW_IF_NULL(parameterDeltas);
 
     // validate th einput
-    RUFF_THROW_IF_FALSE(inputBatch->batch_size == outputBatchDelta->batch_size);
-    RUFF_THROW_IF_FALSE(inputBatch->sample_size() == this->inputs());
-    RUFF_THROW_IF_FALSE(outputBatchDelta->sample_size() == this->outputs());
-    RUFF_THROW_IF_FALSE(outputBatchDelta->sample_height == 1);
-    RUFF_THROW_IF_FALSE(outputBatchDelta->sample_channels == 1);
+    RUFF_THROW_IF_FALSE(inputBatch->element_count == outputBatchDelta->element_count);
+    RUFF_THROW_IF_FALSE(inputBatch->element_size() == this->inputs());
+    RUFF_THROW_IF_FALSE(outputBatchDelta->element_size() == this->outputs());
+    RUFF_THROW_IF_FALSE(outputBatchDelta->element_height == 1);
+    RUFF_THROW_IF_FALSE(outputBatchDelta->element_channels == 1);
     RUFF_THROW_IF_FALSE(parameterDeltas->data.count() == _weights.count());
-    RUFF_THROW_IF_FALSE(parameterDeltas->sample_width == parameterDeltas->sample_size());
+    RUFF_THROW_IF_FALSE(parameterDeltas->element_width == parameterDeltas->element_size());
 
-    const auto batchSize = inputBatch->batch_size;
+    const auto batchSize = inputBatch->element_count;
 
-    device_buffer2d<float> input_buffer(inputBatch->sample_size(), batchSize, inputBatch->data);
-    device_buffer2d<float> output_delta_buffer(outputBatchDelta->sample_size(), batchSize, outputBatchDelta->data);
+    device_buffer2d<float> input_buffer(inputBatch->element_size(), batchSize, inputBatch->data);
+    device_buffer2d<float> output_delta_buffer(outputBatchDelta->element_size(), batchSize, outputBatchDelta->data);
     device_buffer2d<float> weight_delta_buffer(_weights.width(), _weights.height(), parameterDeltas->data);
 
     _calc_parameter_deltas_kernel.set_work_dimensions(weight_delta_buffer.width(), weight_delta_buffer.height());
@@ -200,16 +200,16 @@ void thistle_linear_transform_node::calc_input_deltas(
     RUFF_THROW_IF_NULL(inputBatchDelta);
 
     // validate input
-    RUFF_THROW_IF_FALSE(inputBatchDelta->batch_size == outputBatchDelta->batch_size);
-    RUFF_THROW_IF_FALSE(inputBatchDelta->sample_size() == this->inputs());
-    RUFF_THROW_IF_FALSE(outputBatchDelta->sample_size() == this->outputs());
-    RUFF_THROW_IF_FALSE(outputBatchDelta->sample_height == 1);
-    RUFF_THROW_IF_FALSE(outputBatchDelta->sample_channels == 1);
+    RUFF_THROW_IF_FALSE(inputBatchDelta->element_count == outputBatchDelta->element_count);
+    RUFF_THROW_IF_FALSE(inputBatchDelta->element_size() == this->inputs());
+    RUFF_THROW_IF_FALSE(outputBatchDelta->element_size() == this->outputs());
+    RUFF_THROW_IF_FALSE(outputBatchDelta->element_height == 1);
+    RUFF_THROW_IF_FALSE(outputBatchDelta->element_channels == 1);
 
-    const auto batchSize = inputBatchDelta->batch_size;
+    const auto batchSize = inputBatchDelta->element_count;
 
-    device_buffer2d<float> output_delta_buffer(outputBatchDelta->sample_size(), batchSize, outputBatchDelta->data);
-    device_buffer2d<float> input_delta_buffer(inputBatchDelta->sample_size(), batchSize, inputBatchDelta->data);
+    device_buffer2d<float> output_delta_buffer(outputBatchDelta->element_size(), batchSize, outputBatchDelta->data);
+    device_buffer2d<float> input_delta_buffer(inputBatchDelta->element_size(), batchSize, inputBatchDelta->data);
 
     _calc_input_deltas_kernel.set_work_dimensions(this->inputs(), batchSize);
     _calc_input_deltas_kernel(_weights, output_delta_buffer, input_delta_buffer);
