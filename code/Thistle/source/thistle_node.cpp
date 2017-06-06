@@ -19,20 +19,15 @@ RUFF_EXPORT size_t thistle_get_node_parameters_count(
     });
 }
 
-RUFF_EXPORT void thistle_get_node_parameters(
-    const thistle_node_t* node,
-    size_t bufferLength,
-    float* dest,
+RUFF_EXPORT thistle_buffer_t* thistle_get_node_parameter_buffer(
+    thistle_node_t* node,
     thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(node);
-        RUFF_THROW_IF_FALSE(node->get_parameter_count() == bufferLength);
-        RUFF_THROW_IF_NULL(dest);
 
-        auto paramBuffer = node->get_parameter_buffer();
-        paramBuffer->read(bufferLength, dest);
+        return node->get_parameter_buffer();
     });
 }
 
@@ -80,5 +75,15 @@ RUFF_EXPORT void thistle_calc_node_input_deltas(
         RUFF_THROW_IF_NULL(node);
 
         node->calc_input_deltas(inputs, outputDeltas, constants, inputDeltas);
+    });
+}
+
+RUFF_EXPORT void thistle_free_node(
+    thistle_node_t* node,
+    thistle_error_t** error)
+{
+    return translate_exceptions(error, [&]()
+    {
+        delete node;
     });
 }

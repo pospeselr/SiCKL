@@ -124,15 +124,11 @@ size_t thistle_linear_transform_node::get_parameter_count() const
     return _weights.count();
 }
 
-device_buffer1d<float>* thistle_linear_transform_node::get_parameter_buffer()
+thistle_buffer_t* thistle_linear_transform_node::get_parameter_buffer()
 {
-    return &_weights;
+    return new thistle_buffer(_weights.width(), _weights.height(), 1, 1, _weights);
 }
 
-const device_buffer1d<float>* thistle_linear_transform_node::get_parameter_buffer() const
-{
-    return &_weights;
-}
 
 void thistle_linear_transform_node::calc_output(
     const thistle_buffer_t* inputBatch,

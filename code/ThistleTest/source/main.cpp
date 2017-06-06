@@ -122,6 +122,7 @@ void verify_label_learning_signal()
 
     // create nodes
     auto transform_node = thistle_create_linear_transform_node(input_count, output_count, initial_weights, weight_count, THISTLE_THROW_ON_ERROR());
+    auto transform_parameter_buffer = thistle_get_node_parameter_buffer(transform_node, THISTLE_THROW_ON_ERROR());
     auto label_node = thistle_create_label_node(output_count, thistle_square_difference, THISTLE_THROW_ON_ERROR());
 
     // set and init weight updater
@@ -163,11 +164,13 @@ void verify_label_learning_signal()
 
         // calculate weight matrix derivatives
         thistle_calc_node_parameter_deltas(transform_node, input_batch, label_delta_batch, nullptr, parameter_delta_buffer, THISTLE_THROW_ON_ERROR());
+
+        // copy weights and weight deltas to CPU memory
         float calculated_weight_deltas[weight_count];
         thistle_get_buffer_data(parameter_delta_buffer, weight_count, calculated_weight_deltas, THISTLE_THROW_ON_ERROR());
 
         float current_weights[weight_count];
-        thistle_get_node_parameters(transform_node, weight_count, current_weights, THISTLE_THROW_ON_ERROR());
+        thistle_get_buffer_data(transform_parameter_buffer, weight_count, current_weights, THISTLE_THROW_ON_ERROR());
 
         cout << "True, Current, Delta" << endl;
         for(size_t k = 0; k < weight_count; k++)
@@ -175,12 +178,14 @@ void verify_label_learning_signal()
             cout << true_weights[k] << ", " << current_weights[k] << ", " << calculated_weight_deltas[k] << endl;
         }
 
-        thistle_update_node_parameters(weight_updater, transform_node, parameter_delta_buffer, THISTLE_THROW_ON_ERROR());
+        thistle_update_node_parameters(weight_updater, transform_parameter_buffer, parameter_delta_buffer, THISTLE_THROW_ON_ERROR());
 
         cout << "----" << endl;
     }
 
     thistle_free_parameter_updater(weight_updater, THISTLE_THROW_ON_ERROR());
+    thistle_free_buffer(transform_parameter_buffer, THISTLE_THROW_ON_ERROR());
+    thistle_free_node(transform_node, THISTLE_THROW_ON_ERROR());
 }
 
 int main() try

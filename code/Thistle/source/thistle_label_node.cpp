@@ -67,12 +67,7 @@ size_t thistle_label_node::get_parameter_count() const
     return 0;
 }
 
-device_buffer1d<float>* thistle_label_node::get_parameter_buffer()
-{
-    return nullptr;
-}
-
-const device_buffer1d<float>* thistle_label_node::get_parameter_buffer() const
+thistle_buffer_t* thistle_label_node::get_parameter_buffer()
 {
     return nullptr;
 }

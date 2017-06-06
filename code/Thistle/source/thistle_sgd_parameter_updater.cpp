@@ -11,7 +11,7 @@ using ruff::translate_exceptions;
 thistle_sgd_parameter_updater::thistle_sgd_parameter_updater(size_t parameterCount)
 : learning_rate(0.0f)
 , momentum(0.0f)
-, _prev_parameter_update_buffer(parameterCount)
+, _prev_parameter_delta_buffer(parameterCount)
 , _update_parameters_kernel([=]()
 {
     auto entry = MakeFunction([&](BufferView1D<Float> params, BufferView1D<Float> deltas, BufferView1D<Float> prevDeltas, Float learningRate, Float momentum)
@@ -34,17 +34,14 @@ thistle_sgd_parameter_updater::thistle_sgd_parameter_updater(size_t parameterCou
 }
 
 void thistle_sgd_parameter_updater::update_parameters(
-    thistle_node_t* node,
-    const device_buffer1d<float>& parameterUpdateBuffer) const
+    device_buffer1d<float>& paramBuffer,
+    const device_buffer1d<float>& paramDeltaBuffer) const
 {
-    auto pParamBuffer = node->get_parameter_buffer();
-    RUFF_THROW_IF_NULL(pParamBuffer);
+    const auto paramCount = _prev_parameter_delta_buffer.count();
+    RUFF_THROW_IF_FALSE(paramCount == paramBuffer.count());
+    RUFF_THROW_IF_FALSE(paramCount == paramDeltaBuffer.count());
 
-    const auto paramCount = _prev_parameter_update_buffer.count();
-    RUFF_THROW_IF_FALSE(paramCount == pParamBuffer->count());
-    RUFF_THROW_IF_FALSE(paramCount == parameterUpdateBuffer.count());
-
-    _update_parameters_kernel(*pParamBuffer, parameterUpdateBuffer, _prev_parameter_update_buffer, learning_rate, momentum);
+    _update_parameters_kernel(paramBuffer, paramDeltaBuffer, _prev_parameter_delta_buffer, learning_rate, momentum);
 }
 
 

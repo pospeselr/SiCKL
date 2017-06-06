@@ -9,17 +9,17 @@ using ruff::translate_exceptions;
 
 RUFF_EXPORT void thistle_update_node_parameters(
     const thistle_parameter_updater_t* parameterUpdater,
-    thistle_node_t* node,
-    const thistle_buffer_t* paramDeltas,
+    thistle_buffer_t* paramBuffer,
+    const thistle_buffer_t* paramDeltaBuffer,
     thistle_error_t** error)
 {
     return translate_exceptions(error, [&]()
     {
         RUFF_THROW_IF_NULL(parameterUpdater);
-        RUFF_THROW_IF_NULL(node);
-        RUFF_THROW_IF_NULL(paramDeltas);
+        RUFF_THROW_IF_NULL(paramBuffer);
+        RUFF_THROW_IF_NULL(paramDeltaBuffer);
 
-        parameterUpdater->update_parameters(node, paramDeltas->data);
+        parameterUpdater->update_parameters(paramBuffer->data, paramDeltaBuffer->data);
     });
 }
 

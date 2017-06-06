@@ -15,6 +15,19 @@ struct thistle_buffer
     , data(sampleWidth * sampleHeight * sampleChannels * batchSize, dataBuffer)
     { }
 
+    thistle_buffer(
+        size_t sampleWidth,
+        size_t sampleHeight,
+        size_t sampleChannels,
+        size_t batchSize,
+        spark::device_buffer1d<float>& data)
+    : sample_width(sampleWidth)
+    , sample_height(sampleHeight)
+    , sample_channels(sampleChannels)
+    , batch_size(batchSize)
+    , data(data)
+    { }
+
     const size_t sample_width;
     const size_t sample_height;
     const size_t sample_channels;
